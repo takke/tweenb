@@ -1,8 +1,8 @@
 package jp.takke.cmp_demo
 
-import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
+import androidx.compose.ui.window.WindowPosition
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
 
@@ -10,7 +10,8 @@ fun main() = application {
 
 //  val state by remember { mutableStateOf(WindowState()) }
   val state = rememberWindowState(
-    size = DpSize(600.dp, 600.dp),
+    position = WindowPosition(300.dp, 1200.dp)
+//    size = DpSize(600.dp, 600.dp),
   )
 
 //  LaunchedEffect(Unit) {
