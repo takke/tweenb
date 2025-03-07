@@ -25,7 +25,7 @@ dependencies {
 
 compose.desktop {
   application {
-    mainClass = "MainKt"
+    mainClass = "jp.takke.cmp_demo.MainKt"
 
     nativeDistributions {
       targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
