@@ -10,11 +10,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import jp.takke.tweenb.app.viewmodel.AppViewModel
 
 @Composable
 fun ConfigDialog(
   showConfigDialog: Boolean,
   onDismiss: () -> Unit,
+  onStartAuth: () -> Unit,
+  uiState: AppViewModel.UiState,
 ) {
   if (!showConfigDialog) {
     return
@@ -41,7 +44,7 @@ fun ConfigDialog(
           contentAlignment = Alignment.Center
         ) {
           Button(
-            onClick = { /* 認証開始処理 */ }
+            onClick = { onStartAuth() }
           ) {
             Text("認証")
           }
@@ -62,6 +65,14 @@ fun ConfigDialog(
         }
 
         // TODO アカウント削除ボタン表示
+      }
+
+      // エラーメッセージ
+      if (uiState.validationErrorMessage.isNotEmpty()) {
+        Text(
+          text = uiState.validationErrorMessage,
+          style = MaterialTheme.typography.body2
+        )
       }
 
       Spacer(modifier = Modifier.weight(1f))
