@@ -17,3 +17,4 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "tweenb"
+include("app")
