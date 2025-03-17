@@ -1,14 +1,14 @@
 package jp.takke.tweenb
 
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
-import kotlinx.coroutines.flow.collect
+import jp.takke.tweenb.app.AppScreen
+import jp.takke.tweenb.app.repository.AppPropertyRepository
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.map
 
 fun main() = application {
   // アプリケーション設定リポジトリ

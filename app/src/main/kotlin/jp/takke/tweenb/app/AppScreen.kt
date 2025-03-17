@@ -1,4 +1,4 @@
-package jp.takke.tweenb
+package jp.takke.tweenb.app
 
 import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.foundation.background
@@ -19,6 +19,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import jp.takke.tweenb.app.compose.Tab
+import jp.takke.tweenb.app.compose.VerticalDivider
 import kotlinx.coroutines.delay
 
 @Composable

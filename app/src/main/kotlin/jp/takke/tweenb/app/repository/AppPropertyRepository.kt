@@ -1,10 +1,10 @@
-package jp.takke.tweenb
+package jp.takke.tweenb.app.repository
 
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.WindowPosition
 import java.io.File
-import java.util.Properties
+import java.util.*
 
 /**
  * アプリケーション設定を管理するリポジトリクラス
