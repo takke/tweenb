@@ -6,6 +6,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import jp.takke.tweenb.app.AppConstants
+import jp.takke.tweenb.app.domain.Account
 import jp.takke.tweenb.app.domain.BlueskyClient
 import jp.takke.tweenb.app.repository.AppPropertyRepository
 import kotlinx.coroutines.Dispatchers
@@ -47,6 +48,10 @@ class AppViewModel : ViewModel() {
     // ログイン状態
     val loginState: LoginState = LoginState.INIT,
     val code: String = "",
+    // アカウントリスト
+    val accounts: List<Account> = emptyList(),
+    // 選択中のアカウント
+    val selectedAccount: Account? = null,
   ) {
     enum class LoginState {
       INIT,
@@ -60,6 +65,9 @@ class AppViewModel : ViewModel() {
 
   private val _uiState = MutableStateFlow(UiState())
   val uiState: StateFlow<UiState> = _uiState.asStateFlow()
+
+  // アプリケーション設定リポジトリ
+  private val appPropertyRepository = AppPropertyRepository()
 
   // OAuthコンテキスト
   var oauthContext: OAuthContext? = null
@@ -87,6 +95,45 @@ class AppViewModel : ViewModel() {
   val tabNames = listOf("Recent", "Notifications", "Lists")
   var selectedTabIndex by mutableStateOf(0)
     private set
+
+  init {
+    // 保存されているアカウント情報を読み込む
+    loadAccounts()
+  }
+
+  /**
+   * 保存されているアカウント情報を読み込む
+   */
+  private fun loadAccounts() {
+    val accounts = appPropertyRepository.getAccounts()
+    println("accounts: ${accounts.size}")
+    _uiState.update {
+      it.copy(accounts = accounts)
+    }
+  }
+
+  /**
+   * アカウントを選択する
+   */
+  fun selectAccount(account: Account) {
+    _uiState.update {
+      it.copy(selectedAccount = account)
+    }
+
+    // Blueskyクライアントの初期化
+    initializeBlueskyClient(account)
+  }
+
+  /**
+   * Blueskyクライアントを初期化する
+   */
+  private fun initializeBlueskyClient(account: Account) {
+    // TODO: 実装すること
+    // blueskyClient.initialize(...)
+
+    // 初期化状態を更新
+    blueskyClientInitialized = blueskyClient.isInitialized()
+  }
 
   // バージョン情報ダイアログの表示制御
   fun showAboutDialog() {
@@ -264,8 +311,8 @@ class AppViewModel : ViewModel() {
 
       val (response, user) = pair
 
-      // アカウント情報を永続化
-      AppPropertyRepository().saveAccount(
+      // アカウント情報を作成
+      val account = Account(
         accountId = user.did,
         screenName = user.handle,
         accessJwt = response.accessToken,
@@ -275,15 +322,21 @@ class AppViewModel : ViewModel() {
         privateKey = oauthContext?.privateKey ?: "",
       )
 
+      // アカウント情報を永続化
+      appPropertyRepository.saveAccount(account)
+
+      // アカウントリストを更新
+      loadAccounts()
+
+      // 新しく追加したアカウントを選択
+      selectAccount(account)
+
       _uiState.update {
         it.copy(
           loginState = UiState.LoginState.INIT,
           code = "",
         )
       }
-
-      // Blueskyクライアントの初期化
-      // TODO 実装すること
 
       dismissAuthDialog()
     }

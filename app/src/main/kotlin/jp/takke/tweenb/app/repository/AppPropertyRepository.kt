@@ -3,7 +3,9 @@ package jp.takke.tweenb.app.repository
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.WindowPosition
-import kotlinx.serialization.json.*
+import jp.takke.tweenb.app.domain.Account
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import java.io.File
 import java.util.*
 
@@ -88,12 +90,36 @@ class AppPropertyRepository {
    */
   private fun saveProperties() {
     prefsFile.outputStream().use {
-      props.store(it, "tweenb window settings")
+      props.store(it, "tweenb settings")
     }
   }
 
   /**
    * アカウント情報を保存
+   */
+  fun saveAccount(account: Account) {
+    // アカウント情報をJSON文字列に変換
+    val accountJson = json.encodeToString(account)
+
+    // 既存のアカウントリストを取得
+    val accounts = getAccounts().toMutableList()
+
+    // 同じアカウントIDが存在する場合は更新、なければ追加
+    val index = accounts.indexOfFirst { it.accountId == account.accountId }
+    if (index >= 0) {
+      accounts[index] = account
+    } else {
+      accounts.add(account)
+    }
+
+    // アカウントリストをJSON配列に変換して保存
+    val accountsJson = json.encodeToString(accounts)
+    props.setProperty("accounts", accountsJson)
+    saveProperties()
+  }
+
+  /**
+   * アカウント情報を保存（個別パラメータ版）
    */
   fun saveAccount(
     accountId: String,
@@ -104,44 +130,54 @@ class AppPropertyRepository {
     publicKey: String,
     privateKey: String,
   ) {
-    // アカウント情報をJSONオブジェクトとして構築
-    val accountJson = buildJsonObject {
-      put("accountId", JsonPrimitive(accountId))
-      put("screenName", JsonPrimitive(screenName))
-      put("accessJwt", JsonPrimitive(accessJwt))
-      put("refreshJwt", JsonPrimitive(refreshJwt))
-      put("dPoPNonce", JsonPrimitive(dPoPNonce))
-      put("publicKey", JsonPrimitive(publicKey))
-      put("privateKey", JsonPrimitive(privateKey))
-    }
+    val account = Account(
+      accountId = accountId,
+      screenName = screenName,
+      accessJwt = accessJwt,
+      refreshJwt = refreshJwt,
+      dPoPNonce = dPoPNonce,
+      publicKey = publicKey,
+      privateKey = privateKey
+    )
+    saveAccount(account)
+  }
 
-    // 既存のアカウントリストを取得
+  /**
+   * 全アカウント情報を取得
+   */
+  fun getAccounts(): List<Account> {
     val accountsStr = props.getProperty("accounts", "[]")
-    val accounts = try {
-      json.parseToJsonElement(accountsStr).jsonArray
+    return try {
+      json.decodeFromString<List<Account>>(accountsStr)
     } catch (e: Exception) {
-      // パースエラーの場合は空の配列を使用
-      JsonArray(emptyList())
+      // パースエラーの場合は空のリストを返す
+      emptyList()
     }
+  }
 
-    // 同じアカウントIDが存在する場合は更新、なければ追加
-    val updatedAccounts = buildJsonArray {
-      var found = false
-      for (account in accounts) {
-        if (account is JsonObject && account["accountId"]?.jsonPrimitive?.content == accountId) {
-          add(accountJson)
-          found = true
-        } else {
-          add(account)
-        }
-      }
-      if (!found) {
-        add(accountJson)
-      }
+  /**
+   * アカウントIDを指定してアカウント情報を取得
+   * @return 見つからない場合はnull
+   */
+  fun getAccount(accountId: String): Account? {
+    return getAccounts().find { it.accountId == accountId }
+  }
+
+  /**
+   * アカウント情報を削除
+   */
+  fun deleteAccount(accountId: String): Boolean {
+    val accounts = getAccounts().toMutableList()
+    val initialSize = accounts.size
+    accounts.removeIf { it.accountId == accountId }
+
+    if (accounts.size != initialSize) {
+      // アカウントリストをJSON配列に変換して保存
+      val accountsJson = json.encodeToString(accounts)
+      props.setProperty("accounts", accountsJson)
+      saveProperties()
+      return true
     }
-
-    // プロパティに保存
-    props.setProperty("accounts", updatedAccounts.toString())
-    saveProperties()
+    return false
   }
 } 
