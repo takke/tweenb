@@ -12,8 +12,13 @@ jobs:
     runs-on: windows-latest
     
     steps:
-    - uses: actions/checkout@v4
+    # GitHub Actionsのタイムラインの可視化
+    - uses: Kesin11/actions-timeline@v2
+      with:
+        show-waiting-runner: false
     
+    - uses: actions/checkout@v4
+
     - name: Set up JDK 17
       uses: actions/setup-java@v4
       with:
