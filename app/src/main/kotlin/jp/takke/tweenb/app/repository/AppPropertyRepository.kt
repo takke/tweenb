@@ -98,8 +98,6 @@ class AppPropertyRepository {
    * アカウント情報を保存
    */
   fun saveAccount(account: Account) {
-    // アカウント情報をJSON文字列に変換
-    val accountJson = json.encodeToString(account)
 
     // 既存のアカウントリストを取得
     val accounts = getAccounts().toMutableList()
@@ -116,30 +114,6 @@ class AppPropertyRepository {
     val accountsJson = json.encodeToString(accounts)
     props.setProperty("accounts", accountsJson)
     saveProperties()
-  }
-
-  /**
-   * アカウント情報を保存（個別パラメータ版）
-   */
-  fun saveAccount(
-    accountId: String,
-    screenName: String,
-    accessJwt: String,
-    refreshJwt: String,
-    dPoPNonce: String,
-    publicKey: String,
-    privateKey: String,
-  ) {
-    val account = Account(
-      accountId = accountId,
-      screenName = screenName,
-      accessJwt = accessJwt,
-      refreshJwt = refreshJwt,
-      dPoPNonce = dPoPNonce,
-      publicKey = publicKey,
-      privateKey = privateKey
-    )
-    saveAccount(account)
   }
 
   /**
