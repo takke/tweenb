@@ -2,6 +2,7 @@ package jp.takke.tweenb.app.domain
 
 import jp.takke.tweenb.app.AppConstants
 import jp.takke.tweenb.app.repository.AccountRepository
+import jp.takke.tweenb.app.util.Logger
 import work.socialhub.kbsky.Bluesky
 import work.socialhub.kbsky.BlueskyFactory
 import work.socialhub.kbsky.auth.AuthFactory
@@ -117,7 +118,7 @@ private class BlueskyClientImpl : BlueskyClient {
     val now = System.currentTimeMillis() / 1000
     val remainSec = exp - now
     if (remainSec < 60) {
-      println("exp が近いので refresh する: remain[${remainSec}s=${secToHMS(remainSec)}]")
+      Logger.instance.i(TAG, "exp が近いので refresh する: remain[${remainSec}s=${secToHMS(remainSec)}]")
 
       // トークンリフレッシュは直列化する
       val repository = AccountRepository.instance
@@ -136,9 +137,7 @@ private class BlueskyClientImpl : BlueskyClient {
 //        bskyAccountProvider.updateBlueskyDPoPNonce(accountIdWIN, client.oAuthSession?.dPoPNonce)
       }
     } catch (e: Exception) {
-
-      println("API呼び出しエラー: ${e.message}")
-      e.printStackTrace()
+      Logger.instance.e(TAG, "API呼び出しエラー: ${e.message}", e)
       throw e
     }
   }
@@ -178,7 +177,7 @@ private class BlueskyClientImpl : BlueskyClient {
     }
 
     val authProvider = authProvider ?: throw IllegalStateException("OAuthProvider が初期化されていません")
-    println("OAuth refresh 開始: dPoPNonce[${oAuthContext.dPoPNonce}], refreshToken[${authProvider.refreshTokenJwt}]")
+    Logger.instance.i(TAG, "OAuth refresh 開始: dPoPNonce[${oAuthContext.dPoPNonce}], refreshToken[${authProvider.refreshTokenJwt}]")
     val response = AuthFactory
       .instance(authProvider.pdsEndpoint)
       .oauth()
@@ -188,7 +187,7 @@ private class BlueskyClientImpl : BlueskyClient {
       )
 
     val rr = response.data
-    println("refresh response: $rr")
+    Logger.instance.i(TAG, "refresh response: $rr")
 
     // Refresh したトークンを保存する
     val updatedAccount = Account(
@@ -202,8 +201,12 @@ private class BlueskyClientImpl : BlueskyClient {
     )
     // アカウント情報を永続化
     repository.saveAccount(account)
-    println("refresh 完了: updated[$updatedAccount]")
+    Logger.instance.i(TAG, "refresh 完了: updated[$updatedAccount]")
 
     return updatedAccount
+  }
+
+  companion object {
+    private const val TAG = "BlueskyClient"
   }
 }

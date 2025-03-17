@@ -8,9 +8,15 @@ import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
 import jp.takke.tweenb.app.AppScreen
 import jp.takke.tweenb.app.repository.AppPropertyRepository
+import jp.takke.tweenb.app.util.Logger
 import kotlinx.coroutines.flow.distinctUntilChanged
 
+private const val TAG = "Main"
+
 fun main() = application {
+  // Loggerの初期化（最初にアクセスして初期化する）
+  Logger.instance.i(TAG, "アプリケーション起動")
+
   // アプリケーション設定リポジトリ
   val propertyRepository = AppPropertyRepository.instance
 
@@ -19,6 +25,7 @@ fun main() = application {
     position = propertyRepository.getWindowPosition(),
     size = propertyRepository.getWindowSize()
   )
+  Logger.instance.i(TAG, "ウィンドウ状態: position=${state.position}, size=${state.size}")
 
   // ウィンドウの位置やサイズが変更されたときにも保存する
   LaunchedEffect(state) {
@@ -26,6 +33,7 @@ fun main() = application {
     snapshotFlow { state.position }
       .distinctUntilChanged()
       .collect { position ->
+        Logger.instance.d(TAG, "ウィンドウ位置変更: $position")
         propertyRepository.saveWindowPosition(position)
       }
   }
@@ -35,6 +43,7 @@ fun main() = application {
     snapshotFlow { state.size }
       .distinctUntilChanged()
       .collect { size ->
+        Logger.instance.d(TAG, "ウィンドウサイズ変更: $size")
         propertyRepository.saveWindowSize(size)
       }
   }
@@ -42,6 +51,7 @@ fun main() = application {
   // アプリケーション終了時に設定を保存（念のため）
   DisposableEffect(Unit) {
     onDispose {
+      Logger.instance.i(TAG, "アプリケーション終了")
       propertyRepository.saveWindowState(state.position, state.size)
     }
   }

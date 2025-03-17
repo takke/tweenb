@@ -10,6 +10,7 @@ import jp.takke.tweenb.app.domain.*
 import jp.takke.tweenb.app.repository.AccountRepository
 import jp.takke.tweenb.app.repository.AppPropertyRepository
 import jp.takke.tweenb.app.repository.TimelineRepository
+import jp.takke.tweenb.app.util.Logger
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -108,7 +109,7 @@ class AppViewModel : ViewModel() {
     // 保存されたカラム情報があれば読み込む
     val propertyRepository = AppPropertyRepository.instance
     val columnsFromProp = propertyRepository.getColumns()
-    println("getColumns: $columnsFromProp")
+    Logger.instance.i(TAG, "getColumns: $columnsFromProp")
     _uiState.update {
       it.copy(columns = if (columnsFromProp.isNullOrEmpty()) createDefaultColumns() else columnsFromProp)
     }
@@ -147,7 +148,7 @@ class AppViewModel : ViewModel() {
    */
   private fun loadAccounts() {
     val accounts = accountRepository.getAccounts()
-    println("accounts: ${accounts.size}")
+    Logger.instance.i(TAG, "accounts: ${accounts.size}")
     _uiState.update {
       it.copy(accounts = accounts)
     }
@@ -220,7 +221,7 @@ class AppViewModel : ViewModel() {
   fun refreshCurrentTab() {
     viewModelScope.launch {
       try {
-        println("タブ更新: ${tabNames[selectedTabIndex]}")
+        Logger.instance.i(TAG, "タブ更新: ${tabNames[selectedTabIndex]}")
 
         // タブの種類に応じた更新処理
         when (selectedTabIndex) {
@@ -229,7 +230,7 @@ class AppViewModel : ViewModel() {
           2 -> refreshListsTab()
         }
       } catch (e: Exception) {
-        println("タブ更新エラー: ${e.message}")
+        Logger.instance.e(TAG, "タブ更新エラー: ${e.message}", e)
       }
     }
   }
@@ -239,7 +240,7 @@ class AppViewModel : ViewModel() {
    */
   private suspend fun refreshRecentTab() {
     if (!blueskyClientInitialized) {
-      println("Blueskyクライアントが初期化されていません")
+      Logger.instance.w(TAG, "Blueskyクライアントが初期化されていません")
       return
     }
 
@@ -252,7 +253,7 @@ class AppViewModel : ViewModel() {
       // タイムラインを取得
       val timelineRepository = TimelineRepository.getInstance(blueskyClient)
       val posts = timelineRepository.getTimeline(limit = 30)
-      println("タイムライン取得成功: ${posts.size}件")
+      Logger.instance.i(TAG, "タイムライン取得成功: ${posts.size}件")
 
       // UIStateを更新
       _uiState.update {
@@ -262,8 +263,7 @@ class AppViewModel : ViewModel() {
         )
       }
     } catch (e: Exception) {
-      println("タイムライン取得エラー: ${e.message}")
-      e.printStackTrace()
+      Logger.instance.e(TAG, "タイムライン取得エラー: ${e.message}", e)
 
       // エラー状態を設定
       _uiState.update {
@@ -327,6 +327,7 @@ class AppViewModel : ViewModel() {
         }
       } catch (e: Exception) {
         val message = authService.formatErrorMessage(e)
+        Logger.instance.e(TAG, "認証エラー: $message", e)
         _uiState.update {
           it.copy(validationErrorMessage = "エラーが発生しました: $message")
         }
@@ -444,5 +445,9 @@ class AppViewModel : ViewModel() {
         }
       }
     }
+  }
+
+  companion object {
+    private const val TAG = "AppViewModel"
   }
 }
