@@ -13,6 +13,10 @@ compose-runtime = { module = "org.jetbrains.compose.runtime:runtime", version.re
 # Lifecycle
 lifecycle-viewmodel = { module = "org.jetbrains.androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "lifecycle" }
 
+# Cryptography
+cryptography-core = "dev.whyoleg.cryptography:cryptography-core:0.4.0"
+cryptography-jdk = "dev.whyoleg.cryptography:cryptography-provider-jdk:0.4.0"
+
 [plugins]
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 compose = { id = "org.jetbrains.compose", version.ref = "compose" }
