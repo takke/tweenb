@@ -1,4 +1,4 @@
-package jp.takke.cmp_demo
+package jp.takke.tweenb
 
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window

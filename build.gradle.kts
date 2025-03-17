@@ -6,7 +6,7 @@ plugins {
   id("org.jetbrains.kotlin.plugin.compose")
 }
 
-group = "jp.takke.cmp_demo"
+group = "jp.takke.tweenb"
 version = "1.0-SNAPSHOT"
 
 repositories {
@@ -25,7 +25,7 @@ dependencies {
 
 compose.desktop {
   application {
-    mainClass = "jp.takke.cmp_demo.MainKt"
+    mainClass = "jp.takke.tweenb.MainKt"
 
     nativeDistributions {
       targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)

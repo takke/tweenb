@@ -1,4 +1,4 @@
-package jp.takke.cmp_demo
+package jp.takke.tweenb
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
