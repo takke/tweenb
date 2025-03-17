@@ -19,21 +19,36 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.FrameWindowScope
+import androidx.compose.ui.window.MenuBar
 import jp.takke.tweenb.app.compose.Tab
 import jp.takke.tweenb.app.compose.VerticalDivider
 import kotlinx.coroutines.delay
+import kotlin.system.exitProcess
 
 @Composable
 @Preview
-fun AppScreen() {
+fun FrameWindowScope.AppScreen() {
+  // バージョン情報ダイアログの表示状態
+  var showAboutDialog by remember { mutableStateOf(false) }
+
+  MenuBar {
+    Menu("ファイル") {
+      Item("終了") {
+        exitProcess(0)
+      }
+    }
+    Menu("ヘルプ") {
+      Item("バージョン情報") {
+        showAboutDialog = true
+      }
+    }
+  }
 
   MaterialTheme {
     Column(
       modifier = Modifier.fillMaxSize(),
     ) {
-      // Menu
-
-      // TODO
 
       // Content
       PostListContent(
@@ -64,6 +79,12 @@ fun AppScreen() {
           .padding(8.dp)
       )
     }
+
+    // バージョン情報ダイアログ
+    AboutDialog(
+      showAboutDialog,
+      onDismiss = { showAboutDialog = false },
+    )
   }
 }
 
