@@ -1,5 +1,4 @@
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
-import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.util.zip.ZipEntry
@@ -71,6 +70,10 @@ dependencies {
 
   // Kotlinx Serialization
   implementation(libs.kotlinx.serialization.json)
+
+  // Coil3 - 画像読み込みライブラリ
+  implementation("io.coil-kt.coil3:coil-compose:3.1.0")
+  implementation("io.coil-kt.coil3:coil-network-ktor3:3.1.0")
 }
 
 compose.desktop {
@@ -81,12 +84,12 @@ compose.desktop {
       targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
       packageName = "tweenb"
       packageVersion = "1.0.0"
-      
+
       // アプリケーション情報
       vendor = "Hiroaki TAKEUCHI"
       copyright = "© 2025 Hiroaki TAKEUCHI. All rights reserved."
       description = "Bluesky client for desktop"
-      
+
       // Windows MSI設定
       windows {
         // スタートメニューへの追加
@@ -105,18 +108,18 @@ compose.desktop {
 // ZIPパッケージを作成するカスタムタスク
 tasks.register("createZipDistribution") {
   dependsOn("createDistributable")
-  
+
   doLast {
     val distributableDir = File("${layout.buildDirectory.get()}/compose/binaries/main/app")
     val zipDir = File("${layout.buildDirectory.get()}/compose/binaries/main/zip")
     zipDir.mkdirs()
-    
+
     val zipFile = File(zipDir, "tweenb-${project.version}.zip")
-    
+
     ZipOutputStream(FileOutputStream(zipFile)).use { zipOut ->
       zipDirectory(distributableDir, distributableDir.name, zipOut)
     }
-    
+
     println("ZIP配布パッケージが作成されました: ${zipFile.absolutePath}")
   }
 }
@@ -126,7 +129,7 @@ fun zipDirectory(fileToZip: File, fileName: String, zipOut: ZipOutputStream) {
   if (fileToZip.isHidden) {
     return
   }
-  
+
   if (fileToZip.isDirectory) {
     if (fileName.endsWith("/")) {
       zipOut.putNextEntry(ZipEntry(fileName))
@@ -135,14 +138,14 @@ fun zipDirectory(fileToZip: File, fileName: String, zipOut: ZipOutputStream) {
       zipOut.putNextEntry(ZipEntry("$fileName/"))
       zipOut.closeEntry()
     }
-    
+
     val children = fileToZip.listFiles() ?: return
     for (childFile in children) {
       zipDirectory(childFile, "$fileName/${childFile.name}", zipOut)
     }
     return
   }
-  
+
   FileInputStream(fileToZip).use { fis ->
     val zipEntry = ZipEntry(fileName)
     zipOut.putNextEntry(zipEntry)

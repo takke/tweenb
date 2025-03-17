@@ -102,7 +102,7 @@ fun PostListContent(
                 PostItem(
                   post = post,
                   modifier = Modifier,
-                  cols = columns,
+                  columns = columns,
                 )
               }
             }

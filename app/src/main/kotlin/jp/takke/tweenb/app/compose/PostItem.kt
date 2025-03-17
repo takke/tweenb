@@ -14,6 +14,10 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import coil3.compose.AsyncImage
+import coil3.compose.LocalPlatformContext
+import coil3.request.ImageRequest
+import coil3.request.crossfade
 import jp.takke.tweenb.app.domain.BsFeedViewPost
 import jp.takke.tweenb.app.domain.ColumnInfo
 import jp.takke.tweenb.app.domain.ColumnType
@@ -25,7 +29,7 @@ import java.util.*
 fun PostItem(
   post: BsFeedViewPost,
   modifier: Modifier,
-  cols: List<ColumnInfo>,
+  columns: List<ColumnInfo>,
 ) {
   Column(
     modifier = modifier
@@ -51,7 +55,7 @@ fun PostItem(
           )
         }
     ) {
-      cols.forEachIndexed { index, columnInfo ->
+      columns.forEachIndexed { index, columnInfo ->
         when (columnInfo.type) {
           ColumnType.Icon -> {
             // アイコン
@@ -61,17 +65,31 @@ fun PostItem(
                 .padding(8.dp),
               contentAlignment = Alignment.Center
             ) {
-              // TODO: 実際のアバター画像を表示する
-              Box(
-                modifier = Modifier
-                  .size(40.dp)
-                  .clip(CircleShape)
-                  .drawWithContent {
-                    drawCircle(
-                      color = Color.LightGray
-                    )
-                  }
-              )
+              val avatarUrl = post.post.author?.avatar
+              if (avatarUrl != null) {
+                AsyncImage(
+                  model = ImageRequest.Builder(LocalPlatformContext.current)
+                    .data(avatarUrl)
+                    .crossfade(true)
+                    .build(),
+                  contentDescription = "ユーザーアイコン",
+                  modifier = Modifier
+                    .size(40.dp)
+                    .clip(CircleShape)
+                )
+              } else {
+                // アバター画像がない場合はプレースホルダーを表示
+                Box(
+                  modifier = Modifier
+                    .size(40.dp)
+                    .clip(CircleShape)
+                    .drawWithContent {
+                      drawCircle(
+                        color = Color.LightGray
+                      )
+                    }
+                )
+              }
             }
           }
 
@@ -127,7 +145,7 @@ fun PostItem(
           }
         }
 
-        if (index < cols.size - 1) {
+        if (index < columns.size - 1) {
           VerticalDivider(
             height = 48.dp,
             color = Color.LightGray,
