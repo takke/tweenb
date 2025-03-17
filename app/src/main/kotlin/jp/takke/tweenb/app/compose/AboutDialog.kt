@@ -10,6 +10,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import jp.takke.tweenb.Version
 
 @Composable
 internal fun AboutDialog(showAboutDialog: Boolean, onDismiss: () -> Unit) {
@@ -32,7 +33,7 @@ internal fun AboutDialog(showAboutDialog: Boolean, onDismiss: () -> Unit) {
       )
       Spacer(modifier = Modifier.height(8.dp))
       Text(
-        text = "バージョン: 0.1.0",
+        text = "バージョン: ${Version.VERSION}",
         style = MaterialTheme.typography.body1
       )
       Spacer(modifier = Modifier.height(16.dp))

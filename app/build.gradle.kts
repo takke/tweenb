@@ -9,6 +9,35 @@ plugins {
 group = "jp.takke.tweenb"
 version = "1.0-SNAPSHOT"
 
+// バージョン情報を参照できるように Version.kt を生成する
+kotlin {
+  sourceSets.main {
+    kotlin.srcDir("build/generated/kotlin")
+  }
+}
+
+tasks.register("generateVersionKt") {
+  val dir = file("build/generated/kotlin/jp/takke/tweenb")
+  outputs.dir(dir)
+
+  doLast {
+    dir.mkdirs()
+    file("$dir/Version.kt").writeText(
+      """
+            package jp.takke.tweenb
+            
+            object Version {
+                const val VERSION = "${project.version}"
+            }
+        """.trimIndent()
+    )
+  }
+}
+
+tasks.named("compileKotlin") {
+  dependsOn("generateVersionKt")
+}
+
 dependencies {
   // Note, if you develop a library, you should use compose.desktop.common.
   // compose.desktop.currentOs should be used in launcher-sourceSet
