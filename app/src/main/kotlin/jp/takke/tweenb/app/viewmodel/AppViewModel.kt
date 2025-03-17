@@ -89,7 +89,9 @@ class AppViewModel : ViewModel() {
     private set
 
   // タブ関連の状態
-  val tabNames = listOf("Recent", "Notifications", "Lists")
+  // TODO 他にも対応すること
+//  val tabNames = listOf("Recent", "Notifications", "Lists")
+  val tabNames = listOf("Recent")
   var selectedTabIndex by mutableStateOf(0)
     private set
 
