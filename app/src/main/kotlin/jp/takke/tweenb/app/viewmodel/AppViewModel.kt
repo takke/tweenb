@@ -3,13 +3,13 @@ package jp.takke.tweenb.app.viewmodel
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import jp.takke.tweenb.app.domain.Account
-import jp.takke.tweenb.app.domain.BlueskyAuthService
-import jp.takke.tweenb.app.domain.BlueskyClient
-import jp.takke.tweenb.app.domain.BsFeedViewPost
+import jp.takke.tweenb.app.domain.*
 import jp.takke.tweenb.app.repository.AccountRepository
+import jp.takke.tweenb.app.repository.AppPropertyRepository
 import jp.takke.tweenb.app.repository.TimelineRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -42,6 +42,8 @@ class AppViewModel : ViewModel() {
     // エラー情報
     val errorMessage: String = "",
     val errorStackTrace: String = "",
+    // カラム情報
+    val columns: List<ColumnInfo> = emptyList(),
   ) {
     enum class LoginState {
       INIT,
@@ -95,6 +97,19 @@ class AppViewModel : ViewModel() {
   var selectedTabIndex by mutableStateOf(0)
     private set
 
+  fun onUpdateColumnWidth(index: Int, width: Dp) {
+    if (index < 0 || index >= _uiState.value.columns.size) {
+      println("Invalid index: $index")
+      return
+    }
+    println("onUpdateColumnWidth: $index, $width")
+    _uiState.update {
+      val columns = it.columns.toMutableList()
+      columns[index] = columns[index].copy(width = width)
+      it.copy(columns = columns)
+    }
+  }
+
   init {
     // 保存されているアカウント情報を読み込む
     loadAccounts()
@@ -103,6 +118,42 @@ class AppViewModel : ViewModel() {
     if (_uiState.value.accounts.isNotEmpty()) {
       selectAccount(_uiState.value.accounts.first())
     }
+
+    // 保存されたカラム情報があれば読み込む
+    val propertyRepository = AppPropertyRepository.instance
+    val columnsFromProp = propertyRepository.getColumns()
+    println("getColumns: $columnsFromProp")
+    _uiState.update {
+      it.copy(columns = if (columnsFromProp.isNullOrEmpty()) createDefaultColumns() else columnsFromProp)
+    }
+  }
+
+  /**
+   * デフォルトのカラム情報を作成する
+   */
+  private fun createDefaultColumns(): List<ColumnInfo> {
+    return listOf(
+      ColumnInfo(
+        type = ColumnType.Icon,
+        name = "",
+        width = 64.dp,
+      ),
+      ColumnInfo(
+        type = ColumnType.Name,
+        name = "名前",
+        width = 120.dp
+      ),
+      ColumnInfo(
+        type = ColumnType.Post,
+        name = "投稿",
+        width = 360.dp
+      ),
+      ColumnInfo(
+        type = ColumnType.DateTime,
+        name = "日時",
+        width = 120.dp
+      ),
+    )
   }
 
   /**

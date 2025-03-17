@@ -63,7 +63,7 @@ fun PostItem(
             // 名前
             Column(
               modifier = Modifier
-                .width(columnInfo.width.value)
+                .width(columnInfo.width)
                 .padding(8.dp)
             ) {
               Text(
@@ -95,7 +95,7 @@ fun PostItem(
               },
               style = MaterialTheme.typography.body2,
               modifier = Modifier
-                .width(columnInfo.width.value)
+                .width(columnInfo.width)
                 .padding(vertical = 4.dp, horizontal = 8.dp),
               maxLines = 2,
               overflow = TextOverflow.Ellipsis
@@ -112,7 +112,7 @@ fun PostItem(
               text = formattedDate,
               style = MaterialTheme.typography.caption,
               modifier = Modifier
-                .width(columnInfo.width.value)
+                .width(columnInfo.width)
                 .padding(8.dp)
             )
           }
@@ -138,7 +138,7 @@ private fun UserIcon(
 ) {
   Box(
     modifier = Modifier
-      .width(columnInfo.width.value)
+      .width(columnInfo.width)
       .padding(8.dp),
     contentAlignment = Alignment.Center
   ) {

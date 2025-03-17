@@ -3,6 +3,8 @@ package jp.takke.tweenb.app.repository
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.WindowPosition
+import jp.takke.tweenb.app.domain.ColumnInfo
+import kotlinx.serialization.json.Json
 import java.io.File
 import java.util.*
 
@@ -15,6 +17,13 @@ class AppPropertyRepository private constructor() {
 
   // プロパティオブジェクト
   private val props = Properties()
+
+  // JSONシリアライザ
+  private val json = Json {
+    prettyPrint = true
+    ignoreUnknownKeys = true
+    coerceInputValues = true
+  }
 
   init {
     // 保存されている設定を読み込む
@@ -77,6 +86,36 @@ class AppPropertyRepository private constructor() {
     props.setProperty("window.width", size.width.value.toString())
     props.setProperty("window.height", size.height.value.toString())
     saveProperties()
+  }
+
+  /**
+   * カラム情報のリストを保存する
+   * @param columns 保存するカラム情報のリスト
+   */
+  fun saveColumns(columns: List<ColumnInfo>) {
+    try {
+      println("saveColumns: $columns")
+      val columnsJson = json.encodeToString(columns)
+      props.setProperty("columns.layout", columnsJson)
+      saveProperties()
+    } catch (e: Exception) {
+      e.printStackTrace()
+    }
+  }
+
+  /**
+   * カラム情報のリストを取得する
+   * @return 保存されているカラム情報のリスト、または空のリスト
+   */
+  fun getColumns(): List<ColumnInfo>? {
+    val columnsJson = props.getProperty("columns.layout") ?: return null
+    return try {
+      val columns = json.decodeFromString<List<ColumnInfo>>(columnsJson)
+      columns
+    } catch (e: Exception) {
+      e.printStackTrace()
+      null
+    }
   }
 
   /**

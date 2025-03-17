@@ -23,7 +23,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import jp.takke.tweenb.app.domain.ColumnInfo
-import jp.takke.tweenb.app.domain.ColumnType
+import jp.takke.tweenb.app.repository.AppPropertyRepository
 import jp.takke.tweenb.app.viewmodel.AppViewModel
 import java.awt.Cursor
 
@@ -32,17 +32,21 @@ fun PostListContent(
   modifier: Modifier = Modifier,
   appViewModel: AppViewModel = viewModel(),
 ) {
-  // カラム定義
-  val columns = remember {
-    listOf(
-      ColumnInfo(ColumnType.Icon, "", 64.dp),
-      ColumnInfo(ColumnType.Name, "名前", 120.dp),
-      ColumnInfo(ColumnType.Post, "投稿", 360.dp),
-      ColumnInfo(ColumnType.DateTime, "日時", 120.dp),
-    )
-  }
+  // プロパティリポジトリ
+  val propertyRepository = remember { AppPropertyRepository.instance }
 
   val uiState by appViewModel.uiState.collectAsState()
+
+  // カラム定義（プロパティから読み込む）
+  val columns = uiState.columns
+
+  // カラム情報が変更されたら保存する
+  DisposableEffect(Unit) {
+    onDispose {
+      // アプリ終了時にカラム情報を保存
+      propertyRepository.saveColumns(columns)
+    }
+  }
 
   Box(
     modifier = modifier,
@@ -53,7 +57,7 @@ fun PostListContent(
         .padding(4.dp)
     ) {
       // Header
-      PostHeaders(columns)
+      PostHeaders(columns, propertyRepository, appViewModel::onUpdateColumnWidth)
 
       // Post items
       val listState = rememberLazyListState()
@@ -133,8 +137,11 @@ fun PostListContent(
 }
 
 @Composable
-private fun PostHeaders(columns: List<ColumnInfo>) {
-
+private fun PostHeaders(
+  columns: List<ColumnInfo>,
+  propertyRepository: AppPropertyRepository,
+  onUpdateColumnWidth: (Int, Dp) -> Unit
+) {
   var headerHeight by remember { mutableStateOf(0.dp) }
   val headerBorderColor = Color.LightGray
   Row(
@@ -155,7 +162,7 @@ private fun PostHeaders(columns: List<ColumnInfo>) {
         text = columnInfo.name,
         style = MaterialTheme.typography.body2,
         modifier = Modifier
-          .width(columnInfo.width.value - (if (index == 0) 2.dp else 5.dp))
+          .width(columnInfo.width - (if (index == 0) 2.dp else 5.dp))
           .padding(6.dp)
       )
 
@@ -164,7 +171,9 @@ private fun PostHeaders(columns: List<ColumnInfo>) {
         headerHeight = headerHeight,
         headerBorderColor = headerBorderColor,
         index = index,
-        columns = columns
+        columns = columns,
+        propertyRepository = propertyRepository,
+        onUpdateColumnWidth = onUpdateColumnWidth,
       )
     }
   }
@@ -175,7 +184,9 @@ private fun ResizableColumnDivider(
   headerHeight: Dp,
   headerBorderColor: Color,
   index: Int,
-  columns: List<ColumnInfo>
+  columns: List<ColumnInfo>,
+  propertyRepository: AppPropertyRepository,
+  onUpdateColumnWidth: (Int, Dp) -> Unit,
 ) {
   // 水平リサイズカーソルを作成
   val resizeCursor = remember { PointerIcon(Cursor(Cursor.E_RESIZE_CURSOR)) }
@@ -186,13 +197,19 @@ private fun ResizableColumnDivider(
       .height(headerHeight)
       .pointerHoverIcon(resizeCursor)
       .pointerInput(Unit) {
-        detectDragGestures { change, dragAmount ->
+        detectDragGestures(
+          onDragEnd = {
+            // ドラッグ終了時にカラム情報を保存
+            propertyRepository.saveColumns(columns)
+          }
+        ) { change, dragAmount ->
           change.consume()
           // 現在の列の幅を調整
-          val currentWidth = columns[index].width.value
+          val currentWidth = columns[index].width
           val newWidth = (currentWidth + dragAmount.x.toDp()).coerceAtLeast(40.dp)
 
-          columns[index].width.value = newWidth
+          // カラム情報を更新
+          onUpdateColumnWidth.invoke(index, newWidth)
         }
       }
   ) {

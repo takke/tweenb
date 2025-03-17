@@ -1,12 +1,12 @@
 package jp.takke.tweenb.app.domain
 
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.unit.Dp
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class ColumnInfo(
   val type: ColumnType,
   val name: String,
-  val initialWidth: Dp,
-  val width: MutableState<Dp> = mutableStateOf(initialWidth)
+  @Serializable(with = DpSerializer::class)
+  val width: Dp,
 )
