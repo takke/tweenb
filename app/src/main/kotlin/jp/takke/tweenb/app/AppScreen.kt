@@ -119,9 +119,14 @@ fun FrameWindowScope.AppScreen() {
     )
 
     // 未認証ならすぐに認証画面を開く
+    // 認証済みなら更新実行
     LaunchedEffect(Unit) {
       if (!viewModel.blueskyClientInitialized) {
+        // 未認証
         viewModel.showAuthDialog()
+      } else {
+        // 認証済み
+        viewModel.refreshCurrentTab()
       }
     }
   }
