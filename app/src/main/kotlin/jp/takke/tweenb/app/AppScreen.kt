@@ -21,6 +21,8 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.FrameWindowScope
 import androidx.compose.ui.window.MenuBar
+import jp.takke.tweenb.app.compose.AboutDialog
+import jp.takke.tweenb.app.compose.ConfigDialog
 import jp.takke.tweenb.app.compose.Tab
 import jp.takke.tweenb.app.compose.VerticalDivider
 import kotlinx.coroutines.delay
@@ -31,9 +33,14 @@ import kotlin.system.exitProcess
 fun FrameWindowScope.AppScreen() {
   // バージョン情報ダイアログの表示状態
   var showAboutDialog by remember { mutableStateOf(false) }
+  // 設定ダイアログの表示状態
+  var showConfigDialog by remember { mutableStateOf(false) }
 
   MenuBar {
     Menu("ファイル") {
+      Item("設定") {
+        showConfigDialog = true
+      }
       Item("終了") {
         exitProcess(0)
       }
@@ -84,6 +91,12 @@ fun FrameWindowScope.AppScreen() {
     AboutDialog(
       showAboutDialog,
       onDismiss = { showAboutDialog = false },
+    )
+
+    // 設定ダイアログ
+    ConfigDialog(
+      showConfigDialog,
+      onDismiss = { showConfigDialog = false },
     )
   }
 }

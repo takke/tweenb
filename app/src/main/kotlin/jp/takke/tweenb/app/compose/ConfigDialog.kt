@@ -1,4 +1,4 @@
-package jp.takke.tweenb.app
+package jp.takke.tweenb.app.compose
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -12,8 +12,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 
 @Composable
-internal fun AboutDialog(showAboutDialog: Boolean, onDismiss: () -> Unit) {
-  if (!showAboutDialog) {
+fun ConfigDialog(
+  showConfigDialog: Boolean,
+  onDismiss: () -> Unit,
+) {
+  if (!showConfigDialog) {
     return
   }
 
@@ -26,21 +29,7 @@ internal fun AboutDialog(showAboutDialog: Boolean, onDismiss: () -> Unit) {
         .padding(16.dp)
         .width(300.dp)
     ) {
-      Text(
-        text = "tweenb",
-        style = MaterialTheme.typography.h6
-      )
-      Spacer(modifier = Modifier.height(8.dp))
-      Text(
-        text = "バージョン: 0.1.0",
-        style = MaterialTheme.typography.body1
-      )
-      Spacer(modifier = Modifier.height(16.dp))
-      Text(
-        text = "Copyright © 2025 Hiroaki TAKEUCHI",
-        style = MaterialTheme.typography.body2
-      )
-      Spacer(modifier = Modifier.height(16.dp))
+
       Box(
         modifier = Modifier.fillMaxWidth(),
         contentAlignment = Alignment.CenterEnd
@@ -48,7 +37,7 @@ internal fun AboutDialog(showAboutDialog: Boolean, onDismiss: () -> Unit) {
         Button(
           onClick = { onDismiss() }
         ) {
-          Text("閉じる")
+          Text("OK")
         }
       }
     }
