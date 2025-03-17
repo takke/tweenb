@@ -1,6 +1,6 @@
 [versions]
 kotlin = "2.0.21"
-compose = "1.7.0"
+compose = "1.8.0+dev2210"
 lifecycle = "2.8.2"
 kotlinx-serialization = "1.6.0"
 
