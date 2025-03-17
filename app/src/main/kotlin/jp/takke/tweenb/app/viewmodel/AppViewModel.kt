@@ -24,6 +24,35 @@ import java.awt.Desktop
 import java.net.URI
 
 class AppViewModel : ViewModel() {
+
+  /**
+   * UIState
+   */
+  data class UiState(
+    val userName: String = "",
+    val password: String = "",
+    // エラーメッセージ
+    val validationErrorMessage: String = "",
+    // ログイン処理中
+    val loading: Boolean = false,
+    // ログイン状態
+    val loginState: LoginState = LoginState.INIT,
+    val code: String = "",
+  ) {
+    enum class LoginState {
+      INIT,
+
+      LOADING,
+
+      // ブラウザを開いて認証コード入力待ち
+      WAITING_CODE,
+    }
+  }
+
+  private val _uiState = MutableStateFlow(UiState())
+  val uiState: StateFlow<UiState> = _uiState.asStateFlow()
+
+
   // Blueskyクライアント
   private val blueskyClient = BlueskyClient.create()
 
@@ -37,6 +66,10 @@ class AppViewModel : ViewModel() {
 
   // 設定ダイアログの表示状態
   var showConfigDialog by mutableStateOf(false)
+    private set
+
+  // 認証ダイアログの表示状態
+  var showAuthDialog by mutableStateOf(false)
     private set
 
   // タブ関連の状態
@@ -62,6 +95,16 @@ class AppViewModel : ViewModel() {
     showConfigDialog = false
   }
 
+  // 認証ダイアログの表示制御
+  fun showAuthDialog() {
+    showConfigDialog = false
+    showAuthDialog = true
+  }
+
+  fun dismissAuthDialog() {
+    showAuthDialog = false
+  }
+
   // タブ選択制御
   fun selectTab(index: Int) {
     selectedTabIndex = index
@@ -76,28 +119,16 @@ class AppViewModel : ViewModel() {
     loginWithOAuth()
   }
 
-  /**
-   * UIState
-   */
-  data class UiState(
-    val userName: String = "",
-    val password: String = "",
-    // エラーメッセージ
-    val validationErrorMessage: String = "",
-    // ログイン処理中
-    val loading: Boolean = false,
-  )
-
-  private val _uiState = MutableStateFlow(UiState())
-  val uiState: StateFlow<UiState> = _uiState.asStateFlow()
+  fun onCodeChanged(code: String) {
+    _uiState.update {
+      it.copy(code = code)
+    }
+  }
 
   private fun loginWithOAuth() {
 
     viewModelScope.launch {
 
-      _uiState.update {
-        it.copy(loading = true)
-      }
       // TODO dummyなので書き換えること
 //      _uiState.update {
 //        it.copy(userName = "takke.jp")
@@ -127,6 +158,10 @@ class AppViewModel : ViewModel() {
       val loginHint = userName
       loading {
         withContext(Dispatchers.IO) {
+          _uiState.update {
+            it.copy(loginState = UiState.LoginState.LOADING)
+          }
+
           val response = AuthFactory
             .instance(Service.BSKY_SOCIAL.uri)
             .oauth()
@@ -154,6 +189,10 @@ class AppViewModel : ViewModel() {
 
           // ブラウザを開く
           Desktop.getDesktop().browse(URI(authorizeUrl))
+
+          _uiState.update {
+            it.copy(loginState = UiState.LoginState.WAITING_CODE)
+          }
         }
       }
     }

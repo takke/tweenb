@@ -2,22 +2,22 @@ package jp.takke.tweenb.app.compose
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Button
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
-import jp.takke.tweenb.app.viewmodel.AppViewModel
 
 @Composable
 fun ConfigDialog(
   showConfigDialog: Boolean,
   onDismiss: () -> Unit,
-  onStartAuth: () -> Unit,
-  uiState: AppViewModel.UiState,
+  onShowAuthDialog: () -> Unit,
 ) {
   if (!showConfigDialog) {
     return
@@ -28,6 +28,7 @@ fun ConfigDialog(
   ) {
     Column(
       modifier = Modifier
+        .clip(RoundedCornerShape(8.dp))
         .background(MaterialTheme.colors.background)
         .padding(16.dp)
         .width(400.dp)
@@ -44,9 +45,9 @@ fun ConfigDialog(
           contentAlignment = Alignment.Center
         ) {
           Button(
-            onClick = { onStartAuth() }
+            onClick = onShowAuthDialog
           ) {
-            Text("認証")
+            Text("認証画面を開く")
           }
         }
       }
@@ -58,7 +59,7 @@ fun ConfigDialog(
           contentAlignment = Alignment.Center
         ) {
           Button(
-            onClick = { /* 再認証開始処理 */ }
+            onClick = onShowAuthDialog
           ) {
             Text("再認証")
           }
@@ -67,26 +68,18 @@ fun ConfigDialog(
         // TODO アカウント削除ボタン表示
       }
 
-      // エラーメッセージ
-      if (uiState.validationErrorMessage.isNotEmpty()) {
-        Text(
-          text = uiState.validationErrorMessage,
-          style = MaterialTheme.typography.body2
-        )
-      }
-
       Spacer(modifier = Modifier.weight(1f))
 
-      Box(
-        modifier = Modifier.fillMaxWidth(),
-        contentAlignment = Alignment.CenterEnd
-      ) {
-        Button(
-          onClick = { onDismiss() }
-        ) {
-          Text("OK")
-        }
-      }
+//      Box(
+//        modifier = Modifier.fillMaxWidth(),
+//        contentAlignment = Alignment.CenterEnd
+//      ) {
+//        Button(
+//          onClick = { onDismiss() }
+//        ) {
+//          Text("OK")
+//        }
+//      }
     }
   }
 }

@@ -17,10 +17,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.FrameWindowScope
 import androidx.compose.ui.window.MenuBar
 import androidx.lifecycle.viewmodel.compose.viewModel
-import jp.takke.tweenb.app.compose.AboutDialog
-import jp.takke.tweenb.app.compose.ConfigDialog
-import jp.takke.tweenb.app.compose.PostListContent
-import jp.takke.tweenb.app.compose.Tab
+import jp.takke.tweenb.app.compose.*
 import jp.takke.tweenb.app.viewmodel.AppViewModel
 import kotlin.system.exitProcess
 
@@ -89,10 +86,18 @@ fun FrameWindowScope.AppScreen() {
     // 設定ダイアログ
     val uiState by viewModel.uiState.collectAsState()
     ConfigDialog(
-      viewModel.showConfigDialog,
+      showConfigDialog = viewModel.showConfigDialog,
       onDismiss = { viewModel.dismissConfigDialog() },
+      onShowAuthDialog = { viewModel.showAuthDialog() },
+    )
+
+    // 認証ダイアログ
+    AuthDialog(
+      showConfigDialog = viewModel.showAuthDialog,
+      onDismiss = { viewModel.dismissAuthDialog() },
       onStartAuth = { viewModel.startAuth() },
       uiState = uiState,
+      onCodeChanged = viewModel::onCodeChanged,
     )
   }
 }
