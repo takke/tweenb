@@ -57,7 +57,7 @@ fun PostListContent(
         .padding(4.dp)
     ) {
       // Header
-      PostHeaders(columns, propertyRepository, appViewModel::onUpdateColumnWidth)
+      PostHeaders(columns, propertyRepository)
 
       // Post items
       val listState = rememberLazyListState()
@@ -139,8 +139,7 @@ fun PostListContent(
 @Composable
 private fun PostHeaders(
   columns: List<ColumnInfo>,
-  propertyRepository: AppPropertyRepository,
-  onUpdateColumnWidth: (Int, Dp) -> Unit
+  propertyRepository: AppPropertyRepository
 ) {
   var headerHeight by remember { mutableStateOf(0.dp) }
   val headerBorderColor = Color.LightGray
@@ -162,7 +161,7 @@ private fun PostHeaders(
         text = columnInfo.name,
         style = MaterialTheme.typography.body2,
         modifier = Modifier
-          .width(columnInfo.width - (if (index == 0) 2.dp else 5.dp))
+          .width(columnInfo.width.value - if (index == 0) 2.dp else 5.dp)
           .padding(6.dp)
       )
 
@@ -173,7 +172,6 @@ private fun PostHeaders(
         index = index,
         columns = columns,
         propertyRepository = propertyRepository,
-        onUpdateColumnWidth = onUpdateColumnWidth,
       )
     }
   }
@@ -185,8 +183,7 @@ private fun ResizableColumnDivider(
   headerBorderColor: Color,
   index: Int,
   columns: List<ColumnInfo>,
-  propertyRepository: AppPropertyRepository,
-  onUpdateColumnWidth: (Int, Dp) -> Unit,
+  propertyRepository: AppPropertyRepository
 ) {
   // 水平リサイズカーソルを作成
   val resizeCursor = remember { PointerIcon(Cursor(Cursor.E_RESIZE_CURSOR)) }
@@ -205,11 +202,10 @@ private fun ResizableColumnDivider(
         ) { change, dragAmount ->
           change.consume()
           // 現在の列の幅を調整
-          val currentWidth = columns[index].width
+          val currentWidth = columns[index].width.value
           val newWidth = (currentWidth + dragAmount.x.toDp()).coerceAtLeast(40.dp)
 
-          // カラム情報を更新
-          onUpdateColumnWidth.invoke(index, newWidth)
+          columns[index].width.value = newWidth
         }
       }
   ) {

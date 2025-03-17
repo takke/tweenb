@@ -94,7 +94,9 @@ class AppPropertyRepository private constructor() {
    */
   fun saveColumns(columns: List<ColumnInfo>) {
     try {
-      println("saveColumns: $columns")
+      // シリアライズ前に各カラムの現在の幅を保存用フィールドにセット
+      columns.forEach { it.prepareForSerialization() }
+
       val columnsJson = json.encodeToString(columns)
       props.setProperty("columns.layout", columnsJson)
       saveProperties()
@@ -111,6 +113,8 @@ class AppPropertyRepository private constructor() {
     val columnsJson = props.getProperty("columns.layout") ?: return null
     return try {
       val columns = json.decodeFromString<List<ColumnInfo>>(columnsJson)
+      // デシリアライズ後に幅を初期化
+      columns.forEach { it.initializeWidth() }
       columns
     } catch (e: Exception) {
       e.printStackTrace()

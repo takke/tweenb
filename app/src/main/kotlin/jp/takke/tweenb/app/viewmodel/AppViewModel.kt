@@ -3,7 +3,6 @@ package jp.takke.tweenb.app.viewmodel
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -97,19 +96,6 @@ class AppViewModel : ViewModel() {
   var selectedTabIndex by mutableStateOf(0)
     private set
 
-  fun onUpdateColumnWidth(index: Int, width: Dp) {
-    if (index < 0 || index >= _uiState.value.columns.size) {
-      println("Invalid index: $index")
-      return
-    }
-    println("onUpdateColumnWidth: $index, $width")
-    _uiState.update {
-      val columns = it.columns.toMutableList()
-      columns[index] = columns[index].copy(width = width)
-      it.copy(columns = columns)
-    }
-  }
-
   init {
     // 保存されているアカウント情報を読み込む
     loadAccounts()
@@ -136,22 +122,22 @@ class AppViewModel : ViewModel() {
       ColumnInfo(
         type = ColumnType.Icon,
         name = "",
-        width = 64.dp,
+        initialWidth = 64.dp,
       ),
       ColumnInfo(
         type = ColumnType.Name,
         name = "名前",
-        width = 120.dp
+        initialWidth = 120.dp
       ),
       ColumnInfo(
         type = ColumnType.Post,
         name = "投稿",
-        width = 360.dp
+        initialWidth = 360.dp
       ),
       ColumnInfo(
         type = ColumnType.DateTime,
         name = "日時",
-        width = 120.dp
+        initialWidth = 120.dp
       ),
     )
   }
