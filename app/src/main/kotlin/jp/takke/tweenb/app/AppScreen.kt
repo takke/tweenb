@@ -110,7 +110,7 @@ fun FrameWindowScope.AppScreen() {
       show = viewModel.showErrorDialog,
       onDismiss = { viewModel.dismissErrorDialog() },
       errorMessage = uiState.errorMessage,
-      stackTrace = uiState.errorStackTrace
+      stackTrace = uiState.errorStackTrace.replace("\t", "    ")
     )
 
     // 未認証ならすぐに認証画面を開く

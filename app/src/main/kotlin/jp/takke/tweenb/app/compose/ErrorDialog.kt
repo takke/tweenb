@@ -2,14 +2,12 @@ package jp.takke.tweenb.app.compose
 
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.Button
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
+import androidx.compose.material.*
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogWindow
@@ -30,6 +28,9 @@ fun ErrorDialog(
   errorMessage: String,
   stackTrace: String
 ) {
+  // クリップボード管理
+  val clipboardManager = LocalClipboardManager.current
+
   // エラーメッセージ
   val state = rememberDialogState(
     size = DpSize(800.dp, 600.dp)
@@ -57,11 +58,28 @@ fun ErrorDialog(
         )
 
         // スタックトレース
-        Text(
-          text = "スタックトレース:",
-          style = MaterialTheme.typography.subtitle1,
-          modifier = Modifier.padding(bottom = 8.dp)
-        )
+        Row(
+          modifier = Modifier.padding(bottom = 8.dp),
+          verticalAlignment = Alignment.CenterVertically
+        ) {
+          Text(
+            text = "スタックトレース:",
+            style = MaterialTheme.typography.subtitle1
+          )
+
+          Spacer(modifier = Modifier.weight(1f))
+
+          // コピーボタン
+          IconButton(
+            onClick = {
+              clipboardManager.setText(AnnotatedString(stackTrace))
+            }
+          ) {
+            Text(
+              text = "コピー"
+            )
+          }
+        }
 
         // スクロール可能なスタックトレース表示
         Box(
@@ -70,13 +88,18 @@ fun ErrorDialog(
             .fillMaxWidth()
             .border(1.dp, MaterialTheme.colors.onSurface.copy(alpha = 0.12f))
         ) {
-          Text(
-            text = stackTrace,
-            style = MaterialTheme.typography.body2,
+          TextField(
+            value = stackTrace,
+            onValueChange = { },
+            readOnly = true,
             modifier = Modifier
-              .padding(8.dp)
-              .fillMaxSize()
-              .verticalScroll(rememberScrollState())
+              .fillMaxSize(),
+            colors = TextFieldDefaults.textFieldColors(
+              backgroundColor = MaterialTheme.colors.surface,
+              disabledTextColor = MaterialTheme.colors.onSurface,
+              disabledLabelColor = MaterialTheme.colors.onSurface
+            ),
+            textStyle = MaterialTheme.typography.body2
           )
         }
 
