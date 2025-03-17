@@ -8,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import jp.takke.tweenb.app.domain.Account
 import jp.takke.tweenb.app.domain.BlueskyAuthService
 import jp.takke.tweenb.app.domain.BlueskyClient
+import jp.takke.tweenb.app.domain.BsFeedViewPost
 import jp.takke.tweenb.app.repository.AppPropertyRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -32,6 +33,10 @@ class AppViewModel : ViewModel() {
     val code: String = "",
     // アカウントリスト
     val accounts: List<Account> = emptyList(),
+    // タイムラインの投稿
+    val timelinePosts: List<BsFeedViewPost> = emptyList(),
+    // タイムライン読み込み中
+    val timelineLoading: Boolean = false,
   ) {
     enum class LoginState {
       INIT,
@@ -158,7 +163,7 @@ class AppViewModel : ViewModel() {
     viewModelScope.launch {
       try {
         println("タブ更新: ${tabNames[selectedTabIndex]}")
-        
+
         // タブの種類に応じた更新処理
         when (selectedTabIndex) {
           0 -> refreshRecentTab()
@@ -170,15 +175,44 @@ class AppViewModel : ViewModel() {
       }
     }
   }
-  
+
   /**
    * Recentタブの更新
    */
   private suspend fun refreshRecentTab() {
-    // TODO: タイムラインの更新処理を実装
-    // blueskyClient.getTimeline() など
+    if (!blueskyClientInitialized) {
+      println("Blueskyクライアントが初期化されていません")
+      return
+    }
+
+    try {
+      // タイムライン読み込み中フラグを設定
+      _uiState.update {
+        it.copy(timelineLoading = true)
+      }
+
+      // タイムラインを取得
+      val posts = blueskyClient.getTimeline(limit = 30)
+      println("タイムライン取得成功: ${posts.size}件")
+
+      // UIStateを更新
+      _uiState.update {
+        it.copy(
+          timelinePosts = posts,
+          timelineLoading = false
+        )
+      }
+    } catch (e: Exception) {
+      println("タイムライン取得エラー: ${e.message}")
+      e.printStackTrace()
+
+      // エラー状態を設定
+      _uiState.update {
+        it.copy(timelineLoading = false)
+      }
+    }
   }
-  
+
   /**
    * Notificationsタブの更新
    */
@@ -186,7 +220,7 @@ class AppViewModel : ViewModel() {
     // TODO: 通知の更新処理を実装
     // blueskyClient.getNotifications() など
   }
-  
+
   /**
    * Listsタブの更新
    */

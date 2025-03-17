@@ -3,8 +3,10 @@ package jp.takke.tweenb.app.compose
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
@@ -14,13 +16,25 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import jp.takke.tweenb.app.viewmodel.PostListViewModel
+import jp.takke.tweenb.app.domain.ColumnInfo
+import jp.takke.tweenb.app.domain.ColumnType
+import jp.takke.tweenb.app.viewmodel.AppViewModel
 
 @Composable
 fun PostListContent(
   modifier: Modifier = Modifier,
-  viewModel: PostListViewModel = viewModel { PostListViewModel() },
+  appViewModel: AppViewModel = viewModel(),
 ) {
+  // カラム定義
+  val columns = listOf(
+    ColumnInfo(ColumnType.Icon, "", 64.dp),
+    ColumnInfo(ColumnType.Name, "名前", 120.dp),
+    ColumnInfo(ColumnType.Post, "投稿", 360.dp),
+    ColumnInfo(ColumnType.DateTime, "日時", 120.dp),
+  )
+
+  val uiState by appViewModel.uiState.collectAsState()
+
   Box(
     modifier = modifier,
   ) {
@@ -45,7 +59,7 @@ fun PostListContent(
             shape = RoundedCornerShape(4.dp),
           )
       ) {
-        viewModel.columns.forEach {
+        columns.forEach {
           Text(
             text = it.name,
             style = MaterialTheme.typography.body2,
@@ -62,26 +76,63 @@ fun PostListContent(
 
       // Post items
       val listState = rememberLazyListState()
-      LazyColumn(
-        state = listState,
-        modifier = Modifier
-          .fillMaxWidth()
-          .weight(1f)
-      ) {
-        items(viewModel.itemCount) { index ->
-          PostItem(
-            index = index,
-            modifier = Modifier,
-            cols = viewModel.columns,
+
+      if (uiState.timelineLoading) {
+        // ローディング表示
+        Box(
+          modifier = Modifier.fillMaxSize(),
+          contentAlignment = Alignment.Center
+        ) {
+          CircularProgressIndicator()
+        }
+      } else if (uiState.timelinePosts.isEmpty() && appViewModel.selectedTabIndex == 0) {
+        // 投稿がない場合
+        Box(
+          modifier = Modifier.fillMaxSize(),
+          contentAlignment = Alignment.Center
+        ) {
+          Text(
+            text = "投稿がありません",
+            style = MaterialTheme.typography.body1
           )
         }
-      }
+      } else {
+        // 投稿リスト
+        LazyColumn(
+          state = listState,
+          modifier = Modifier
+            .fillMaxWidth()
+            .weight(1f)
+        ) {
+          when (appViewModel.selectedTabIndex) {
+            0 -> {
+              // Recentタブ
+              items(uiState.timelinePosts) { post ->
+                PostItem(
+                  post = post,
+                  modifier = Modifier,
+                  cols = columns,
+                )
+              }
+            }
 
-      // デモデータのロード
-//      val coroutineScope = rememberCoroutineScope()
-//      LaunchedEffect(Unit) {
-//        viewModel.loadDemoData(coroutineScope, listState)
-//      }
+            else -> {
+              // その他のタブ（未実装）
+              item {
+                Box(
+                  modifier = Modifier.fillMaxWidth().padding(16.dp),
+                  contentAlignment = Alignment.Center
+                ) {
+                  Text(
+                    text = "このタブは未実装です",
+                    style = MaterialTheme.typography.body1
+                  )
+                }
+              }
+            }
+          }
+        }
+      }
     }
   }
 }
