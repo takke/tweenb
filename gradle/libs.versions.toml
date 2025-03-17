@@ -1,6 +1,7 @@
 [versions]
 kotlin = "2.0.21"
 compose = "1.7.0"
+lifecycle = "2.8.2"
 
 [libraries]
 # JetBrains Compose
@@ -8,6 +9,9 @@ compose-ui-ui = { module = "org.jetbrains.compose.ui:ui", version.ref = "compose
 compose-ui-tooling = { module = "org.jetbrains.compose.ui:ui-tooling", version.ref = "compose" }
 compose-material-material = { module = "org.jetbrains.compose.material:material", version.ref = "compose" }
 compose-runtime = { module = "org.jetbrains.compose.runtime:runtime", version.ref = "compose" }
+
+# Lifecycle
+lifecycle-viewmodel = { module = "org.jetbrains.androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "lifecycle" }
 
 [plugins]
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
