@@ -118,12 +118,10 @@ fun PostItem(
           }
         }
 
-        if (index < columns.size - 1) {
-          VerticalDivider(
-            height = rowHeight,
-            color = Color.LightGray,
-          )
-        }
+        VerticalDivider(
+          height = rowHeight,
+          color = Color.LightGray,
+        )
       }
     }
 

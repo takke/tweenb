@@ -15,13 +15,17 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.PointerIcon
+import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import jp.takke.tweenb.app.domain.ColumnInfo
 import jp.takke.tweenb.app.domain.ColumnType
 import jp.takke.tweenb.app.viewmodel.AppViewModel
+import java.awt.Cursor
 
 @Composable
 fun PostListContent(
@@ -151,32 +155,51 @@ private fun PostHeaders(columns: List<ColumnInfo>) {
         text = columnInfo.name,
         style = MaterialTheme.typography.body2,
         modifier = Modifier
-          .width(columnInfo.width.value - (if (index == 0) 1.dp else 3.dp))
-          .padding(8.dp)
+          .width(columnInfo.width.value - (if (index == 0) 2.dp else 5.dp))
+          .padding(6.dp)
       )
 
       // 区切り線（ドラッグ可能）
-      Box(
-        modifier = Modifier
-          .width(4.dp)
-          .height(headerHeight)
-          .pointerInput(Unit) {
-            detectDragGestures { change, dragAmount ->
-              change.consume()
-              // 現在の列の幅を調整
-              val currentWidth = columns[index].width.value
-              val newWidth = (currentWidth + dragAmount.x.toDp()).coerceAtLeast(40.dp)
-
-              columns[index].width.value = newWidth
-            }
-          }
-      ) {
-        VerticalDivider(
-          height = headerHeight,
-          color = headerBorderColor,
-          modifier = Modifier.align(Alignment.Center)
-        )
-      }
+      ResizableColumnDivider(
+        headerHeight = headerHeight,
+        headerBorderColor = headerBorderColor,
+        index = index,
+        columns = columns
+      )
     }
+  }
+}
+
+@Composable
+private fun ResizableColumnDivider(
+  headerHeight: Dp,
+  headerBorderColor: Color,
+  index: Int,
+  columns: List<ColumnInfo>
+) {
+  // 水平リサイズカーソルを作成
+  val resizeCursor = remember { PointerIcon(Cursor(Cursor.E_RESIZE_CURSOR)) }
+
+  Box(
+    modifier = Modifier
+      .width(6.dp)
+      .height(headerHeight)
+      .pointerHoverIcon(resizeCursor)
+      .pointerInput(Unit) {
+        detectDragGestures { change, dragAmount ->
+          change.consume()
+          // 現在の列の幅を調整
+          val currentWidth = columns[index].width.value
+          val newWidth = (currentWidth + dragAmount.x.toDp()).coerceAtLeast(40.dp)
+
+          columns[index].width.value = newWidth
+        }
+      }
+  ) {
+    VerticalDivider(
+      height = headerHeight,
+      color = headerBorderColor,
+      modifier = Modifier.align(Alignment.Center)
+    )
   }
 }
