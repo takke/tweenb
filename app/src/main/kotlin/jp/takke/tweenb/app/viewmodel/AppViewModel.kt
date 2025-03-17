@@ -20,6 +20,8 @@ import work.socialhub.kbsky.auth.OAuthContext
 import work.socialhub.kbsky.auth.api.entity.oauth.BuildAuthorizationUrlRequest
 import work.socialhub.kbsky.auth.api.entity.oauth.OAuthPushedAuthorizationRequest
 import work.socialhub.kbsky.domain.Service
+import java.awt.Desktop
+import java.net.URI
 
 class AppViewModel : ViewModel() {
   // Blueskyクライアント
@@ -97,19 +99,19 @@ class AppViewModel : ViewModel() {
         it.copy(loading = true)
       }
       // TODO dummyなので書き換えること
-      _uiState.update {
-        it.copy(userName = "takke.jp")
-      }
+//      _uiState.update {
+//        it.copy(userName = "takke.jp")
+//      }
       val userName = _uiState.value.userName
 
       // 簡易バリデーション
-      if (userName.isEmpty()) {
-        // ユーザー名が空
-        _uiState.update {
-          it.copy(validationErrorMessage = "ユーザー名を入力してください")
-        }
-        return@launch
-      }
+//      if (userName.isEmpty()) {
+//        // ユーザー名が空
+//        _uiState.update {
+//          it.copy(validationErrorMessage = "ユーザー名を入力してください")
+//        }
+//        return@launch
+//      }
 
       // OK
       _uiState.update {
@@ -124,14 +126,14 @@ class AppViewModel : ViewModel() {
 
       val loginHint = userName
       loading {
-        withContext(Dispatchers.Default) {
+        withContext(Dispatchers.IO) {
           val response = AuthFactory
             .instance(Service.BSKY_SOCIAL.uri)
             .oauth()
             .pushedAuthorizationRequest(
               oauthContext,
               OAuthPushedAuthorizationRequest().also {
-                it.loginHint = ""//loginHint
+                it.loginHint = loginHint
               }
             )
 
@@ -150,10 +152,8 @@ class AppViewModel : ViewModel() {
 //          logger.dd { "authorizeUrl: $authorizeUrl" }
           println("authorizeUrl: $authorizeUrl")
 
-
           // ブラウザを開く
-
-//          _showBrowserEvent.emit(authorizeUrl)
+          Desktop.getDesktop().browse(URI(authorizeUrl))
         }
       }
     }
