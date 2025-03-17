@@ -1,10 +1,12 @@
 package jp.takke.tweenb.app.compose
 
+import androidx.compose.foundation.VerticalScrollbar
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollbarAdapter
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
@@ -89,39 +91,52 @@ fun PostListContent(
         }
       } else {
         // 投稿リスト
-        LazyColumn(
-          state = listState,
+        Box(
           modifier = Modifier
             .fillMaxWidth()
             .weight(1f)
         ) {
-          when (appViewModel.selectedTabIndex) {
-            0 -> {
-              // Recentタブ
-              items(uiState.timelinePosts) { post ->
-                PostItem(
-                  post = post,
-                  modifier = Modifier,
-                  columns = columns,
-                )
-              }
-            }
-
-            else -> {
-              // その他のタブ（未実装）
-              item {
-                Box(
-                  modifier = Modifier.fillMaxWidth().padding(16.dp),
-                  contentAlignment = Alignment.Center
-                ) {
-                  Text(
-                    text = "このタブは未実装です",
-                    style = MaterialTheme.typography.body1
+          LazyColumn(
+            state = listState,
+            modifier = Modifier
+              .fillMaxSize()
+          ) {
+            when (appViewModel.selectedTabIndex) {
+              0 -> {
+                // Recentタブ
+                items(uiState.timelinePosts) { post ->
+                  PostItem(
+                    post = post,
+                    modifier = Modifier,
+                    columns = columns,
                   )
+                }
+              }
+
+              else -> {
+                // その他のタブ（未実装）
+                item {
+                  Box(
+                    modifier = Modifier.fillMaxWidth().padding(16.dp),
+                    contentAlignment = Alignment.Center
+                  ) {
+                    Text(
+                      text = "このタブは未実装です",
+                      style = MaterialTheme.typography.body1
+                    )
+                  }
                 }
               }
             }
           }
+
+          // スクロールバー
+          VerticalScrollbar(
+            modifier = Modifier
+              .align(Alignment.CenterEnd)
+              .fillMaxHeight(),
+            adapter = rememberScrollbarAdapter(listState)
+          )
         }
       }
     }
