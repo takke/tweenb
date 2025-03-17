@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import jp.takke.tweenb.app.AppConstants
 import jp.takke.tweenb.app.domain.BlueskyClient
+import jp.takke.tweenb.app.repository.AppPropertyRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -243,8 +244,6 @@ class AppViewModel : ViewModel() {
 
   private fun tokenRequest(code: String) {
     viewModelScope.launch {
-      // TODO 実装すること
-
       // トークン取得中
       _uiState.update {
         it.copy(loginState = UiState.LoginState.LOADING)
@@ -265,20 +264,16 @@ class AppViewModel : ViewModel() {
 
       val (response, user) = pair
 
-      // 追加の場合はアカウント数上限をチェックする
-      println("user.did[$user.did]")
-
-      // TODO 永続化
-//      // "did:plc:mm5f..." のような文字列
-//      accountId = user.did,
-//      // handle
-//      screenNameWIN = user.handle,
-//      // accessJwt
-//      accessJwt = response.accessToken,
-//      refreshJwt = response.refreshToken,
-//      dPoPNonce = oauthContext.dPoPNonce,
-//      publicKey = oauthContext.publicKey ?: "",
-//      privateKey = oauthContext.privateKey ?: "",
+      // アカウント情報を永続化
+      AppPropertyRepository().saveAccount(
+        accountId = user.did,
+        screenName = user.handle,
+        accessJwt = response.accessToken,
+        refreshJwt = response.refreshToken,
+        dPoPNonce = oauthContext?.dPoPNonce ?: "",
+        publicKey = oauthContext?.publicKey ?: "",
+        privateKey = oauthContext?.privateKey ?: "",
+      )
 
       _uiState.update {
         it.copy(

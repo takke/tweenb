@@ -4,6 +4,7 @@ plugins {
   alias(libs.plugins.kotlin.jvm)
   alias(libs.plugins.compose)
   alias(libs.plugins.kotlin.compose)
+  alias(libs.plugins.kotlin.serialization)
 }
 
 group = "jp.takke.tweenb"
@@ -62,6 +63,9 @@ dependencies {
   implementation("work.socialhub.kbsky:auth:0.3.0")
   implementation(libs.cryptography.core)
   implementation(libs.cryptography.jdk)
+
+  // Kotlinx Serialization
+  implementation(libs.kotlinx.serialization.json)
 }
 
 compose.desktop {
