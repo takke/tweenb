@@ -3,8 +3,16 @@ package jp.takke.tweenb.app.viewmodel
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import jp.takke.tweenb.app.domain.BlueskyClient
 
 class AppViewModel {
+  // Blueskyクライアント
+  private val blueskyClient = BlueskyClient.create()
+
+  // Blueskyクライアントの初期化状態
+  var blueskyClientInitialized by mutableStateOf(blueskyClient.isInitialized())
+    private set
+
   // バージョン情報ダイアログの表示状態
   var showAboutDialog by mutableStateOf(false)
     private set
@@ -39,5 +47,10 @@ class AppViewModel {
   // タブ選択制御
   fun selectTab(index: Int) {
     selectedTabIndex = index
+  }
+
+  // Blueskyクライアントの取得
+  fun getBlueskyClient(): BlueskyClient {
+    return blueskyClient
   }
 } 

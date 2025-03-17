@@ -64,9 +64,13 @@ fun FrameWindowScope.AppScreen() {
       )
 
       // Status bar
-      // TODO
+      val statusText = if (viewModel.blueskyClientInitialized) {
+        "Bluesky API: 接続済み"
+      } else {
+        "Bluesky API: 未接続"
+      }
       Text(
-        text = "ステータスバーとか",
+        text = statusText,
         style = MaterialTheme.typography.body1,
         modifier = Modifier
           .fillMaxWidth()
