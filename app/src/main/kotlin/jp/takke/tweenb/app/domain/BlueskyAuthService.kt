@@ -1,7 +1,7 @@
 package jp.takke.tweenb.app.domain
 
 import jp.takke.tweenb.app.AppConstants
-import jp.takke.tweenb.app.repository.AppPropertyRepository
+import jp.takke.tweenb.app.repository.AccountRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import work.socialhub.kbsky.ATProtocolException
@@ -23,7 +23,7 @@ import java.net.URI
  * Bluesky認証サービス
  */
 class BlueskyAuthService(
-  private val appPropertyRepository: AppPropertyRepository
+  private val accountRepository: AccountRepository
 ) {
   // OAuthコンテキスト
   private var oauthContext: OAuthContext? = null
@@ -90,7 +90,7 @@ class BlueskyAuthService(
     )
 
     // アカウント情報を永続化
-    appPropertyRepository.saveAccount(account)
+    accountRepository.saveAccount(account)
 
     return account
   }

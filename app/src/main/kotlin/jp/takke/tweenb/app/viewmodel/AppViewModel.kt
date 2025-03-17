@@ -9,6 +9,7 @@ import jp.takke.tweenb.app.domain.Account
 import jp.takke.tweenb.app.domain.BlueskyAuthService
 import jp.takke.tweenb.app.domain.BlueskyClient
 import jp.takke.tweenb.app.domain.BsFeedViewPost
+import jp.takke.tweenb.app.repository.AccountRepository
 import jp.takke.tweenb.app.repository.AppPropertyRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -58,9 +59,12 @@ class AppViewModel : ViewModel() {
 
   // アプリケーション設定リポジトリ
   private val appPropertyRepository = AppPropertyRepository.instance
+  
+  // アカウントリポジトリ
+  private val accountRepository = AccountRepository.instance
 
   // 認証サービス
-  private val authService = BlueskyAuthService(appPropertyRepository)
+  private val authService = BlueskyAuthService(accountRepository)
 
   // Blueskyクライアント
   private val blueskyClient = BlueskyClient.create()
@@ -109,7 +113,7 @@ class AppViewModel : ViewModel() {
    * 保存されているアカウント情報を読み込む
    */
   private fun loadAccounts() {
-    val accounts = appPropertyRepository.getAccounts()
+    val accounts = accountRepository.getAccounts()
     println("accounts: ${accounts.size}")
     _uiState.update {
       it.copy(accounts = accounts)

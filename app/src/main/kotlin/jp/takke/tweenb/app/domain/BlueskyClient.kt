@@ -1,7 +1,7 @@
 package jp.takke.tweenb.app.domain
 
 import jp.takke.tweenb.app.AppConstants
-import jp.takke.tweenb.app.repository.AppPropertyRepository
+import jp.takke.tweenb.app.repository.AccountRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import work.socialhub.kbsky.Bluesky
@@ -137,8 +137,8 @@ private class BlueskyClientImpl : BlueskyClient {
       println("exp が近いので refresh する: remain[${remainSec}s=${secToHMS(remainSec)}]")
 
       // トークンリフレッシュは直列化する
-      val appPropertyRepository = AppPropertyRepository.instance
-      val updatedAccount = refreshTokenForOAuth(appPropertyRepository)
+      val repository = AccountRepository.instance
+      val updatedAccount = refreshTokenForOAuth(repository)
       initialize(updatedAccount)
     }
 
@@ -180,7 +180,7 @@ private class BlueskyClientImpl : BlueskyClient {
    * OAuth 方式のトークンリフレッシュ
    */
   @Synchronized
-  private fun refreshTokenForOAuth(appPropertyRepository: AppPropertyRepository): Account {
+  private fun refreshTokenForOAuth(repository: AccountRepository): Account {
 
     // 同時にリフレッシュした場合、Synchronized で排他制御されているため同時実行はされないが、
     // 直前のリフレッシュで呼び出し元の client はリフレッシュトークンが書き換わっている可能性があるため、ここで client を再取得する
@@ -218,7 +218,7 @@ private class BlueskyClientImpl : BlueskyClient {
       privateKey = oAuthContext.privateKey ?: "",
     )
     // アカウント情報を永続化
-    appPropertyRepository.saveAccount(account)
+    repository.saveAccount(account)
     println("refresh 完了: updated[$updatedAccount]")
 
     return updatedAccount
