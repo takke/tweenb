@@ -21,6 +21,7 @@ dependencies {
   implementation(libs.compose.ui.tooling)
   implementation(libs.compose.material.material)
   implementation(libs.compose.runtime)
+  implementation("org.jetbrains.androidx.lifecycle:lifecycle-viewmodel-compose:2.8.2")
 
   // Bluesky/ATProtocolライブラリ
   implementation("work.socialhub.kbsky:core:0.3.0")

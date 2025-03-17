@@ -3,9 +3,10 @@ package jp.takke.tweenb.app.viewmodel
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.lifecycle.ViewModel
 import jp.takke.tweenb.app.domain.BlueskyClient
 
-class AppViewModel {
+class AppViewModel : ViewModel() {
   // Blueskyクライアント
   private val blueskyClient = BlueskyClient.create()
 

@@ -9,12 +9,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.FrameWindowScope
 import androidx.compose.ui.window.MenuBar
+import androidx.lifecycle.viewmodel.compose.viewModel
 import jp.takke.tweenb.app.compose.AboutDialog
 import jp.takke.tweenb.app.compose.ConfigDialog
 import jp.takke.tweenb.app.compose.PostListContent
@@ -25,8 +25,7 @@ import kotlin.system.exitProcess
 @Composable
 @Preview
 fun FrameWindowScope.AppScreen() {
-  // ViewModelのインスタンス化
-  val viewModel = remember { AppViewModel() }
+  val viewModel = viewModel { AppViewModel() }
 
   MenuBar {
     Menu("ファイル") {

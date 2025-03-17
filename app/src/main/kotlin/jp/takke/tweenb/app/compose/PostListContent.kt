@@ -13,12 +13,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import jp.takke.tweenb.app.viewmodel.PostListViewModel
 
 @Composable
 fun PostListContent(
   modifier: Modifier = Modifier,
-  viewModel: PostListViewModel = remember { PostListViewModel() },
+  viewModel: PostListViewModel = viewModel { PostListViewModel() },
 ) {
   Box(
     modifier = modifier,
