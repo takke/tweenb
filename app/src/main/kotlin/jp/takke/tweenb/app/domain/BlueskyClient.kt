@@ -1,11 +1,12 @@
 package jp.takke.tweenb.app.domain
 
+import jp.takke.tweenb.app.AppConstants
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import work.socialhub.kbsky.Bluesky
 import work.socialhub.kbsky.BlueskyFactory
 import work.socialhub.kbsky.api.entity.app.bsky.feed.FeedGetTimelineRequest
 import work.socialhub.kbsky.auth.OAuthProvider
-import work.socialhub.kbsky.domain.Service
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -46,7 +47,14 @@ interface BlueskyClient {
 private class BlueskyClientImpl : BlueskyClient {
 
   // Bluesky APIのファクトリー
-  private val factory = BlueskyFactory.instance(Service.BSKY_SOCIAL.uri)
+  private val factory: Bluesky
+    get() = BlueskyFactory.instance("${resolvePds()}/")
+
+  private fun resolvePds(): String {
+    val authProvider = authProvider
+      ?: throw IllegalStateException("AuthProvider is not initialized.")
+    return authProvider.pdsEndpoint
+  }
 
   // 認証プロバイダー
   private var authProvider: OAuthProvider? = null
@@ -74,6 +82,7 @@ private class BlueskyClientImpl : BlueskyClient {
    */
   private fun createOAuthContext(account: Account): work.socialhub.kbsky.auth.OAuthContext {
     return work.socialhub.kbsky.auth.OAuthContext().also {
+      it.clientId = AppConstants.OAUTH_CLIENT_ID
       it.dPoPNonce = account.dPoPNonce
       it.publicKey = account.publicKey
       it.privateKey = account.privateKey
