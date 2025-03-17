@@ -25,14 +25,14 @@ class TimelineRepository private constructor(
           return@withContext emptyList()
         }
 
-        val request = FeedGetTimelineRequest(blueskyClient.getAuthProvider()!!)
-        request.limit = limit
-
         val response = blueskyClient.executeWithAutoRefresh { bluesky ->
-          bluesky.feed().getTimeline(request)
+          bluesky.feed().getTimeline(
+            FeedGetTimelineRequest(blueskyClient.getAuthProvider()!!).also {
+              it.limit = limit
+            }
+          )
         }
 
-        // レスポンスから投稿のリストを取得し、BsFeedViewPostに変換
         response.data.feed
       } catch (e: Exception) {
         e.printStackTrace()
