@@ -10,10 +10,10 @@ jobs:
     runs-on: windows-latest
     
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     
     - name: Set up JDK 17
-      uses: actions/setup-java@v3
+      uses: actions/setup-java@v4
       with:
         java-version: '17'
         distribution: 'temurin'
@@ -35,27 +35,15 @@ jobs:
       id: get-msi
       run: |
         MSI_PATH=$(find app/build/compose/binaries/main/msi -name "*.msi" | head -n 1)
-        echo "::set-output name=msi_path::$MSI_PATH"
-        echo "::set-output name=msi_name::$(basename $MSI_PATH)"
+        echo "msi_path=$MSI_PATH" >> $GITHUB_OUTPUT
+        echo "msi_name=$(basename $MSI_PATH)" >> $GITHUB_OUTPUT
       shell: bash
     
     - name: Create Release
       id: create_release
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      uses: softprops/action-gh-release@v1
       with:
-        tag_name: ${{ github.ref }}
-        release_name: Release ${{ github.ref_name }}
+        name: Release ${{ github.ref_name }}
         draft: false
         prerelease: false
-    
-    - name: Upload Release Asset
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ${{ steps.get-msi.outputs.msi_path }}
-        asset_name: ${{ steps.get-msi.outputs.msi_name }}
-        asset_content_type: application/octet-stream 
+        files: ${{ steps.get-msi.outputs.msi_path }} 
