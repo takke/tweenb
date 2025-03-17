@@ -57,7 +57,7 @@ class AppViewModel : ViewModel() {
   val uiState: StateFlow<UiState> = _uiState.asStateFlow()
 
   // アプリケーション設定リポジトリ
-  private val appPropertyRepository = AppPropertyRepository()
+  private val appPropertyRepository = AppPropertyRepository.instance
 
   // 認証サービス
   private val authService = BlueskyAuthService(appPropertyRepository)

@@ -12,7 +12,7 @@ import java.util.*
 /**
  * アプリケーション設定を管理するリポジトリクラス
  */
-class AppPropertyRepository {
+class AppPropertyRepository private constructor() {
   // 設定ファイルのパス
   private val prefsFile = File(System.getProperty("user.home"), ".tweenb.properties")
 
@@ -153,5 +153,9 @@ class AppPropertyRepository {
       return true
     }
     return false
+  }
+
+  companion object {
+    val instance by lazy { AppPropertyRepository() }
   }
 } 

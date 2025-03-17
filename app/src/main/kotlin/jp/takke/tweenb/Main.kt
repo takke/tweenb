@@ -12,7 +12,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 
 fun main() = application {
   // アプリケーション設定リポジトリ
-  val propertyRepository = AppPropertyRepository()
+  val propertyRepository = AppPropertyRepository.instance
 
   // 保存されていた設定からウィンドウ状態を作成
   val state = rememberWindowState(
