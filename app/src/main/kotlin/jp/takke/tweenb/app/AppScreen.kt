@@ -26,6 +26,7 @@ import kotlin.system.exitProcess
 @Preview
 fun FrameWindowScope.AppScreen() {
   val viewModel = viewModel { AppViewModel() }
+  val uiState by viewModel.uiState.collectAsState()
 
   MenuBar {
     Menu("ファイル") {
@@ -62,7 +63,8 @@ fun FrameWindowScope.AppScreen() {
         },
         onRefresh = {
           viewModel.refreshCurrentTab()
-        }
+        },
+        isLoading = uiState.timelineLoading
       )
 
       // Status bar
@@ -88,7 +90,6 @@ fun FrameWindowScope.AppScreen() {
     )
 
     // 設定ダイアログ
-    val uiState by viewModel.uiState.collectAsState()
     ConfigDialog(
       showConfigDialog = viewModel.showConfigDialog,
       onDismiss = { viewModel.dismissConfigDialog() },

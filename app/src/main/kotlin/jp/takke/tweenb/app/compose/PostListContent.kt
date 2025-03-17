@@ -6,7 +6,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
@@ -77,15 +76,7 @@ fun PostListContent(
       // Post items
       val listState = rememberLazyListState()
 
-      if (uiState.timelineLoading) {
-        // ローディング表示
-        Box(
-          modifier = Modifier.fillMaxSize(),
-          contentAlignment = Alignment.Center
-        ) {
-          CircularProgressIndicator()
-        }
-      } else if (uiState.timelinePosts.isEmpty() && appViewModel.selectedTabIndex == 0) {
+      if (uiState.timelinePosts.isEmpty() && appViewModel.selectedTabIndex == 0) {
         // 投稿がない場合
         Box(
           modifier = Modifier.fillMaxSize(),

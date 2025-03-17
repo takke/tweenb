@@ -2,14 +2,8 @@ package jp.takke.tweenb.app.compose
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material.Divider
-import androidx.compose.material.Icon
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
+import androidx.compose.foundation.layout.*
+import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.runtime.*
@@ -24,7 +18,8 @@ fun Tab(
   tabNames: List<String>,
   selectedTabIndex: Int,
   onTabSelected: (Int) -> Unit,
-  onRefresh: () -> Unit = {}
+  onRefresh: () -> Unit = {},
+  isLoading: Boolean = false
 ) {
   var tabHeight by remember { mutableStateOf(0.dp) }
   val tabBorderColor = Color.LightGray
@@ -62,7 +57,28 @@ fun Tab(
         }
       }
     }
-    
+
+    // ローディングスピナー
+    if (isLoading) {
+      Box(
+        modifier = Modifier
+          .height(tabHeight)
+          .padding(8.dp),
+        contentAlignment = Alignment.Center
+      ) {
+        CircularProgressIndicator(
+          modifier = Modifier.size(20.dp),
+          strokeWidth = 2.dp
+        )
+      }
+
+      // スピナーとリロードボタンの間の区切り線
+      VerticalDivider(
+        height = tabHeight,
+        color = tabBorderColor
+      )
+    }
+
     // 更新ボタン
     Box(
       modifier = Modifier
@@ -77,7 +93,7 @@ fun Tab(
         tint = Color.DarkGray
       )
     }
-    
+
     // 最後の区切り線
     VerticalDivider(
       height = tabHeight,
