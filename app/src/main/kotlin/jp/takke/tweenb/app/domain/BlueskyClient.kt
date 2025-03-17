@@ -2,7 +2,7 @@ package jp.takke.tweenb.app.domain
 
 import jp.takke.tweenb.app.AppConstants
 import jp.takke.tweenb.app.repository.AccountRepository
-import jp.takke.tweenb.app.util.Logger
+import jp.takke.tweenb.app.util.LoggerWrapper
 import work.socialhub.kbsky.Bluesky
 import work.socialhub.kbsky.BlueskyFactory
 import work.socialhub.kbsky.auth.AuthFactory
@@ -52,8 +52,7 @@ interface BlueskyClient {
  */
 private class BlueskyClientImpl : BlueskyClient {
 
-  // ロガー
-  private val logger = Logger.instance
+  private val logger = LoggerWrapper("BlueskyClient")
 
   // Bluesky APIのファクトリー
   private val factory: Bluesky
@@ -121,7 +120,7 @@ private class BlueskyClientImpl : BlueskyClient {
     val now = System.currentTimeMillis() / 1000
     val remainSec = exp - now
     if (remainSec < 60) {
-      logger.i(TAG, "exp が近いので refresh する: remain[${remainSec}s=${secToHMS(remainSec)}]")
+      logger.i("exp が近いので refresh する: remain[${remainSec}s=${secToHMS(remainSec)}]")
 
       // トークンリフレッシュは直列化する
       val repository = AccountRepository.instance
@@ -140,7 +139,7 @@ private class BlueskyClientImpl : BlueskyClient {
 //        bskyAccountProvider.updateBlueskyDPoPNonce(accountIdWIN, client.oAuthSession?.dPoPNonce)
       }
     } catch (e: Exception) {
-      logger.e(TAG, "API呼び出しエラー: ${e.message}", e)
+      logger.e("API呼び出しエラー: ${e.message}", e)
       throw e
     }
   }
@@ -180,7 +179,7 @@ private class BlueskyClientImpl : BlueskyClient {
     }
 
     val authProvider = authProvider ?: throw IllegalStateException("OAuthProvider が初期化されていません")
-    logger.i(TAG, "OAuth refresh 開始: dPoPNonce[${oAuthContext.dPoPNonce}], refreshToken[${authProvider.refreshTokenJwt}]")
+    logger.d("OAuth refresh 開始: dPoPNonce[${oAuthContext.dPoPNonce}], refreshToken[${authProvider.refreshTokenJwt}]")
     val response = AuthFactory
       .instance(authProvider.pdsEndpoint)
       .oauth()
@@ -190,7 +189,7 @@ private class BlueskyClientImpl : BlueskyClient {
       )
 
     val rr = response.data
-    logger.i(TAG, "refresh response: $rr")
+    logger.d("refresh response: $rr")
 
     // Refresh したトークンを保存する
     val updatedAccount = Account(
@@ -204,12 +203,8 @@ private class BlueskyClientImpl : BlueskyClient {
     )
     // アカウント情報を永続化
     repository.saveAccount(account)
-    logger.i(TAG, "refresh 完了: updated[$updatedAccount]")
+    logger.i("refresh 完了: updated[$updatedAccount]")
 
     return updatedAccount
-  }
-
-  companion object {
-    private const val TAG = "BlueskyClient"
   }
 }
