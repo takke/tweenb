@@ -59,38 +59,7 @@ fun PostItem(
         when (columnInfo.type) {
           ColumnType.Icon -> {
             // アイコン
-            Box(
-              modifier = Modifier
-                .width(columnInfo.width)
-                .padding(8.dp),
-              contentAlignment = Alignment.Center
-            ) {
-              val avatarUrl = post.post.author?.avatar
-              if (avatarUrl != null) {
-                AsyncImage(
-                  model = ImageRequest.Builder(LocalPlatformContext.current)
-                    .data(avatarUrl)
-                    .crossfade(true)
-                    .build(),
-                  contentDescription = "ユーザーアイコン",
-                  modifier = Modifier
-                    .size(40.dp)
-                    .clip(CircleShape)
-                )
-              } else {
-                // アバター画像がない場合はプレースホルダーを表示
-                Box(
-                  modifier = Modifier
-                    .size(40.dp)
-                    .clip(CircleShape)
-                    .drawWithContent {
-                      drawCircle(
-                        color = Color.LightGray
-                      )
-                    }
-                )
-              }
-            }
+            UserIcon(columnInfo, post)
           }
 
           ColumnType.Name -> {
@@ -157,5 +126,44 @@ fun PostItem(
     Divider(
       color = Color.LightGray
     )
+  }
+}
+
+@Composable
+private fun UserIcon(
+  columnInfo: ColumnInfo,
+  post: BsFeedViewPost
+) {
+  Box(
+    modifier = Modifier
+      .width(columnInfo.width)
+      .padding(8.dp),
+    contentAlignment = Alignment.Center
+  ) {
+    val avatarUrl = post.post.author?.avatar
+    if (avatarUrl != null) {
+      AsyncImage(
+        model = ImageRequest.Builder(LocalPlatformContext.current)
+          .data(avatarUrl)
+          .crossfade(true)
+          .build(),
+        contentDescription = "ユーザーアイコン",
+        modifier = Modifier
+          .size(40.dp)
+          .clip(CircleShape)
+      )
+    } else {
+      // アバター画像がない場合はプレースホルダーを表示
+      Box(
+        modifier = Modifier
+          .size(40.dp)
+          .clip(CircleShape)
+          .drawWithContent {
+            drawCircle(
+              color = Color.LightGray
+            )
+          }
+      )
+    }
   }
 }
