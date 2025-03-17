@@ -50,8 +50,6 @@ class AppViewModel : ViewModel() {
     val code: String = "",
     // アカウントリスト
     val accounts: List<Account> = emptyList(),
-    // 選択中のアカウント
-    val selectedAccount: Account? = null,
   ) {
     enum class LoginState {
       INIT,
@@ -79,6 +77,9 @@ class AppViewModel : ViewModel() {
   var blueskyClientInitialized by mutableStateOf(blueskyClient.isInitialized())
     private set
 
+  val account: Account?
+    get() = blueskyClient.account
+
   // バージョン情報ダイアログの表示状態
   var showAboutDialog by mutableStateOf(false)
     private set
@@ -99,6 +100,11 @@ class AppViewModel : ViewModel() {
   init {
     // 保存されているアカウント情報を読み込む
     loadAccounts()
+
+    // アカウントがあれば先頭のものを選択
+    if (_uiState.value.accounts.isNotEmpty()) {
+      selectAccount(_uiState.value.accounts.first())
+    }
   }
 
   /**
@@ -116,10 +122,6 @@ class AppViewModel : ViewModel() {
    * アカウントを選択する
    */
   fun selectAccount(account: Account) {
-    _uiState.update {
-      it.copy(selectedAccount = account)
-    }
-
     // Blueskyクライアントの初期化
     initializeBlueskyClient(account)
   }
@@ -128,8 +130,7 @@ class AppViewModel : ViewModel() {
    * Blueskyクライアントを初期化する
    */
   private fun initializeBlueskyClient(account: Account) {
-    // TODO: 実装すること
-    // blueskyClient.initialize(...)
+    blueskyClient.initialize(account)
 
     // 初期化状態を更新
     blueskyClientInitialized = blueskyClient.isInitialized()

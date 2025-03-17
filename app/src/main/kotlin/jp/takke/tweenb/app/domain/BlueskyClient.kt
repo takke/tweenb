@@ -8,10 +8,14 @@ import work.socialhub.kbsky.domain.Service
  * 通信や認証処理は不要な段階なので、ダミー実装を返すようにします
  */
 interface BlueskyClient {
+  val account: Account?
+
   /**
    * クライアントが正しく初期化されているかどうか
    */
   fun isInitialized(): Boolean
+
+  fun initialize(account: Account)
 
   companion object {
     /**
@@ -31,8 +35,14 @@ private class BlueskyClientImpl : BlueskyClient {
   // Bluesky APIのファクトリー
   private val factory = BlueskyFactory.instance(Service.BSKY_SOCIAL.uri)
 
+  override var account: Account? = null
+    private set
+
   override fun isInitialized(): Boolean {
-    // TODO 実装すること
-    return false
+    return account != null
+  }
+
+  override fun initialize(account: Account) {
+    this.account = account
   }
 } 

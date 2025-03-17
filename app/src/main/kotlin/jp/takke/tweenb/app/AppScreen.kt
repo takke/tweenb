@@ -64,9 +64,9 @@ fun FrameWindowScope.AppScreen() {
 
       // Status bar
       val statusText = if (viewModel.blueskyClientInitialized) {
-        "Bluesky API: 接続済み"
+        "@${viewModel.account?.screenName}"
       } else {
-        "Bluesky API: 未接続"
+        "未認証"
       }
       Text(
         text = statusText,
