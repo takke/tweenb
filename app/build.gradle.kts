@@ -76,6 +76,23 @@ compose.desktop {
       targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
       packageName = "tweenb"
       packageVersion = "1.0.0"
+      
+      // アプリケーション情報
+      vendor = "Hiroaki TAKEUCHI"
+      copyright = "© 2025 Hiroaki TAKEUCHI. All rights reserved."
+      description = "Bluesky client for desktop"
+      
+      // Windows MSI設定
+      windows {
+        // スタートメニューへの追加
+        menu = true
+        // デスクトップショートカットの作成
+        shortcut = true
+        // アップグレード時にUUIDを維持
+        upgradeUuid = "2A06E9F3-8F9B-4A58-9B95-6D878D7C4C30"
+        // メニュー名
+        menuGroup = "tweenb"
+      }
     }
   }
 } 
