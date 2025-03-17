@@ -9,7 +9,6 @@ import work.socialhub.kbsky.BlueskyFactory
 import work.socialhub.kbsky.api.entity.app.bsky.actor.ActorGetProfileRequest
 import work.socialhub.kbsky.api.entity.app.bsky.actor.ActorGetProfileResponse
 import work.socialhub.kbsky.auth.AuthFactory
-import work.socialhub.kbsky.auth.AuthProvider
 import work.socialhub.kbsky.auth.OAuthContext
 import work.socialhub.kbsky.auth.OAuthProvider
 import work.socialhub.kbsky.auth.api.entity.oauth.BuildAuthorizationUrlRequest
@@ -150,19 +149,3 @@ class BlueskyAuthService(
     }
   }
 }
-
-val AuthProvider.pdsEndpoint: String
-  get() = didToUrl(this.pdsDid)
-
-/**
- * did を URL に変換する
- *
- * 例えば
- * "did:web:shimeji.us-east.host.bsky.network"
- * を
- * "https://shimeji.us-east.host.bsky.network"
- * に変更する
- */
-fun didToUrl(did: String): String {
-  return "https://" + did.substringAfterLast(":")
-} 
