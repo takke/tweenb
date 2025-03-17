@@ -78,10 +78,10 @@ fun PostListContent(
       }
 
       // デモデータのロード
-      val coroutineScope = rememberCoroutineScope()
-      LaunchedEffect(Unit) {
-        viewModel.loadDemoData(coroutineScope, listState)
-      }
+//      val coroutineScope = rememberCoroutineScope()
+//      LaunchedEffect(Unit) {
+//        viewModel.loadDemoData(coroutineScope, listState)
+//      }
     }
   }
 }

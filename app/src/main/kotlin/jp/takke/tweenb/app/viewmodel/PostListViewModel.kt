@@ -26,16 +26,16 @@ class PostListViewModel : ViewModel() {
     private set
 
   // デモ用のデータロード処理
-  fun loadDemoData(coroutineScope: CoroutineScope, listState: LazyListState) {
-    coroutineScope.launch {
-      delay(2_000)
-      println("update")
-
-      repeat(50) {
-        itemCount++
-        listState.scrollToItem(itemCount - 1)
-        delay(500)
-      }
-    }
-  }
+//  fun loadDemoData(coroutineScope: CoroutineScope, listState: LazyListState) {
+//    coroutineScope.launch {
+//      delay(2_000)
+//      println("update")
+//
+//      repeat(50) {
+//        itemCount++
+//        listState.scrollToItem(itemCount - 1)
+//        delay(500)
+//      }
+//    }
+//  }
 } 
