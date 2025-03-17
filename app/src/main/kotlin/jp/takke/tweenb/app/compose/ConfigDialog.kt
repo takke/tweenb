@@ -70,16 +70,16 @@ fun ConfigDialog(
 
       Spacer(modifier = Modifier.weight(1f))
 
-//      Box(
-//        modifier = Modifier.fillMaxWidth(),
-//        contentAlignment = Alignment.CenterEnd
-//      ) {
-//        Button(
-//          onClick = { onDismiss() }
-//        ) {
-//          Text("OK")
-//        }
-//      }
+      Box(
+        modifier = Modifier.fillMaxWidth(),
+        contentAlignment = Alignment.CenterEnd
+      ) {
+        Button(
+          onClick = { onDismiss() }
+        ) {
+          Text("OK")
+        }
+      }
     }
   }
 }

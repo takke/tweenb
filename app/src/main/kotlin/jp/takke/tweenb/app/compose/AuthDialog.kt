@@ -19,6 +19,7 @@ fun AuthDialog(
   onStartAuth: () -> Unit,
   uiState: AppViewModel.UiState,
   onCodeChanged: (String) -> Unit,
+  onStartTokenRequest: () -> Unit,
 ) {
   if (!showConfigDialog) {
     return
@@ -39,27 +40,37 @@ fun AuthDialog(
     ) {
       val authorized = false
 
-      Spacer(modifier = Modifier.weight(1f))
-
       // 未認証なら認証ボタン表示
       if (!authorized) {
         when (uiState.loginState) {
           AppViewModel.UiState.LoginState.INIT -> {
             // TODO ユーザー名入力があったほうがいい
-            Box(
-              modifier = Modifier.fillMaxWidth(),
-              contentAlignment = Alignment.Center
+            Spacer(modifier = Modifier.weight(1f))
+
+            Row(
+              verticalAlignment = Alignment.CenterVertically,
+              modifier = Modifier
+                .align(Alignment.CenterHorizontally)
             ) {
               Button(
                 onClick = { onStartAuth() }
               ) {
                 Text("認証開始")
               }
+
+              Spacer(Modifier.size(16.dp))
+
+              Button(
+                onClick = { onDismiss() }
+              ) {
+                Text("キャンセル")
+              }
             }
           }
 
           AppViewModel.UiState.LoginState.LOADING -> {
             // 処理中
+            Spacer(modifier = Modifier.weight(1f))
             Box(
               modifier = Modifier.fillMaxWidth(),
               contentAlignment = Alignment.Center
@@ -70,17 +81,35 @@ fun AuthDialog(
 
           AppViewModel.UiState.LoginState.WAITING_CODE -> {
             // コード入力待ち
-            Box(
-              modifier = Modifier.fillMaxWidth(),
-              contentAlignment = Alignment.Center
-            ) {
-              Text("コードを入力してください")
-            }
+            Text("ブラウザに表示されたコードを入力してください")
+
+            Spacer(Modifier.size(8.dp))
 
             TextField(
               value = uiState.code,
               onValueChange = { onCodeChanged(it) },
+              label = { Text("コード") },
+              modifier = Modifier.fillMaxWidth()
             )
+
+            Row(
+              verticalAlignment = Alignment.CenterVertically,
+              modifier = Modifier
+            ) {
+              Button(
+                onClick = { onStartTokenRequest() }
+              ) {
+                Text("OK")
+              }
+
+              Spacer(Modifier.size(8.dp))
+
+              Button(
+                onClick = { onDismiss() }
+              ) {
+                Text("キャンセル")
+              }
+            }
           }
         }
       }
@@ -110,17 +139,6 @@ fun AuthDialog(
       }
 
       Spacer(modifier = Modifier.weight(1f))
-
-      Box(
-        modifier = Modifier.fillMaxWidth(),
-        contentAlignment = Alignment.CenterEnd
-      ) {
-        Button(
-          onClick = { onDismiss() }
-        ) {
-          Text("OK")
-        }
-      }
     }
   }
 }

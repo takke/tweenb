@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -98,7 +99,15 @@ fun FrameWindowScope.AppScreen() {
       onStartAuth = { viewModel.startAuth() },
       uiState = uiState,
       onCodeChanged = viewModel::onCodeChanged,
+      onStartTokenRequest = viewModel::onStartTokenRequest,
     )
+
+    // 未認証ならすぐに認証画面を開く
+    LaunchedEffect(Unit) {
+      if (!viewModel.blueskyClientInitialized) {
+        viewModel.showAuthDialog()
+      }
+    }
   }
 }
 

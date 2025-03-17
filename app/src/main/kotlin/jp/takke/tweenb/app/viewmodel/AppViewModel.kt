@@ -15,11 +15,19 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import work.socialhub.kbsky.ATProtocolException
+import work.socialhub.kbsky.BlueskyFactory
+import work.socialhub.kbsky.api.entity.app.bsky.actor.ActorGetProfileRequest
+import work.socialhub.kbsky.api.entity.app.bsky.actor.ActorGetProfileResponse
 import work.socialhub.kbsky.auth.AuthFactory
+import work.socialhub.kbsky.auth.AuthProvider
 import work.socialhub.kbsky.auth.OAuthContext
+import work.socialhub.kbsky.auth.OAuthProvider
 import work.socialhub.kbsky.auth.api.entity.oauth.BuildAuthorizationUrlRequest
+import work.socialhub.kbsky.auth.api.entity.oauth.OAuthAuthorizationCodeTokenRequest
 import work.socialhub.kbsky.auth.api.entity.oauth.OAuthPushedAuthorizationRequest
+import work.socialhub.kbsky.auth.api.entity.oauth.OAuthTokenResponse
 import work.socialhub.kbsky.domain.Service
+import work.socialhub.kbsky.domain.Service.BSKY_SOCIAL
 import java.awt.Desktop
 import java.net.URI
 
@@ -52,6 +60,8 @@ class AppViewModel : ViewModel() {
   private val _uiState = MutableStateFlow(UiState())
   val uiState: StateFlow<UiState> = _uiState.asStateFlow()
 
+  // OAuthコンテキスト
+  var oauthContext: OAuthContext? = null
 
   // Blueskyクライアント
   private val blueskyClient = BlueskyClient.create()
@@ -125,6 +135,10 @@ class AppViewModel : ViewModel() {
     }
   }
 
+  fun onStartTokenRequest() {
+    tokenRequest(uiState.value.code)
+  }
+
   private fun loginWithOAuth() {
 
     viewModelScope.launch {
@@ -150,7 +164,7 @@ class AppViewModel : ViewModel() {
       }
 
       // OAuth ログイン開始
-      val oauthContext = OAuthContext().also {
+      oauthContext = OAuthContext().also {
         it.clientId = AppConstants.OAUTH_CLIENT_ID
         it.redirectUri = AppConstants.CALLBACK_URL
       }
@@ -166,7 +180,7 @@ class AppViewModel : ViewModel() {
             .instance(Service.BSKY_SOCIAL.uri)
             .oauth()
             .pushedAuthorizationRequest(
-              oauthContext,
+              oauthContext!!,
               OAuthPushedAuthorizationRequest().also {
                 it.loginHint = loginHint
               }
@@ -178,7 +192,7 @@ class AppViewModel : ViewModel() {
             .instance(Service.BSKY_SOCIAL.uri)
             .oauth()
             .buildAuthorizationUrl(
-              oauthContext,
+              oauthContext!!,
               BuildAuthorizationUrlRequest().also {
                 it.requestUri = response.data.requestUri
               }
@@ -226,4 +240,124 @@ class AppViewModel : ViewModel() {
       }
     }
   }
+
+  private fun tokenRequest(code: String) {
+    viewModelScope.launch {
+      // TODO 実装すること
+
+      // トークン取得中
+      _uiState.update {
+        it.copy(loginState = UiState.LoginState.LOADING)
+      }
+
+      // AccessToken とアカウント情報を取得する
+      val pair = fetchAccessTokenAndAccountInfoAsync(code)
+      if (pair == null) {
+        // 認証失敗
+        _uiState.update {
+          it.copy(
+            validationErrorMessage = "認証に失敗しました",
+            loginState = UiState.LoginState.INIT,
+          )
+        }
+        return@launch
+      }
+
+      val (response, user) = pair
+
+      // 追加の場合はアカウント数上限をチェックする
+      println("user.did[$user.did]")
+
+      // TODO 永続化
+//      // "did:plc:mm5f..." のような文字列
+//      accountId = user.did,
+//      // handle
+//      screenNameWIN = user.handle,
+//      // accessJwt
+//      accessJwt = response.accessToken,
+//      refreshJwt = response.refreshToken,
+//      dPoPNonce = oauthContext.dPoPNonce,
+//      publicKey = oauthContext.publicKey ?: "",
+//      privateKey = oauthContext.privateKey ?: "",
+
+      _uiState.update {
+        it.copy(
+          loginState = UiState.LoginState.INIT,
+          code = "",
+        )
+      }
+
+      // Blueskyクライアントの初期化
+      // TODO 実装すること
+
+      dismissAuthDialog()
+    }
+  }
+
+  private suspend fun fetchAccessTokenAndAccountInfoAsync(code: String): Pair<OAuthTokenResponse, ActorGetProfileResponse>? {
+
+    return withContext(Dispatchers.Default) {
+
+      try {
+        val authResponse = AuthFactory
+          .instance(BSKY_SOCIAL.uri)
+          .oauth()
+          .authorizationCodeTokenRequest(
+            oauthContext!!,
+            OAuthAuthorizationCodeTokenRequest().also {
+              it.code = code
+            }
+          )
+
+        println("authResponse[${authResponse.data}]")
+
+
+        // 自分の ScreenName 等を取得するために profile を取得する
+
+        val myDid = authResponse.data.sub
+
+        val authProvider = OAuthProvider(
+          accessTokenJwt = authResponse.data.accessToken,
+          refreshTokenJwt = authResponse.data.refreshToken,
+          session = oauthContext!!,
+        )
+
+        val profileResponse = BlueskyFactory.instance(authProvider.pdsEndpoint)
+          .actor()
+          .getProfile(
+            ActorGetProfileRequest(
+              authProvider
+            ).also {
+              it.actor = myDid
+            }
+          )
+
+        val user = profileResponse.data
+        println("user handle[${user.handle}]")
+
+
+        Pair(authResponse.data, user)
+
+      } catch (e: Exception) {
+        e.printStackTrace()
+        null
+      }
+    }
+  }
+}
+
+val AuthProvider.pdsEndpoint: String
+  get() = didToUrl(this.pdsDid)
+
+/**
+ * did を URL に変換する
+ *
+ * 例えば
+ * "did:web:shimeji.us-east.host.bsky.network"
+ * を
+ * "https://shimeji.us-east.host.bsky.network"
+ * に変更する
+ */
+fun didToUrl(did: String): String {
+  return "https://" + did.substringAfterLast(":")
 }
