@@ -60,7 +60,7 @@ fun PostItem(
             ) {
               Text(
                 text = post.post.author?.displayName ?: "",
-                style = MaterialTheme.typography.body1,
+                style = MaterialTheme.typography.body2,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
               )
@@ -76,9 +76,16 @@ fun PostItem(
 
           ColumnType.Post -> {
             // 投稿内容
+            val postBody = post.post.record?.asFeedPost?.text ?: ""
+            val repostedBy = post.reason?.asReasonRepost?.by
             Text(
-              text = post.post.record?.asFeedPost?.text ?: "",
-              style = MaterialTheme.typography.body1,
+              text = if (repostedBy != null) {
+                // リポスト
+                "RP: $postBody"
+              } else {
+                postBody
+              },
+              style = MaterialTheme.typography.body2,
               modifier = Modifier
                 .width(columnInfo.width)
                 .padding(vertical = 4.dp, horizontal = 8.dp),
