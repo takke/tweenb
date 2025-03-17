@@ -17,6 +17,7 @@ import androidx.compose.ui.unit.dp
 import jp.takke.tweenb.app.domain.BsFeedViewPost
 import jp.takke.tweenb.app.domain.ColumnInfo
 import jp.takke.tweenb.app.domain.ColumnType
+import jp.takke.tweenb.app.domain.createdAtAsDate
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -112,8 +113,10 @@ fun PostItem(
 
           ColumnType.DateTime -> {
             // 日時
-            val dateFormat = SimpleDateFormat("yyyy/MM/dd HH:mm", Locale.getDefault())
-            val formattedDate = dateFormat.format(post.post.indexedAt)
+            val formattedDate = post.post.createdAtAsDate?.let { createdAt ->
+              val dateFormat = SimpleDateFormat("yyyy/MM/dd HH:mm", Locale.getDefault())
+              dateFormat.format(createdAt)
+            } ?: ""
             Text(
               text = formattedDate,
               style = MaterialTheme.typography.caption,
