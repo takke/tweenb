@@ -6,6 +6,9 @@ import java.io.PrintWriter
 import java.text.SimpleDateFormat
 import java.util.*
 import java.util.concurrent.ConcurrentLinkedQueue
+import java.util.concurrent.Executors
+import java.util.concurrent.ScheduledExecutorService
+import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 
 /**
@@ -37,6 +40,93 @@ class Logger private constructor() {
 
   // 処理中フラグ
   private val processing = AtomicBoolean(false)
+
+  // スケジューラー（古いログファイル削除用）
+  private val scheduler: ScheduledExecutorService = Executors.newScheduledThreadPool(1)
+
+  init {
+    // 起動時に古いログファイルを削除
+    cleanupOldLogFiles()
+
+    // 毎日0時に古いログファイルをクリーンアップするスケジュール設定
+    scheduleLogCleanup()
+
+    // 初期化ログはここで直接出力
+    println("[初期化] ロガーを初期化しました")
+  }
+
+  /**
+   * 毎日0時に古いログファイルをクリーンアップするスケジュールを設定
+   */
+  private fun scheduleLogCleanup() {
+    val calendar = Calendar.getInstance()
+    // 次の日の0時を設定
+    calendar.add(Calendar.DAY_OF_MONTH, 1)
+    calendar.set(Calendar.HOUR_OF_DAY, 0)
+    calendar.set(Calendar.MINUTE, 0)
+    calendar.set(Calendar.SECOND, 0)
+    calendar.set(Calendar.MILLISECOND, 0)
+
+    // 次の日の0時までの時間（ミリ秒）を計算
+    val initialDelay = calendar.timeInMillis - System.currentTimeMillis()
+
+    // 毎日0時に実行するスケジュールを設定
+    scheduler.scheduleAtFixedRate(
+      { cleanupOldLogFiles() },
+      initialDelay,
+      TimeUnit.DAYS.toMillis(1),
+      TimeUnit.MILLISECONDS
+    )
+  }
+
+  /**
+   * 前々日以前のログファイルを削除する
+   */
+  private fun cleanupOldLogFiles() {
+    try {
+      // 現在の日付を取得
+      val calendar = Calendar.getInstance()
+      val today = calendar.time
+
+      // 前日の日付を取得
+      calendar.add(Calendar.DAY_OF_MONTH, -1)
+      val yesterday = calendar.time
+
+      // 保持対象の日付のファイル名を作成
+      val todayFileName = "tweenb_${logFileNameDateFormat.format(today)}.log"
+      val yesterdayFileName = "tweenb_${logFileNameDateFormat.format(yesterday)}.log"
+
+      // ログディレクトリ内のすべてのファイルを取得
+      val logFiles = logDir.listFiles { file ->
+        file.isFile && file.name.startsWith("tweenb_") && file.name.endsWith(".log")
+      }
+
+      // 削除対象ファイル数をカウント
+      var deleteCount = 0
+
+      // 本日と前日以外のログファイルを削除
+      logFiles?.forEach { file ->
+        if (file.name != todayFileName && file.name != yesterdayFileName) {
+          if (file.delete()) {
+            deleteCount++
+            // 無限ループを避けるためにlog()ではなくprintlnを使用
+            println("[${logTimestampFormat.format(Date())}] [INFO] [Logger] 古いログファイルを削除しました: ${file.name}")
+          } else {
+            println("[${logTimestampFormat.format(Date())}] [WARN] [Logger] ログファイルの削除に失敗しました: ${file.name}")
+          }
+        }
+      }
+
+      // 削除完了のログ
+      if (deleteCount > 0) {
+        println("[${logTimestampFormat.format(Date())}] [INFO] [Logger] 古いログファイルのクリーンアップ完了: $deleteCount 件削除")
+      }
+    } catch (e: Exception) {
+      // エラーログ
+      println("[${logTimestampFormat.format(Date())}] [ERROR] [Logger] ログクリーンアップ中にエラーが発生しました: ${e.message}")
+      e.printStackTrace()
+    }
+  }
 
   // ロガースレッド
   private val loggerThread = Thread {
@@ -102,6 +192,7 @@ class Logger private constructor() {
         }
       }
     } catch (e: Exception) {
+      println("[${logTimestampFormat.format(Date())}] [ERROR] [Logger] ログ処理中にエラーが発生しました: ${e.message}")
       e.printStackTrace()
     } finally {
       processing.set(false)
