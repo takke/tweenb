@@ -2,6 +2,7 @@ package jp.takke.tweenb
 
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
@@ -13,8 +14,11 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 
 fun main() = application {
   // Loggerの初期化
-  val logger = LoggerWrapper("Main")
-  logger.i("アプリケーション起動")
+  val logger = remember { LoggerWrapper("Main") }
+
+  LaunchedEffect(Unit) {
+    logger.i("アプリケーション起動")
+  }
 
   // アプリケーション設定リポジトリ
   val propertyRepository = AppPropertyRepository.instance
@@ -24,11 +28,13 @@ fun main() = application {
     position = propertyRepository.getWindowPosition(),
     size = propertyRepository.getWindowSize()
   )
-  logger.i("ウィンドウ状態: position=${state.position}, size=${state.size}")
 
-  // ウィンドウの位置やサイズが変更されたときにも保存する
+  LaunchedEffect(Unit) {
+    logger.i("ウィンドウ状態: position=${state.position}, size=${state.size}")
+  }
+
+  // ウィンドウの位置・サイズ変更
   LaunchedEffect(state) {
-    // ウィンドウの位置の変更を監視
     snapshotFlow { state.position }
       .distinctUntilChanged()
       .collect { position ->
@@ -38,7 +44,6 @@ fun main() = application {
   }
 
   LaunchedEffect(state) {
-    // ウィンドウのサイズの変更を監視
     snapshotFlow { state.size }
       .distinctUntilChanged()
       .collect { size ->
