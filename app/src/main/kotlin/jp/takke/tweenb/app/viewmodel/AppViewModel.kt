@@ -151,6 +151,50 @@ class AppViewModel : ViewModel() {
     selectedTabIndex = index
   }
 
+  /**
+   * 現在選択中のタブを更新する
+   */
+  fun refreshCurrentTab() {
+    viewModelScope.launch {
+      try {
+        println("タブ更新: ${tabNames[selectedTabIndex]}")
+        
+        // タブの種類に応じた更新処理
+        when (selectedTabIndex) {
+          0 -> refreshRecentTab()
+          1 -> refreshNotificationsTab()
+          2 -> refreshListsTab()
+        }
+      } catch (e: Exception) {
+        println("タブ更新エラー: ${e.message}")
+      }
+    }
+  }
+  
+  /**
+   * Recentタブの更新
+   */
+  private suspend fun refreshRecentTab() {
+    // TODO: タイムラインの更新処理を実装
+    // blueskyClient.getTimeline() など
+  }
+  
+  /**
+   * Notificationsタブの更新
+   */
+  private suspend fun refreshNotificationsTab() {
+    // TODO: 通知の更新処理を実装
+    // blueskyClient.getNotifications() など
+  }
+  
+  /**
+   * Listsタブの更新
+   */
+  private suspend fun refreshListsTab() {
+    // TODO: リストの更新処理を実装
+    // blueskyClient.getLists() など
+  }
+
   // Blueskyクライアントの取得
   fun getBlueskyClient(): BlueskyClient {
     return blueskyClient

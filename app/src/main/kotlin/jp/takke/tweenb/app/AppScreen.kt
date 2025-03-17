@@ -60,6 +60,9 @@ fun FrameWindowScope.AppScreen() {
         onTabSelected = { index ->
           viewModel.selectTab(index)
         },
+        onRefresh = {
+          viewModel.refreshCurrentTab()
+        }
       )
 
       // Status bar
