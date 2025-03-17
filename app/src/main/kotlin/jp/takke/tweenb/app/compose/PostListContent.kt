@@ -13,21 +13,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.unit.dp
-import jp.takke.tweenb.app.domain.ColumnInfo
-import jp.takke.tweenb.app.domain.ColumnType
-import kotlinx.coroutines.delay
-
-// TODO 設定に保存し、カスタマイズできるようにすること
-val cols = listOf(
-  ColumnInfo(ColumnType.Icon, "", 64.dp),
-  ColumnInfo(ColumnType.Name, "名前", 120.dp),
-  ColumnInfo(ColumnType.Post, "投稿", 360.dp),
-  ColumnInfo(ColumnType.DateTime, "日時", 120.dp),
-)
+import jp.takke.tweenb.app.viewmodel.PostListViewModel
 
 @Composable
 fun PostListContent(
   modifier: Modifier = Modifier,
+  viewModel: PostListViewModel = remember { PostListViewModel() },
 ) {
   Box(
     modifier = modifier,
@@ -53,7 +44,7 @@ fun PostListContent(
             shape = RoundedCornerShape(4.dp),
           )
       ) {
-        cols.forEach {
+        viewModel.columns.forEach {
           Text(
             text = it.name,
             style = MaterialTheme.typography.body2,
@@ -61,18 +52,14 @@ fun PostListContent(
               .width(it.width)
               .padding(8.dp)
           )
-//          if (it.type != ColumnType.Icon) {
           VerticalDivider(
             height = headerHeight,
             color = headerBorderColor,
           )
-//          }
         }
-
       }
 
       // Post items
-      var itemCount by remember { mutableStateOf(5) }
       val listState = rememberLazyListState()
       LazyColumn(
         state = listState,
@@ -80,26 +67,20 @@ fun PostListContent(
           .fillMaxWidth()
           .weight(1f)
       ) {
-        items(itemCount) { index ->
+        items(viewModel.itemCount) { index ->
           PostItem(
             index = index,
             modifier = Modifier,
+            cols = viewModel.columns,
           )
         }
       }
 
+      // デモデータのロード
+      val coroutineScope = rememberCoroutineScope()
       LaunchedEffect(Unit) {
-        delay(2_000)
-        println("update")
-
-        repeat(50) {
-          itemCount++
-          listState.scrollToItem(itemCount - 1)
-          delay(500)
-        }
+        viewModel.loadDemoData(coroutineScope, listState)
       }
-
     }
   }
-
 }

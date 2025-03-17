@@ -11,11 +11,13 @@ import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import jp.takke.tweenb.app.domain.ColumnInfo
 
 @Composable
 fun PostItem(
   index: Int,
-  modifier: Modifier
+  modifier: Modifier,
+  cols: List<ColumnInfo>,
 ) {
   Column(
     modifier = modifier
