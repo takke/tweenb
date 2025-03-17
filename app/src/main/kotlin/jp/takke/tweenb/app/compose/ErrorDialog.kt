@@ -17,16 +17,18 @@ import androidx.compose.ui.window.rememberDialogState
  * エラーダイアログ
  *
  * @param show ダイアログを表示するかどうか
- * @param onDismiss ダイアログを閉じる時のコールバック
  * @param errorMessage エラーメッセージ
  * @param stackTrace スタックトレース
+ * @param onDismiss ダイアログを閉じる時のコールバック
+ * @param onReAuth 再認証時のコールバック
  */
 @Composable
 fun ErrorDialog(
   show: Boolean,
-  onDismiss: () -> Unit,
   errorMessage: String,
-  stackTrace: String
+  stackTrace: String,
+  onDismiss: () -> Unit,
+  onReAuth: () -> Unit
 ) {
   // クリップボード管理
   val clipboardManager = LocalClipboardManager.current
@@ -110,6 +112,17 @@ fun ErrorDialog(
             .padding(top = 16.dp),
           horizontalArrangement = Arrangement.End
         ) {
+          // TODO 本来はもう少しちゃんと判定すべき
+          if (stackTrace.contains("invalid_grant:")) {
+            Button(
+              onClick = onReAuth
+            ) {
+              Text("再認証")
+            }
+          }
+
+          Spacer(Modifier.size(16.dp))
+
           Button(
             onClick = onDismiss
           ) {

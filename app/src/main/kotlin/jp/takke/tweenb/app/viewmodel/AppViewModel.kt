@@ -10,7 +10,6 @@ import jp.takke.tweenb.app.domain.BlueskyAuthService
 import jp.takke.tweenb.app.domain.BlueskyClient
 import jp.takke.tweenb.app.domain.BsFeedViewPost
 import jp.takke.tweenb.app.repository.AccountRepository
-import jp.takke.tweenb.app.repository.AppPropertyRepository
 import jp.takke.tweenb.app.repository.TimelineRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -27,7 +26,6 @@ class AppViewModel : ViewModel() {
    */
   data class UiState(
     val userName: String = "",
-    val password: String = "",
     // エラーメッセージ
     val validationErrorMessage: String = "",
     // ログイン処理中
@@ -58,9 +56,6 @@ class AppViewModel : ViewModel() {
   private val _uiState = MutableStateFlow(UiState())
   val uiState: StateFlow<UiState> = _uiState.asStateFlow()
 
-  // アプリケーション設定リポジトリ
-  private val appPropertyRepository = AppPropertyRepository.instance
-  
   // アカウントリポジトリ
   private val accountRepository = AccountRepository.instance
 
@@ -158,9 +153,19 @@ class AppViewModel : ViewModel() {
   }
 
   // 認証ダイアログの表示制御
-  fun showAuthDialog() {
+  fun showAuthDialog(reAuth: Boolean = false) {
     showConfigDialog = false
     showAuthDialog = true
+
+    _uiState.update {
+      it.copy(
+        userName = if (reAuth) {
+          account?.screenName ?: ""
+        } else {
+          ""
+        }
+      )
+    }
   }
 
   fun dismissAuthDialog() {
@@ -249,11 +254,6 @@ class AppViewModel : ViewModel() {
     // blueskyClient.getLists() など
   }
 
-  // Blueskyクライアントの取得
-  fun getBlueskyClient(): BlueskyClient {
-    return blueskyClient
-  }
-
   fun startAuth() {
     loginWithOAuth()
   }
@@ -337,7 +337,8 @@ class AppViewModel : ViewModel() {
 
         dismissAuthDialog()
 
-        // TODO 初期アクセス開始
+        // 初期アクセス開始
+        refreshCurrentTab()
 
       } catch (e: Exception) {
         val message = authService.formatErrorMessage(e)
