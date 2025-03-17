@@ -5,33 +5,15 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import jp.takke.tweenb.app.AppConstants
 import jp.takke.tweenb.app.domain.Account
+import jp.takke.tweenb.app.domain.BlueskyAuthService
 import jp.takke.tweenb.app.domain.BlueskyClient
 import jp.takke.tweenb.app.repository.AppPropertyRepository
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import work.socialhub.kbsky.ATProtocolException
-import work.socialhub.kbsky.BlueskyFactory
-import work.socialhub.kbsky.api.entity.app.bsky.actor.ActorGetProfileRequest
-import work.socialhub.kbsky.api.entity.app.bsky.actor.ActorGetProfileResponse
-import work.socialhub.kbsky.auth.AuthFactory
-import work.socialhub.kbsky.auth.AuthProvider
-import work.socialhub.kbsky.auth.OAuthContext
-import work.socialhub.kbsky.auth.OAuthProvider
-import work.socialhub.kbsky.auth.api.entity.oauth.BuildAuthorizationUrlRequest
-import work.socialhub.kbsky.auth.api.entity.oauth.OAuthAuthorizationCodeTokenRequest
-import work.socialhub.kbsky.auth.api.entity.oauth.OAuthPushedAuthorizationRequest
-import work.socialhub.kbsky.auth.api.entity.oauth.OAuthTokenResponse
-import work.socialhub.kbsky.domain.Service
-import work.socialhub.kbsky.domain.Service.BSKY_SOCIAL
-import java.awt.Desktop
-import java.net.URI
 
 class AppViewModel : ViewModel() {
 
@@ -67,8 +49,8 @@ class AppViewModel : ViewModel() {
   // アプリケーション設定リポジトリ
   private val appPropertyRepository = AppPropertyRepository()
 
-  // OAuthコンテキスト
-  var oauthContext: OAuthContext? = null
+  // 認証サービス
+  private val authService = BlueskyAuthService(appPropertyRepository)
 
   // Blueskyクライアント
   private val blueskyClient = BlueskyClient.create()
@@ -189,224 +171,86 @@ class AppViewModel : ViewModel() {
   }
 
   private fun loginWithOAuth() {
-
     viewModelScope.launch {
-
-      // TODO dummyなので書き換えること
-//      _uiState.update {
-//        it.copy(userName = "takke.jp")
-//      }
       val userName = _uiState.value.userName
-
-      // 簡易バリデーション
-//      if (userName.isEmpty()) {
-//        // ユーザー名が空
-//        _uiState.update {
-//          it.copy(validationErrorMessage = "ユーザー名を入力してください")
-//        }
-//        return@launch
-//      }
 
       // OK
       _uiState.update {
         it.copy(validationErrorMessage = "")
       }
 
-      // OAuth ログイン開始
-      oauthContext = OAuthContext().also {
-        it.clientId = AppConstants.OAUTH_CLIENT_ID
-        it.redirectUri = AppConstants.CALLBACK_URL
-      }
-
-      val loginHint = userName
-      loading {
-        withContext(Dispatchers.IO) {
-          _uiState.update {
-            it.copy(loginState = UiState.LoginState.LOADING)
-          }
-
-          val response = AuthFactory
-            .instance(Service.BSKY_SOCIAL.uri)
-            .oauth()
-            .pushedAuthorizationRequest(
-              oauthContext!!,
-              OAuthPushedAuthorizationRequest().also {
-                it.loginHint = loginHint
-              }
-            )
-
-//          logger.dd { "response: ${response.data.requestUri}" }
-
-          val authorizeUrl = AuthFactory
-            .instance(Service.BSKY_SOCIAL.uri)
-            .oauth()
-            .buildAuthorizationUrl(
-              oauthContext!!,
-              BuildAuthorizationUrlRequest().also {
-                it.requestUri = response.data.requestUri
-              }
-            )
-
-//          logger.dd { "authorizeUrl: $authorizeUrl" }
-          println("authorizeUrl: $authorizeUrl")
-
-          // ブラウザを開く
-          Desktop.getDesktop().browse(URI(authorizeUrl))
-
-          _uiState.update {
-            it.copy(loginState = UiState.LoginState.WAITING_CODE)
-          }
+      try {
+        _uiState.update {
+          it.copy(loading = true, loginState = UiState.LoginState.LOADING)
         }
-      }
-    }
-  }
 
-  /**
-   * ローディング表示
-   */
-  private suspend fun loading(function: suspend () -> Unit) {
-    try {
-      _uiState.update {
-        it.copy(loading = true)
-      }
+        // OAuth認証プロセスを開始
+        authService.startOAuthProcess(userName)
 
-      function()
-    } catch (e: Exception) {
-
-      // TODO Formatterを導入すること
-      val message = if (e is ATProtocolException) {
-        "$e\n${e.body}\n${e.response}\n${e.cause}"
-      } else {
-        e.toString()
-      }
-
-      _uiState.update {
-        it.copy(validationErrorMessage = "エラーが発生しました: $message")
-      }
-    } finally {
-      _uiState.update {
-        it.copy(loading = false)
+        _uiState.update {
+          it.copy(loginState = UiState.LoginState.WAITING_CODE)
+        }
+      } catch (e: Exception) {
+        val message = authService.formatErrorMessage(e)
+        _uiState.update {
+          it.copy(validationErrorMessage = "エラーが発生しました: $message")
+        }
+      } finally {
+        _uiState.update {
+          it.copy(loading = false)
+        }
       }
     }
   }
 
   private fun tokenRequest(code: String) {
     viewModelScope.launch {
-      // トークン取得中
-      _uiState.update {
-        it.copy(loginState = UiState.LoginState.LOADING)
-      }
+      try {
+        // トークン取得中
+        _uiState.update {
+          it.copy(loading = true, loginState = UiState.LoginState.LOADING)
+        }
 
-      // AccessToken とアカウント情報を取得する
-      val pair = fetchAccessTokenAndAccountInfoAsync(code)
-      if (pair == null) {
-        // 認証失敗
+        // AccessToken とアカウント情報を取得する
+        val account = authService.fetchTokenWithCode(code)
+        if (account == null) {
+          // 認証失敗
+          _uiState.update {
+            it.copy(
+              validationErrorMessage = "認証に失敗しました",
+              loginState = UiState.LoginState.INIT,
+            )
+          }
+          return@launch
+        }
+
+        // アカウントリストを更新
+        loadAccounts()
+
+        // 新しく追加したアカウントを選択
+        selectAccount(account)
+
         _uiState.update {
           it.copy(
-            validationErrorMessage = "認証に失敗しました",
             loginState = UiState.LoginState.INIT,
+            code = "",
           )
         }
-        return@launch
-      }
 
-      val (response, user) = pair
+        dismissAuthDialog()
 
-      // アカウント情報を作成
-      val account = Account(
-        accountId = user.did,
-        screenName = user.handle,
-        accessJwt = response.accessToken,
-        refreshJwt = response.refreshToken,
-        dPoPNonce = oauthContext?.dPoPNonce ?: "",
-        publicKey = oauthContext?.publicKey ?: "",
-        privateKey = oauthContext?.privateKey ?: "",
-      )
-
-      // アカウント情報を永続化
-      appPropertyRepository.saveAccount(account)
-
-      // アカウントリストを更新
-      loadAccounts()
-
-      // 新しく追加したアカウントを選択
-      selectAccount(account)
-
-      _uiState.update {
-        it.copy(
-          loginState = UiState.LoginState.INIT,
-          code = "",
-        )
-      }
-
-      dismissAuthDialog()
-    }
-  }
-
-  private suspend fun fetchAccessTokenAndAccountInfoAsync(code: String): Pair<OAuthTokenResponse, ActorGetProfileResponse>? {
-
-    return withContext(Dispatchers.Default) {
-
-      try {
-        val authResponse = AuthFactory
-          .instance(BSKY_SOCIAL.uri)
-          .oauth()
-          .authorizationCodeTokenRequest(
-            oauthContext!!,
-            OAuthAuthorizationCodeTokenRequest().also {
-              it.code = code
-            }
-          )
-
-        println("authResponse[${authResponse.data}]")
-
-
-        // 自分の ScreenName 等を取得するために profile を取得する
-
-        val myDid = authResponse.data.sub
-
-        val authProvider = OAuthProvider(
-          accessTokenJwt = authResponse.data.accessToken,
-          refreshTokenJwt = authResponse.data.refreshToken,
-          session = oauthContext!!,
-        )
-
-        val profileResponse = BlueskyFactory.instance(authProvider.pdsEndpoint)
-          .actor()
-          .getProfile(
-            ActorGetProfileRequest(
-              authProvider
-            ).also {
-              it.actor = myDid
-            }
-          )
-
-        val user = profileResponse.data
-        println("user handle[${user.handle}]")
-
-
-        Pair(authResponse.data, user)
+        // TODO 初期アクセス開始
 
       } catch (e: Exception) {
-        e.printStackTrace()
-        null
+        val message = authService.formatErrorMessage(e)
+        _uiState.update {
+          it.copy(validationErrorMessage = "エラーが発生しました: $message")
+        }
+      } finally {
+        _uiState.update {
+          it.copy(loading = false)
+        }
       }
     }
   }
-}
-
-val AuthProvider.pdsEndpoint: String
-  get() = didToUrl(this.pdsDid)
-
-/**
- * did を URL に変換する
- *
- * 例えば
- * "did:web:shimeji.us-east.host.bsky.network"
- * を
- * "https://shimeji.us-east.host.bsky.network"
- * に変更する
- */
-fun didToUrl(did: String): String {
-  return "https://" + did.substringAfterLast(":")
 }
