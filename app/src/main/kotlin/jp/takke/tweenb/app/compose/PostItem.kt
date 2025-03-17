@@ -5,13 +5,13 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.Divider
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithContent
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
@@ -35,25 +35,14 @@ fun PostItem(
     modifier = modifier
       .fillMaxWidth()
   ) {
+    var rowHeight by remember { mutableStateOf(0.dp) }
     Row(
       verticalAlignment = Alignment.CenterVertically,
       modifier = modifier
-        .fillMaxWidth()
-        .drawWithContent {
-          drawContent()
-          drawLine(
-            color = Color.LightGray,
-            start = Offset(0f, 0f),
-            end = Offset(0f, size.height),
-            strokeWidth = 1.dp.toPx()
-          )
-          drawLine(
-            color = Color.LightGray,
-            start = Offset(size.width, 0f),
-            end = Offset(size.width, size.height),
-            strokeWidth = 1.dp.toPx()
-          )
+        .onSizeChanged {
+          rowHeight = it.height.dp
         }
+        .fillMaxWidth()
     ) {
       columns.forEachIndexed { index, columnInfo ->
         when (columnInfo.type) {
@@ -92,8 +81,8 @@ fun PostItem(
               style = MaterialTheme.typography.body1,
               modifier = Modifier
                 .width(columnInfo.width)
-                .padding(8.dp),
-              maxLines = 3,
+                .padding(vertical = 4.dp, horizontal = 8.dp),
+              maxLines = 2,
               overflow = TextOverflow.Ellipsis
             )
           }
@@ -116,7 +105,7 @@ fun PostItem(
 
         if (index < columns.size - 1) {
           VerticalDivider(
-            height = 48.dp,
+            height = rowHeight,
             color = Color.LightGray,
           )
         }
