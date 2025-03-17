@@ -73,35 +73,28 @@ fun PostListContent(
               .padding(8.dp)
           )
 
-          if (index < columns.size - 1) {
-            // 区切り線（ドラッグ可能）
-            Box(
-              modifier = Modifier
-                .width(4.dp)
-                .height(headerHeight)
-                .pointerInput(Unit) {
-                  detectDragGestures { change, dragAmount ->
-                    change.consume()
-                    // 現在の列の幅を調整
-                    val currentWidth = columns[index].width.value
-                    val nextWidth = columns[index + 1].width.value
-                    val newWidth = (currentWidth + dragAmount.x.toDp()).coerceAtLeast(40.dp)
-                    val widthDiff = newWidth - currentWidth
+          // 区切り線（ドラッグ可能）
+          Box(
+            modifier = Modifier
+              .width(4.dp)
+              .height(headerHeight)
+              .pointerInput(Unit) {
+                detectDragGestures { change, dragAmount ->
+                  change.consume()
+                  // 現在の列の幅を調整
+                  val currentWidth = columns[index].width.value
+                  val newWidth = (currentWidth + dragAmount.x.toDp()).coerceAtLeast(40.dp)
+                  val widthDiff = newWidth - currentWidth
 
-                    // 次の列の幅も調整（逆方向）
-                    val newNextWidth = (nextWidth - widthDiff).coerceAtLeast(40.dp)
-
-                    columns[index].width.value = newWidth
-                    columns[index + 1].width.value = newNextWidth
-                  }
+                  columns[index].width.value = newWidth
                 }
-            ) {
-              VerticalDivider(
-                height = headerHeight,
-                color = headerBorderColor,
-                modifier = Modifier.align(Alignment.Center)
-              )
-            }
+              }
+          ) {
+            VerticalDivider(
+              height = headerHeight,
+              color = headerBorderColor,
+              modifier = Modifier.align(Alignment.Center)
+            )
           }
         }
       }
