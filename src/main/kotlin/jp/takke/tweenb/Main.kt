@@ -1,9 +1,14 @@
 package jp.takke.tweenb
 
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
 
 fun main() = application {
   // アプリケーション設定リポジトリ
@@ -15,12 +20,30 @@ fun main() = application {
     size = propertyRepository.getWindowSize()
   )
 
-  // アプリケーション終了時に設定を保存
-  LaunchedEffect(Unit) {
-    // アプリケーション終了時に実行されるシャットダウンフック
-    Runtime.getRuntime().addShutdownHook(Thread {
+  // ウィンドウの位置やサイズが変更されたときにも保存する
+  LaunchedEffect(state) {
+    // ウィンドウの位置の変更を監視
+    snapshotFlow { state.position }
+      .distinctUntilChanged()
+      .collect { position ->
+        propertyRepository.saveWindowPosition(position)
+      }
+  }
+
+  LaunchedEffect(state) {
+    // ウィンドウのサイズの変更を監視
+    snapshotFlow { state.size }
+      .distinctUntilChanged()
+      .collect { size ->
+        propertyRepository.saveWindowSize(size)
+      }
+  }
+
+  // アプリケーション終了時に設定を保存（念のため）
+  DisposableEffect(Unit) {
+    onDispose {
       propertyRepository.saveWindowState(state.position, state.size)
-    })
+    }
   }
 
   Window(
