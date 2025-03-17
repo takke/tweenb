@@ -220,7 +220,7 @@ class AppViewModel : ViewModel() {
       // UIStateを更新
       _uiState.update {
         it.copy(
-          timelinePosts = posts,
+          timelinePosts = posts.reversed(),
           timelineLoading = false
         )
       }
