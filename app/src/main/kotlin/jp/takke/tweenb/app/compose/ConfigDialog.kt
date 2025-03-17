@@ -27,10 +27,12 @@ fun ConfigDialog(
       modifier = Modifier
         .background(MaterialTheme.colors.background)
         .padding(16.dp)
-        .width(500.dp)
-        .height(400.dp)
+        .width(400.dp)
+        .height(300.dp)
     ) {
       val authorized = false
+
+      Spacer(modifier = Modifier.weight(1f))
 
       // 未認証なら認証ボタン表示
       if (!authorized) {
