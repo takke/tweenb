@@ -49,55 +49,7 @@ fun PostListContent(
         .padding(4.dp)
     ) {
       // Header
-      var headerHeight by remember { mutableStateOf(0.dp) }
-      val headerBorderColor = Color.LightGray
-      Row(
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier
-          .onSizeChanged {
-            headerHeight = it.height.dp
-          }
-          .fillMaxWidth()
-          .border(
-            width = 1.dp,
-            color = Color.LightGray,
-            shape = RoundedCornerShape(4.dp),
-          )
-      ) {
-        columns.forEachIndexed { index, columnInfo ->
-          Text(
-            text = columnInfo.name,
-            style = MaterialTheme.typography.body2,
-            modifier = Modifier
-              .width(columnInfo.width.value - (if (index == 0) 1.dp else 3.dp))
-              .padding(8.dp)
-          )
-
-          // 区切り線（ドラッグ可能）
-          Box(
-            modifier = Modifier
-              .width(4.dp)
-              .height(headerHeight)
-              .pointerInput(Unit) {
-                detectDragGestures { change, dragAmount ->
-                  change.consume()
-                  // 現在の列の幅を調整
-                  val currentWidth = columns[index].width.value
-                  val newWidth = (currentWidth + dragAmount.x.toDp()).coerceAtLeast(40.dp)
-                  val widthDiff = newWidth - currentWidth
-
-                  columns[index].width.value = newWidth
-                }
-              }
-          ) {
-            VerticalDivider(
-              height = headerHeight,
-              color = headerBorderColor,
-              modifier = Modifier.align(Alignment.Center)
-            )
-          }
-        }
-      }
+      PostHeaders(columns)
 
       // Post items
       val listState = rememberLazyListState()
@@ -171,6 +123,59 @@ fun PostListContent(
             adapter = rememberScrollbarAdapter(listState)
           )
         }
+      }
+    }
+  }
+}
+
+@Composable
+private fun PostHeaders(columns: List<ColumnInfo>) {
+
+  var headerHeight by remember { mutableStateOf(0.dp) }
+  val headerBorderColor = Color.LightGray
+  Row(
+    verticalAlignment = Alignment.CenterVertically,
+    modifier = Modifier
+      .onSizeChanged {
+        headerHeight = it.height.dp
+      }
+      .fillMaxWidth()
+      .border(
+        width = 1.dp,
+        color = Color.LightGray,
+        shape = RoundedCornerShape(4.dp),
+      )
+  ) {
+    columns.forEachIndexed { index, columnInfo ->
+      Text(
+        text = columnInfo.name,
+        style = MaterialTheme.typography.body2,
+        modifier = Modifier
+          .width(columnInfo.width.value - (if (index == 0) 1.dp else 3.dp))
+          .padding(8.dp)
+      )
+
+      // 区切り線（ドラッグ可能）
+      Box(
+        modifier = Modifier
+          .width(4.dp)
+          .height(headerHeight)
+          .pointerInput(Unit) {
+            detectDragGestures { change, dragAmount ->
+              change.consume()
+              // 現在の列の幅を調整
+              val currentWidth = columns[index].width.value
+              val newWidth = (currentWidth + dragAmount.x.toDp()).coerceAtLeast(40.dp)
+
+              columns[index].width.value = newWidth
+            }
+          }
+      ) {
+        VerticalDivider(
+          height = headerHeight,
+          color = headerBorderColor,
+          modifier = Modifier.align(Alignment.Center)
+        )
       }
     }
   }
