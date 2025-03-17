@@ -132,6 +132,7 @@ tweenb/
 - **データ層** - データアクセスと永続化
   - `AppPropertyRepository` - ウィンドウ設定の管理
   - `AccountRepository` - アカウント情報の管理
+  - `TimelineRepository` - タイムライン情報の管理
 
 - **プレゼンテーション層** - UI関連
   - `AppViewModel` - UIの状態管理

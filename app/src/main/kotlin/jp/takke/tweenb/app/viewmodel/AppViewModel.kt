@@ -11,6 +11,7 @@ import jp.takke.tweenb.app.domain.BlueskyClient
 import jp.takke.tweenb.app.domain.BsFeedViewPost
 import jp.takke.tweenb.app.repository.AccountRepository
 import jp.takke.tweenb.app.repository.AppPropertyRepository
+import jp.takke.tweenb.app.repository.TimelineRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -63,11 +64,11 @@ class AppViewModel : ViewModel() {
   // アカウントリポジトリ
   private val accountRepository = AccountRepository.instance
 
-  // 認証サービス
-  private val authService = BlueskyAuthService(accountRepository)
-
   // Blueskyクライアント
   private val blueskyClient = BlueskyClient.create()
+
+  // 認証サービス
+  private val authService = BlueskyAuthService(accountRepository)
 
   // Blueskyクライアントの初期化状態
   var blueskyClientInitialized by mutableStateOf(blueskyClient.isInitialized())
@@ -207,7 +208,8 @@ class AppViewModel : ViewModel() {
       }
 
       // タイムラインを取得
-      val posts = blueskyClient.getTimeline(limit = 30)
+      val timelineRepository = TimelineRepository.getInstance(blueskyClient)
+      val posts = timelineRepository.getTimeline(limit = 30)
       println("タイムライン取得成功: ${posts.size}件")
 
       // UIStateを更新

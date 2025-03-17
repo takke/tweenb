@@ -2,11 +2,8 @@ package jp.takke.tweenb.app.domain
 
 import jp.takke.tweenb.app.AppConstants
 import jp.takke.tweenb.app.repository.AccountRepository
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import work.socialhub.kbsky.Bluesky
 import work.socialhub.kbsky.BlueskyFactory
-import work.socialhub.kbsky.api.entity.app.bsky.feed.FeedGetTimelineRequest
 import work.socialhub.kbsky.auth.AuthFactory
 import work.socialhub.kbsky.auth.OAuthContext
 import work.socialhub.kbsky.auth.OAuthProvider
@@ -24,15 +21,20 @@ interface BlueskyClient {
    */
   fun isInitialized(): Boolean
 
+  /**
+   * クライアントを初期化する
+   */
   fun initialize(account: Account)
 
   /**
-   * タイムラインを取得する
-   *
-   * @param limit 取得する投稿の最大数
-   * @return 投稿のリスト
+   * 認証プロバイダーを取得する
    */
-  suspend fun getTimeline(limit: Int = 20): List<BsFeedViewPost>
+  fun getAuthProvider(): OAuthProvider?
+
+  /**
+   * Bluesky APIを実行する（トークンの自動リフレッシュ付き）
+   */
+  suspend fun <T> executeWithAutoRefresh(request: suspend (Bluesky) -> T): T
 
   companion object {
     /**
@@ -81,6 +83,13 @@ private class BlueskyClientImpl : BlueskyClient {
   }
 
   /**
+   * 認証プロバイダーを取得する
+   */
+  override fun getAuthProvider(): OAuthProvider? {
+    return authProvider
+  }
+
+  /**
    * OAuthContextを作成する
    */
   private fun createOAuthContext(account: Account): OAuthContext {
@@ -93,37 +102,11 @@ private class BlueskyClientImpl : BlueskyClient {
   }
 
   /**
-   * タイムラインを取得する
-   */
-  override suspend fun getTimeline(limit: Int): List<BsFeedViewPost> {
-    return withContext(Dispatchers.IO) {
-      try {
-        if (!isInitialized()) {
-          return@withContext emptyList()
-        }
-
-        val request = FeedGetTimelineRequest(authProvider!!)
-        request.limit = limit
-
-        val response = executeWithAutoRefresh { bluesky ->
-          bluesky.feed().getTimeline(request)
-        }
-
-        // レスポンスから投稿のリストを取得し、BsFeedViewPostに変換
-        response.data.feed
-      } catch (e: Exception) {
-        e.printStackTrace()
-        throw e
-      }
-    }
-  }
-
-  /**
    * Bluesky の API を呼び出す
    *
    * トークンの自動リフレッシュ＆保存も行う
    */
-  suspend fun <T> executeWithAutoRefresh(
+  override suspend fun <T> executeWithAutoRefresh(
     request: suspend (Bluesky) -> T
   ): T {
 
