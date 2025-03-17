@@ -27,8 +27,42 @@ fun ConfigDialog(
       modifier = Modifier
         .background(MaterialTheme.colors.background)
         .padding(16.dp)
-        .width(300.dp)
+        .width(500.dp)
+        .height(400.dp)
     ) {
+      val authorized = false
+
+      // 未認証なら認証ボタン表示
+      if (!authorized) {
+        Box(
+          modifier = Modifier.fillMaxWidth(),
+          contentAlignment = Alignment.Center
+        ) {
+          Button(
+            onClick = { /* 認証開始処理 */ }
+          ) {
+            Text("認証")
+          }
+        }
+      }
+
+      // 認証済みなら再認証ボタン表示
+      if (authorized) {
+        Box(
+          modifier = Modifier.fillMaxWidth(),
+          contentAlignment = Alignment.Center
+        ) {
+          Button(
+            onClick = { /* 再認証開始処理 */ }
+          ) {
+            Text("再認証")
+          }
+        }
+
+        // TODO アカウント削除ボタン表示
+      }
+
+      Spacer(modifier = Modifier.weight(1f))
 
       Box(
         modifier = Modifier.fillMaxWidth(),
