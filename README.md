@@ -9,6 +9,9 @@ Windows用のTween/OpenTweenに似た使用感を目指して作成していま�
 - タブベースのインターフェース
 - ウィンドウサイズと位置の記憶
 - Blueskyアカウントの管理と認証
+- カスタマイズ可能なカラムレイアウト（幅の調整と保存）
+- ユーザーアイコンの表示（Coil3を使用）
+- スクロールバーによる快適なナビゲーション
 
 ## インストール方法
 
@@ -87,7 +90,23 @@ ${user.home}/.tweenb.properties
 | window.width | ウィンドウの幅 |
 | window.height | ウィンドウの高さ |
 | accounts | Blueskyアカウント情報（JSON形式） |
+| columns.layout | カラム情報（JSON形式） |
 
+## カスタマイズ機能
+
+### カラムレイアウト
+
+タイムラインのカラムレイアウトはカスタマイズ可能です：
+
+- ヘッダー部分の区切り線をドラッグすることで各カラムの幅を調整できます
+- 調整したカラム幅は自動的に保存され、次回起動時に復元されます
+- カラムの種類（アイコン、名前、投稿内容、日時）ごとに幅を個別に設定可能
+
+### ユーザーインターフェース
+
+- スクロールバーによる長いタイムラインの快適なナビゲーション
+- ユーザーアイコンの表示（Coil3ライブラリを使用）
+- ドラッグ可能な区切り線上でのカーソル変更によるユーザビリティ向上
 
 ## プロジェクト構成
 
@@ -98,10 +117,17 @@ tweenb/
 │   │   ├── main/
 │   │   │   ├── kotlin/                               # Kotlinソースコード
 │   │   │   │   └── jp/takke/tweenb/app/
+│   │   │   │       ├── compose/                      # Compose UI コンポーネント
+│   │   │   │       │   ├── PostItem.kt               # 投稿アイテム表示
+│   │   │   │       │   ├── PostListContent.kt        # 投稿リスト表示
+│   │   │   │       │   └── VerticalDivider.kt        # 縦区切り線コンポーネント
 │   │   │   │       ├── domain/                       # ドメイン層
 │   │   │   │       │   ├── Account.kt                # アカウントモデル
 │   │   │   │       │   ├── BlueskyAuthService.kt     # 認証サービス
-│   │   │   │       │   └── BlueskyClient.kt          # APIクライアント
+│   │   │   │       │   ├── BlueskyClient.kt          # APIクライアント
+│   │   │   │       │   ├── ColumnInfo.kt             # カラム情報モデル
+│   │   │   │       │   ├── ColumnType.kt             # カラムタイプ定義
+│   │   │   │       │   └── DpSerializer.kt           # Dp型シリアライザ
 │   │   │   │       ├── repository/                   # データ層
 │   │   │   │       │   └── AppPropertyRepository.kt  # 設定リポジトリ
 │   │   │   │       ├── viewmodel/                    # プレゼンテーション層
@@ -128,15 +154,18 @@ tweenb/
   - `Account` - Blueskyアカウント情報
   - `BlueskyAuthService` - 認証処理
   - `BlueskyClient` - API通信
+  - `ColumnInfo` - カラム情報モデル
 
 - **データ層** - データアクセスと永続化
-  - `AppPropertyRepository` - ウィンドウ設定の管理
+  - `AppPropertyRepository` - ウィンドウ設定とカラム情報の管理
   - `AccountRepository` - アカウント情報の管理
   - `TimelineRepository` - タイムライン情報の管理
 
 - **プレゼンテーション層** - UI関連
   - `AppViewModel` - UIの状態管理
   - Compose UI - 画面表示
+    - `PostItem` - 投稿アイテム表示
+    - `PostListContent` - 投稿リスト表示
 
 ## 使用ライブラリ
 
@@ -144,6 +173,7 @@ tweenb/
 - kotlinx.coroutines - 非同期処理
 - kotlinx.serialization - JSONシリアライゼーション
 - kbsky - Bluesky API クライアント
+- Coil3 - 画像読み込みと表示
 
 ## ライセンス
 
