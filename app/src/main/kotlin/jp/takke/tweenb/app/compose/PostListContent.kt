@@ -2,6 +2,7 @@ package jp.takke.tweenb.app.compose
 
 import androidx.compose.foundation.VerticalScrollbar
 import androidx.compose.foundation.border
+import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -14,6 +15,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -27,12 +29,14 @@ fun PostListContent(
   appViewModel: AppViewModel = viewModel(),
 ) {
   // カラム定義
-  val columns = listOf(
-    ColumnInfo(ColumnType.Icon, "", 64.dp),
-    ColumnInfo(ColumnType.Name, "名前", 120.dp),
-    ColumnInfo(ColumnType.Post, "投稿", 360.dp),
-    ColumnInfo(ColumnType.DateTime, "日時", 120.dp),
-  )
+  val columns = remember {
+    listOf(
+      ColumnInfo(ColumnType.Icon, "", 64.dp),
+      ColumnInfo(ColumnType.Name, "名前", 120.dp),
+      ColumnInfo(ColumnType.Post, "投稿", 360.dp),
+      ColumnInfo(ColumnType.DateTime, "日時", 120.dp),
+    )
+  }
 
   val uiState by appViewModel.uiState.collectAsState()
 
@@ -60,18 +64,45 @@ fun PostListContent(
             shape = RoundedCornerShape(4.dp),
           )
       ) {
-        columns.forEach {
+        columns.forEachIndexed { index, columnInfo ->
           Text(
-            text = it.name,
+            text = columnInfo.name,
             style = MaterialTheme.typography.body2,
             modifier = Modifier
-              .width(it.width)
+              .width(columnInfo.width.value - (if (index == 0) 1.dp else 3.dp))
               .padding(8.dp)
           )
-          VerticalDivider(
-            height = headerHeight,
-            color = headerBorderColor,
-          )
+
+          if (index < columns.size - 1) {
+            // 区切り線（ドラッグ可能）
+            Box(
+              modifier = Modifier
+                .width(4.dp)
+                .height(headerHeight)
+                .pointerInput(Unit) {
+                  detectDragGestures { change, dragAmount ->
+                    change.consume()
+                    // 現在の列の幅を調整
+                    val currentWidth = columns[index].width.value
+                    val nextWidth = columns[index + 1].width.value
+                    val newWidth = (currentWidth + dragAmount.x.toDp()).coerceAtLeast(40.dp)
+                    val widthDiff = newWidth - currentWidth
+
+                    // 次の列の幅も調整（逆方向）
+                    val newNextWidth = (nextWidth - widthDiff).coerceAtLeast(40.dp)
+
+                    columns[index].width.value = newWidth
+                    columns[index + 1].width.value = newNextWidth
+                  }
+                }
+            ) {
+              VerticalDivider(
+                height = headerHeight,
+                color = headerBorderColor,
+                modifier = Modifier.align(Alignment.Center)
+              )
+            }
+          }
         }
       }
 
@@ -100,7 +131,9 @@ fun PostListContent(
           LaunchedEffect(uiState.timelinePosts) {
             // 新しいデータが追加されたのでスクロール位置を末尾にする
             // TODO より細かい制御を行うこと
-            listState.animateScrollToItem(uiState.timelinePosts.size - 1)
+            if (uiState.timelinePosts.isNotEmpty()) {
+              listState.animateScrollToItem(uiState.timelinePosts.size - 1)
+            }
           }
 
           LazyColumn(

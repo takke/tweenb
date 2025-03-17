@@ -45,6 +45,14 @@ fun PostItem(
         .fillMaxWidth()
     ) {
       columns.forEachIndexed { index, columnInfo ->
+
+        if (index == 0) {
+          VerticalDivider(
+            height = rowHeight,
+            color = Color.LightGray,
+          )
+        }
+
         when (columnInfo.type) {
           ColumnType.Icon -> {
             // アイコン
@@ -55,7 +63,7 @@ fun PostItem(
             // 名前
             Column(
               modifier = Modifier
-                .width(columnInfo.width)
+                .width(columnInfo.width.value)
                 .padding(8.dp)
             ) {
               Text(
@@ -87,7 +95,7 @@ fun PostItem(
               },
               style = MaterialTheme.typography.body2,
               modifier = Modifier
-                .width(columnInfo.width)
+                .width(columnInfo.width.value)
                 .padding(vertical = 4.dp, horizontal = 8.dp),
               maxLines = 2,
               overflow = TextOverflow.Ellipsis
@@ -104,7 +112,7 @@ fun PostItem(
               text = formattedDate,
               style = MaterialTheme.typography.caption,
               modifier = Modifier
-                .width(columnInfo.width)
+                .width(columnInfo.width.value)
                 .padding(8.dp)
             )
           }
@@ -132,7 +140,7 @@ private fun UserIcon(
 ) {
   Box(
     modifier = Modifier
-      .width(columnInfo.width)
+      .width(columnInfo.width.value)
       .padding(8.dp),
     contentAlignment = Alignment.Center
   ) {
