@@ -106,33 +106,13 @@ private class BlueskyClientImpl : BlueskyClient {
 
         // レスポンスから投稿のリストを取得し、BsFeedViewPostに変換
         response.data.feed
-//        response.data.feed.map { feedView ->
-//          val post = feedView.post
-//          val author = post.author
-//
-//          BsFeedViewPost(
-//            author = BsFeedViewPost.Author(
-//              handle = author.handle,
-//              displayName = author.displayName,
-//              avatar = author.avatar,
-//              did = author.did
-//            ),
-//            record = BsFeedViewPost.Record(
-//              text = post.record.text,
-//              createdAt = post.record.createdAt
-//            ),
-//            indexedAt = parseDate(post.indexedAt),
-//            uri = post.uri,
-//            cid = post.cid
-//          )
-//        }
       } catch (e: Exception) {
         e.printStackTrace()
-        emptyList()
+        throw e
       }
     }
   }
-  
+
   /**
    * 日付文字列をDateオブジェクトに変換する
    */

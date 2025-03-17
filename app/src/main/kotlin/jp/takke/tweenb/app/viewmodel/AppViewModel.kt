@@ -15,6 +15,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.io.PrintWriter
+import java.io.StringWriter
 
 class AppViewModel : ViewModel() {
 
@@ -37,6 +39,9 @@ class AppViewModel : ViewModel() {
     val timelinePosts: List<BsFeedViewPost> = emptyList(),
     // タイムライン読み込み中
     val timelineLoading: Boolean = false,
+    // エラー情報
+    val errorMessage: String = "",
+    val errorStackTrace: String = "",
   ) {
     enum class LoginState {
       INIT,
@@ -77,6 +82,10 @@ class AppViewModel : ViewModel() {
 
   // 認証ダイアログの表示状態
   var showAuthDialog by mutableStateOf(false)
+    private set
+
+  // エラーダイアログの表示状態
+  var showErrorDialog by mutableStateOf(false)
     private set
 
   // タブ関連の状態
@@ -210,6 +219,9 @@ class AppViewModel : ViewModel() {
       _uiState.update {
         it.copy(timelineLoading = false)
       }
+
+      // エラーダイアログを表示
+      showErrorDialog("タイムラインの取得に失敗しました", e)
     }
   }
 
@@ -330,5 +342,32 @@ class AppViewModel : ViewModel() {
         }
       }
     }
+  }
+
+  /**
+   * エラーダイアログを表示する
+   */
+  fun showErrorDialog(message: String, exception: Exception) {
+    val stackTrace = StringWriter().also { sw ->
+      PrintWriter(sw).use { pw ->
+        exception.printStackTrace(pw)
+      }
+    }.toString()
+
+    _uiState.update {
+      it.copy(
+        errorMessage = message,
+        errorStackTrace = stackTrace
+      )
+    }
+
+    showErrorDialog = true
+  }
+
+  /**
+   * エラーダイアログを閉じる
+   */
+  fun dismissErrorDialog() {
+    showErrorDialog = false
   }
 }

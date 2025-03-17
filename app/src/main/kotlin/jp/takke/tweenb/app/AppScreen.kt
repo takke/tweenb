@@ -105,6 +105,14 @@ fun FrameWindowScope.AppScreen() {
       onStartTokenRequest = viewModel::onStartTokenRequest,
     )
 
+    // エラーダイアログ
+    ErrorDialog(
+      show = viewModel.showErrorDialog,
+      onDismiss = { viewModel.dismissErrorDialog() },
+      errorMessage = uiState.errorMessage,
+      stackTrace = uiState.errorStackTrace
+    )
+
     // 未認証ならすぐに認証画面を開く
     LaunchedEffect(Unit) {
       if (!viewModel.blueskyClientInitialized) {
