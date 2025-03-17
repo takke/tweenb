@@ -2,7 +2,7 @@ package jp.takke.tweenb.app.domain
 
 import jp.takke.tweenb.app.AppConstants
 import jp.takke.tweenb.app.repository.AccountRepository
-import jp.takke.tweenb.app.util.Logger
+import jp.takke.tweenb.app.util.LoggerWrapper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import work.socialhub.kbsky.ATProtocolException
@@ -29,11 +29,7 @@ class BlueskyAuthService(
   // OAuthコンテキスト
   private var oauthContext: OAuthContext? = null
 
-  private val logger = Logger.instance
-
-  companion object {
-    private const val TAG = "BlueskyAuthService"
-  }
+  private val logger = LoggerWrapper("BlueskyAuthService")
 
   /**
    * OAuth認証プロセスを開始する
@@ -43,7 +39,7 @@ class BlueskyAuthService(
   suspend fun startOAuthProcess(loginHint: String = ""): String {
     return withContext(Dispatchers.IO) {
       // OAuth ログイン開始
-      logger.d(TAG, "OAuth ログイン開始")
+      logger.d("OAuth ログイン開始")
 
       oauthContext = OAuthContext().also {
         it.clientId = AppConstants.OAUTH_CLIENT_ID
@@ -71,7 +67,7 @@ class BlueskyAuthService(
         )
 
       // ブラウザを開く
-      logger.d(TAG, "OAuth 認証ページを開く")
+      logger.d("OAuth 認証ページを開く")
       Desktop.getDesktop().browse(URI(authorizeUrl))
 
       authorizeUrl
@@ -142,7 +138,7 @@ class BlueskyAuthService(
 
         Pair(authResponse.data, profileResponse.data)
       } catch (e: Exception) {
-        logger.e(TAG, "アクセストークン取得エラー: ${e.message}", e)
+        logger.e("アクセストークン取得エラー: ${e.message}", e)
         null
       }
     }
