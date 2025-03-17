@@ -9,7 +9,6 @@ Windows用のTween/OpenTweenに似た使用感を目指して作成していま�
 - タブベースのインターフェース
 - ウィンドウサイズと位置の記憶
 - Blueskyアカウントの管理と認証
-- TODO: その他の機能を追加
 
 ## インストール方法
 
@@ -20,7 +19,7 @@ GitHubのリリースページから最新のMSIインストーラーをダウ�
 ### 前提条件（開発者向け）
 
 - JDK 17以上
-- Gradle 7.0以上
+- Gradle 8.13以上
 
 ### ビルド方法
 
@@ -81,31 +80,31 @@ ${user.home}/.tweenb.properties
 
 ```
 tweenb/
-├── app/                                # アプリケーションモジュール
+├── app/                                              # アプリケーションモジュール
 │   ├── src/
 │   │   ├── main/
-│   │   │   ├── kotlin/                 # Kotlinソースコード
+│   │   │   ├── kotlin/                               # Kotlinソースコード
 │   │   │   │   └── jp/takke/tweenb/app/
-│   │   │   │       ├── domain/         # ドメイン層
-│   │   │   │       │   ├── Account.kt  # アカウントモデル
-│   │   │   │       │   ├── BlueskyAuthService.kt # 認証サービス
-│   │   │   │       │   └── BlueskyClient.kt # APIクライアント
-│   │   │   │       ├── repository/     # データ層
-│   │   │   │       │   └── AppPropertyRepository.kt # 設定リポジトリ
-│   │   │   │       ├── viewmodel/      # プレゼンテーション層
-│   │   │   │       │   └── AppViewModel.kt # ビューモデル
-│   │   │   │       └── AppConstants.kt # アプリ定数
-│   │   │   └── resources/              # リソースファイル
-│   │   └── test/                       # テストコード
-│   └── build.gradle.kts                # アプリモジュールのビルド設定
-├── build.gradle.kts                    # プロジェクトのビルド設定
+│   │   │   │       ├── domain/                       # ドメイン層
+│   │   │   │       │   ├── Account.kt                # アカウントモデル
+│   │   │   │       │   ├── BlueskyAuthService.kt     # 認証サービス
+│   │   │   │       │   └── BlueskyClient.kt          # APIクライアント
+│   │   │   │       ├── repository/                   # データ層
+│   │   │   │       │   └── AppPropertyRepository.kt  # 設定リポジトリ
+│   │   │   │       ├── viewmodel/                    # プレゼンテーション層
+│   │   │   │       │   └── AppViewModel.kt           # ビューモデル
+│   │   │   │       └── AppConstants.kt               # アプリ定数
+│   │   │   └── resources/                            # リソースファイル
+│   │   └── test/                                     # テストコード
+│   └── build.gradle.kts                              # アプリモジュールのビルド設定
+├── build.gradle.kts                                  # プロジェクトのビルド設定
 ├── gradle/
-│   └── libs.versions.toml              # 依存関係のバージョン管理
+│   └── libs.versions.toml                            # 依存関係のバージョン管理
 ├── .github/
-│   └── workflows/                      # GitHub Actions ワークフロー
-│       ├── windows-build.yml           # Windows用ビルドワークフロー
-│       └── release.yml                 # リリース作成ワークフロー
-└── settings.gradle.kts                 # Gradleの設定
+│   └── workflows/                                    # GitHub Actions ワークフロー
+│       ├── windows-build.yml                         # Windows用ビルドワークフロー
+│       └── release.yml                               # リリース作成ワークフロー
+└── settings.gradle.kts                               # Gradleの設定
 ```
 
 ## アーキテクチャ
