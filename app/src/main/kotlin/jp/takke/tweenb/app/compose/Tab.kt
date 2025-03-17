@@ -2,7 +2,9 @@ package jp.takke.tweenb.app.compose
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Divider
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
@@ -10,7 +12,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onSizeChanged
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
 @Composable
@@ -52,14 +53,4 @@ fun Tab(
     }
   }
 
-}
-
-@Composable
-fun VerticalDivider(height: Dp, color: Color) {
-  Box(
-    modifier = Modifier
-      .width(1.dp)
-      .height(height)
-      .background(color)
-  )
 }
