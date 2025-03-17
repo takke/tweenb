@@ -97,6 +97,9 @@ class AppViewModel : ViewModel() {
   var selectedTabIndex by mutableStateOf(0)
     private set
 
+  // ロガー
+  private val logger = Logger.instance
+
   init {
     // 保存されているアカウント情報を読み込む
     loadAccounts()
@@ -109,7 +112,7 @@ class AppViewModel : ViewModel() {
     // 保存されたカラム情報があれば読み込む
     val propertyRepository = AppPropertyRepository.instance
     val columnsFromProp = propertyRepository.getColumns()
-    Logger.instance.i(TAG, "getColumns: $columnsFromProp")
+    logger.i(TAG, "getColumns: $columnsFromProp")
     _uiState.update {
       it.copy(columns = if (columnsFromProp.isNullOrEmpty()) createDefaultColumns() else columnsFromProp)
     }
@@ -148,7 +151,7 @@ class AppViewModel : ViewModel() {
    */
   private fun loadAccounts() {
     val accounts = accountRepository.getAccounts()
-    Logger.instance.i(TAG, "accounts: ${accounts.size}")
+    logger.i(TAG, "accounts: ${accounts.size}")
     _uiState.update {
       it.copy(accounts = accounts)
     }
@@ -221,7 +224,7 @@ class AppViewModel : ViewModel() {
   fun refreshCurrentTab() {
     viewModelScope.launch {
       try {
-        Logger.instance.i(TAG, "タブ更新: ${tabNames[selectedTabIndex]}")
+        logger.i(TAG, "タブ更新: ${tabNames[selectedTabIndex]}")
 
         // タブの種類に応じた更新処理
         when (selectedTabIndex) {
@@ -230,7 +233,7 @@ class AppViewModel : ViewModel() {
           2 -> refreshListsTab()
         }
       } catch (e: Exception) {
-        Logger.instance.e(TAG, "タブ更新エラー: ${e.message}", e)
+        logger.e(TAG, "タブ更新エラー: ${e.message}", e)
       }
     }
   }
@@ -240,7 +243,7 @@ class AppViewModel : ViewModel() {
    */
   private suspend fun refreshRecentTab() {
     if (!blueskyClientInitialized) {
-      Logger.instance.w(TAG, "Blueskyクライアントが初期化されていません")
+      logger.w(TAG, "Blueskyクライアントが初期化されていません")
       return
     }
 
@@ -253,7 +256,7 @@ class AppViewModel : ViewModel() {
       // タイムラインを取得
       val timelineRepository = TimelineRepository.getInstance(blueskyClient)
       val posts = timelineRepository.getTimeline(limit = 30)
-      Logger.instance.i(TAG, "タイムライン取得成功: ${posts.size}件")
+      logger.i(TAG, "タイムライン取得成功: ${posts.size}件")
 
       // UIStateを更新
       _uiState.update {
@@ -263,7 +266,7 @@ class AppViewModel : ViewModel() {
         )
       }
     } catch (e: Exception) {
-      Logger.instance.e(TAG, "タイムライン取得エラー: ${e.message}", e)
+      logger.e(TAG, "タイムライン取得エラー: ${e.message}", e)
 
       // エラー状態を設定
       _uiState.update {
@@ -327,7 +330,7 @@ class AppViewModel : ViewModel() {
         }
       } catch (e: Exception) {
         val message = authService.formatErrorMessage(e)
-        Logger.instance.e(TAG, "認証エラー: $message", e)
+        logger.e(TAG, "認証エラー: $message", e)
         _uiState.update {
           it.copy(validationErrorMessage = "エラーが発生しました: $message")
         }

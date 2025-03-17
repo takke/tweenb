@@ -2,6 +2,7 @@ package jp.takke.tweenb.app.repository
 
 import jp.takke.tweenb.app.domain.BlueskyClient
 import jp.takke.tweenb.app.domain.BsFeedViewPost
+import jp.takke.tweenb.app.util.Logger
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import work.socialhub.kbsky.api.entity.app.bsky.feed.FeedGetTimelineRequest
@@ -12,6 +13,9 @@ import work.socialhub.kbsky.api.entity.app.bsky.feed.FeedGetTimelineRequest
 class TimelineRepository private constructor(
   private val blueskyClient: BlueskyClient
 ) {
+  // ロガー
+  private val logger = Logger.instance
+
   /**
    * タイムラインを取得する
    *
@@ -35,13 +39,14 @@ class TimelineRepository private constructor(
 
         response.data.feed
       } catch (e: Exception) {
-        e.printStackTrace()
+        logger.e(TAG, "タイムライン取得エラー: ${e.message}", e)
         throw e
       }
     }
   }
 
   companion object {
+    private const val TAG = "TimelineRepository"
     private var instance: TimelineRepository? = null
 
     fun getInstance(blueskyClient: BlueskyClient): TimelineRepository {

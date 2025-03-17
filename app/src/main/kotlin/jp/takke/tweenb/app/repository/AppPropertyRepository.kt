@@ -4,6 +4,7 @@ import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.WindowPosition
 import jp.takke.tweenb.app.domain.ColumnInfo
+import jp.takke.tweenb.app.util.Logger
 import kotlinx.serialization.json.Json
 import java.io.File
 import java.util.*
@@ -12,6 +13,9 @@ import java.util.*
  * アプリケーション設定を管理するリポジトリクラス
  */
 class AppPropertyRepository private constructor() {
+  // ロガー
+  private val logger = Logger.instance
+
   // 設定ファイルのパス
   private val prefsFile = File(System.getProperty("user.home"), ".tweenb.properties")
 
@@ -101,7 +105,7 @@ class AppPropertyRepository private constructor() {
       props.setProperty("columns.layout", columnsJson)
       saveProperties()
     } catch (e: Exception) {
-      e.printStackTrace()
+      logger.e(TAG, "カラム情報の保存に失敗しました: ${e.message}", e)
     }
   }
 
@@ -117,7 +121,7 @@ class AppPropertyRepository private constructor() {
       columns.forEach { it.initializeWidth() }
       columns
     } catch (e: Exception) {
-      e.printStackTrace()
+      logger.e(TAG, "カラム情報の読み込みに失敗しました: ${e.message}", e)
       null
     }
   }
@@ -147,6 +151,10 @@ class AppPropertyRepository private constructor() {
   }
 
   companion object {
-    val instance by lazy { AppPropertyRepository() }
+    private const val TAG = "AppPropertyRepository"
+    
+    val instance by lazy {
+      AppPropertyRepository()
+    }
   }
 } 

@@ -142,7 +142,7 @@ class BlueskyAuthService(
 
         Pair(authResponse.data, profileResponse.data)
       } catch (e: Exception) {
-        e.printStackTrace()
+        logger.e(TAG, "アクセストークン取得エラー: ${e.message}", e)
         null
       }
     }
