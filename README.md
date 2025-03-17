@@ -13,9 +13,13 @@ Windows用のTween/OpenTweenに似た使用感を目指して作成していま�
 
 ## インストール方法
 
-### 前提条件
+### リリースからのインストール
 
-- JDK 11以上
+GitHubのリリースページから最新のMSIインストーラーをダウンロードして実行してください。
+
+### 前提条件（開発者向け）
+
+- JDK 17以上
 - Gradle 7.0以上
 
 ### ビルド方法
@@ -29,6 +33,26 @@ Windows用のTween/OpenTweenに似た使用感を目指して作成していま�
 ```bash
 ./gradlew :app:run
 ```
+
+### Windows用インストーラーの作成
+
+```bash
+./gradlew :app:packageMsi
+```
+
+生成されたMSIファイルは `app/build/compose/binaries/main/msi/` ディレクトリに保存されます。
+
+## CI
+
+このプロジェクトはGitHub Actionsを使用してCIを実現しています。
+
+### 自動ビルド
+
+メインブランチへのプッシュやプルリクエストが作成されると、自動的にWindows用のビルドが実行されます。ビルド結果はGitHub Actionsのアーティファクトとして保存されます。
+
+### 自動リリース
+
+`v*` 形式のタグ（例：`v1.0.0`）をプッシュすると、自動的にリリースが作成され、Windows用のMSIインストーラーがアップロードされます。
 
 ## 設定ファイル
 
@@ -77,6 +101,10 @@ tweenb/
 ├── build.gradle.kts                    # プロジェクトのビルド設定
 ├── gradle/
 │   └── libs.versions.toml              # 依存関係のバージョン管理
+├── .github/
+│   └── workflows/                      # GitHub Actions ワークフロー
+│       ├── windows-build.yml           # Windows用ビルドワークフロー
+│       └── release.yml                 # リリース作成ワークフロー
 └── settings.gradle.kts                 # Gradleの設定
 ```
 
