@@ -10,8 +10,10 @@ import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogWindow
+import androidx.compose.ui.window.rememberDialogState
 
 /**
  * エラーダイアログ
@@ -29,8 +31,12 @@ fun ErrorDialog(
   stackTrace: String
 ) {
   // エラーメッセージ
+  val state = rememberDialogState(
+    size = DpSize(800.dp, 600.dp)
+  )
   DialogWindow(
     visible = show,
+    state = state,
     onCloseRequest = onDismiss,
     title = "エラー",
   ) {
