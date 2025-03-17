@@ -28,67 +28,66 @@ fun ErrorDialog(
   errorMessage: String,
   stackTrace: String
 ) {
-  if (show) {
-    // エラーメッセージ
-    DialogWindow(
-      onCloseRequest = onDismiss,
-      title = "エラー",
-      content = {
-        Surface(
-          modifier = Modifier.fillMaxSize(),
-          color = MaterialTheme.colors.background
+  // エラーメッセージ
+  DialogWindow(
+    visible = show,
+    onCloseRequest = onDismiss,
+    title = "エラー",
+  ) {
+    Surface(
+      modifier = Modifier.fillMaxSize(),
+      color = MaterialTheme.colors.background
+    ) {
+      Column(
+        modifier = Modifier
+          .padding(16.dp)
+          .fillMaxSize()
+      ) {
+        // エラーメッセージ
+        Text(
+          text = errorMessage,
+          style = MaterialTheme.typography.h6,
+          modifier = Modifier.padding(bottom = 16.dp)
+        )
+
+        // スタックトレース
+        Text(
+          text = "スタックトレース:",
+          style = MaterialTheme.typography.subtitle1,
+          modifier = Modifier.padding(bottom = 8.dp)
+        )
+
+        // スクロール可能なスタックトレース表示
+        Box(
+          modifier = Modifier
+            .weight(1f)
+            .fillMaxWidth()
+            .border(1.dp, MaterialTheme.colors.onSurface.copy(alpha = 0.12f))
         ) {
-          Column(
+          Text(
+            text = stackTrace,
+            style = MaterialTheme.typography.body2,
             modifier = Modifier
-              .padding(16.dp)
+              .padding(8.dp)
               .fillMaxSize()
+              .verticalScroll(rememberScrollState())
+          )
+        }
+
+        // 閉じるボタン
+        Row(
+          modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 16.dp),
+          horizontalArrangement = Arrangement.End
+        ) {
+          Button(
+            onClick = onDismiss
           ) {
-            // エラーメッセージ
-            Text(
-              text = errorMessage,
-              style = MaterialTheme.typography.h6,
-              modifier = Modifier.padding(bottom = 16.dp)
-            )
-
-            // スタックトレース
-            Text(
-              text = "スタックトレース:",
-              style = MaterialTheme.typography.subtitle1,
-              modifier = Modifier.padding(bottom = 8.dp)
-            )
-
-            // スクロール可能なスタックトレース表示
-            Box(
-              modifier = Modifier
-                .weight(1f)
-                .fillMaxWidth()
-                .border(1.dp, MaterialTheme.colors.onSurface.copy(alpha = 0.12f))
-            ) {
-              Text(
-                text = stackTrace,
-                style = MaterialTheme.typography.body2,
-                modifier = Modifier
-                  .padding(8.dp)
-                  .fillMaxSize()
-                  .verticalScroll(rememberScrollState())
-              )
-            }
-
-            // 閉じるボタン
-            Row(
-              modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 16.dp),
-              horizontalArrangement = Arrangement.End
-            ) {
-              Button(
-                onClick = onDismiss
-              ) {
-                Text("閉じる")
-              }
-            }
+            Text("閉じる")
           }
         }
-      })
+      }
+    }
   }
-} 
+}
