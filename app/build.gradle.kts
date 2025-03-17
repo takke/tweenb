@@ -1,4 +1,9 @@
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
+import java.io.File
+import java.io.FileInputStream
+import java.io.FileOutputStream
+import java.util.zip.ZipEntry
+import java.util.zip.ZipOutputStream
 
 plugins {
   alias(libs.plugins.kotlin.jvm)
@@ -93,6 +98,58 @@ compose.desktop {
         // メニュー名
         menuGroup = "tweenb"
       }
+    }
+  }
+}
+
+// ZIPパッケージを作成するカスタムタスク
+tasks.register("createZipDistribution") {
+  dependsOn("createDistributable")
+  
+  doLast {
+    val distributableDir = File("${layout.buildDirectory.get()}/compose/binaries/main/app")
+    val zipDir = File("${layout.buildDirectory.get()}/compose/binaries/main/zip")
+    zipDir.mkdirs()
+    
+    val zipFile = File(zipDir, "tweenb-${project.version}.zip")
+    
+    ZipOutputStream(FileOutputStream(zipFile)).use { zipOut ->
+      zipDirectory(distributableDir, distributableDir.name, zipOut)
+    }
+    
+    println("ZIP配布パッケージが作成されました: ${zipFile.absolutePath}")
+  }
+}
+
+// ディレクトリをZIPに圧縮するヘルパー関数
+fun zipDirectory(fileToZip: File, fileName: String, zipOut: ZipOutputStream) {
+  if (fileToZip.isHidden) {
+    return
+  }
+  
+  if (fileToZip.isDirectory) {
+    if (fileName.endsWith("/")) {
+      zipOut.putNextEntry(ZipEntry(fileName))
+      zipOut.closeEntry()
+    } else {
+      zipOut.putNextEntry(ZipEntry("$fileName/"))
+      zipOut.closeEntry()
+    }
+    
+    val children = fileToZip.listFiles() ?: return
+    for (childFile in children) {
+      zipDirectory(childFile, "$fileName/${childFile.name}", zipOut)
+    }
+    return
+  }
+  
+  FileInputStream(fileToZip).use { fis ->
+    val zipEntry = ZipEntry(fileName)
+    zipOut.putNextEntry(zipEntry)
+    val bytes = ByteArray(1024)
+    var length: Int
+    while (fis.read(bytes).also { length = it } >= 0) {
+      zipOut.write(bytes, 0, length)
     }
   }
 } 

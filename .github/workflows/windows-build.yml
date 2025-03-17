@@ -34,15 +34,26 @@ jobs:
       run: ./gradlew :app:build
       shell: bash
     
-    - name: Package Windows application
-      run: ./gradlew :app:packageMsi
+    # - name: Package Windows MSI application
+    #   run: ./gradlew :app:packageMsi
+    #   shell: bash
+    
+    - name: Package Windows ZIP application
+      run: ./gradlew :app:createZipDistribution
       shell: bash
     
-    - name: Upload Windows MSI installer
+    # - name: Upload Windows MSI installer
+    #   uses: actions/upload-artifact@v4
+    #   with:
+    #     name: tweenb-windows-installer
+    #     path: app/build/compose/binaries/main/msi/*.msi
+    #     if-no-files-found: error
+    
+    - name: Upload Windows ZIP package
       uses: actions/upload-artifact@v4
       with:
-        name: tweenb-windows-installer
-        path: app/build/compose/binaries/main/msi/*.msi
+        name: tweenb-windows-zip
+        path: app/build/compose/binaries/main/zip/*.zip
         if-no-files-found: error
     
     - name: Upload build reports

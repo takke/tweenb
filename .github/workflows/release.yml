@@ -27,8 +27,12 @@ jobs:
       run: ./gradlew :app:build
       shell: bash
     
-    - name: Package Windows application
+    - name: Package Windows MSI application
       run: ./gradlew :app:packageMsi
+      shell: bash
+    
+    - name: Package Windows ZIP application
+      run: ./gradlew :app:createZipDistribution
       shell: bash
     
     - name: Get MSI file path
@@ -39,6 +43,14 @@ jobs:
         echo "msi_name=$(basename $MSI_PATH)" >> $GITHUB_OUTPUT
       shell: bash
     
+    - name: Get ZIP file path
+      id: get-zip
+      run: |
+        ZIP_PATH=$(find app/build/compose/binaries/main/zip -name "*.zip" | head -n 1)
+        echo "zip_path=$ZIP_PATH" >> $GITHUB_OUTPUT
+        echo "zip_name=$(basename $ZIP_PATH)" >> $GITHUB_OUTPUT
+      shell: bash
+    
     - name: Create Release
       id: create_release
       uses: softprops/action-gh-release@v1
@@ -46,4 +58,6 @@ jobs:
         name: Release ${{ github.ref_name }}
         draft: false
         prerelease: false
-        files: ${{ steps.get-msi.outputs.msi_path }} 
+        files: |
+          ${{ steps.get-msi.outputs.msi_path }}
+          ${{ steps.get-zip.outputs.zip_path }} 
