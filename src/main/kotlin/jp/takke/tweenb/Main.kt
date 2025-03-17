@@ -32,7 +32,7 @@ fun main() = application {
 
   Window(
     onCloseRequest = ::exitApplication,
-    title = "demo of CMP",
+    title = "tweenb",
     state = state,
   ) {
     AppScreen()

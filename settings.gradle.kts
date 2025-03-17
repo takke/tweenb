@@ -16,4 +16,4 @@ dependencyResolutionManagement {
   }
 }
 
-rootProject.name = "demo"
+rootProject.name = "tweenb"
