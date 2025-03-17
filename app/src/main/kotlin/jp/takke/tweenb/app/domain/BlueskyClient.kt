@@ -126,6 +126,8 @@ private class BlueskyClientImpl : BlueskyClient {
       val repository = AccountRepository.instance
       val updatedAccount = refreshTokenForOAuth(repository)
       initialize(updatedAccount)
+    } else {
+      logger.d("exp の残り時間: [${remainSec}s=${secToHMS(remainSec)}]")
     }
 
     try {
