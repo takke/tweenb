@@ -96,6 +96,13 @@ fun PostListContent(
             .fillMaxWidth()
             .weight(1f)
         ) {
+
+          LaunchedEffect(uiState.timelinePosts) {
+            // 新しいデータが追加されたのでスクロール位置を末尾にする
+            // TODO より細かい制御を行うこと
+            listState.animateScrollToItem(uiState.timelinePosts.size - 1)
+          }
+
           LazyColumn(
             state = listState,
             modifier = Modifier
