@@ -94,6 +94,8 @@ fun FrameWindowScope.AppScreen() {
       showConfigDialog = viewModel.showConfigDialog,
       onDismiss = { viewModel.dismissConfigDialog() },
       onShowAuthDialog = { viewModel.showAuthDialog() },
+      onDeleteAccount = { viewModel.deleteCurrentAccount() },
+      accountScreenName = viewModel.account?.screenName,
     )
 
     // 認証ダイアログ

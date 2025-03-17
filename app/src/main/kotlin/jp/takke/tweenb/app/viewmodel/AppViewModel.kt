@@ -416,4 +416,33 @@ class AppViewModel : ViewModel() {
   fun dismissErrorDialog() {
     showErrorDialog = false
   }
+
+  /**
+   * アカウントを削除する
+   */
+  fun deleteCurrentAccount() {
+    // 現在のアカウントがあれば削除処理を実行
+    val currentAccount = account
+    if (currentAccount != null) {
+      val accountId = currentAccount.accountId
+      if (accountRepository.deleteAccount(accountId)) {
+        // アカウントリストを再読み込み
+        loadAccounts()
+
+        // Blueskyクライアントの初期化状態をリセット
+        blueskyClientInitialized = false
+
+        // 設定ダイアログを閉じる
+        dismissConfigDialog()
+
+        // アカウントリストに残りがあれば、先頭のアカウントを選択
+        if (_uiState.value.accounts.isNotEmpty()) {
+          selectAccount(_uiState.value.accounts.first())
+        } else {
+          // アカウントがなくなったら認証ダイアログを表示
+          showAuthDialog()
+        }
+      }
+    }
+  }
 }
