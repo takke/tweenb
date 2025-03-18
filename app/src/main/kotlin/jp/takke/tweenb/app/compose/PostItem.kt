@@ -20,9 +20,6 @@ import coil3.compose.LocalPlatformContext
 import coil3.request.ImageRequest
 import coil3.request.crossfade
 import jp.takke.tweenb.app.domain.*
-import jp.takke.tweenb.app.util.LoggerWrapper
-import java.awt.Desktop
-import java.net.URI
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -31,6 +28,7 @@ fun PostItem(
   post: BsFeedViewPost,
   modifier: Modifier,
   columns: List<ColumnInfo>,
+  openBrowser: (String) -> Unit
 ) {
   Column(
     modifier = modifier
@@ -89,6 +87,21 @@ fun PostItem(
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
               )
+              val repostedBy = post.reason?.asReasonRepost?.by
+              if (repostedBy != null) {
+                Text(
+                  text = "RP: @${repostedBy.handle}",
+                  style = MaterialTheme.typography.caption,
+                  maxLines = 1,
+                  overflow = TextOverflow.Ellipsis,
+                  modifier = Modifier.padding(top = 4.dp)
+                    .clickable {
+                      // ユーザーをブラウザで開く
+                      val url = repostedBy.url
+                      openBrowser(url)
+                    }
+                )
+              }
             }
           }
 
@@ -130,13 +143,7 @@ fun PostItem(
                   // ポストのURIを取得して、ブラウザで開く
                   val url = post.post.url
                   if (url != null) {
-                    try {
-                      // ブラウザでポストを開く
-                      Desktop.getDesktop().browse(URI(url))
-                    } catch (e: Exception) {
-                      // エラー処理（本来はログに出力するか、エラーダイアログを表示する）
-                      LoggerWrapper("PostItem").e("ブラウザ起動エラー", e)
-                    }
+                    openBrowser(url)
                   }
                 }
             )

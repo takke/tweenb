@@ -25,8 +25,11 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import jp.takke.tweenb.app.domain.ColumnInfo
 import jp.takke.tweenb.app.repository.AppPropertyRepository
+import jp.takke.tweenb.app.util.LoggerWrapper
 import jp.takke.tweenb.app.viewmodel.AppViewModel
 import java.awt.Cursor
+import java.awt.Desktop
+import java.net.URI
 
 @Composable
 fun PostListContent(
@@ -103,6 +106,15 @@ fun PostListContent(
                     post = post,
                     modifier = Modifier,
                     columns = columns,
+                    openBrowser = { url ->
+                      try {
+                        // ブラウザでポストを開く
+                        Desktop.getDesktop().browse(URI(url))
+                      } catch (e: Exception) {
+                        // エラー処理（本来はログに出力するか、エラーダイアログを表示する）
+                        LoggerWrapper("PostItem").e("ブラウザ起動エラー", e)
+                      }
+                    }
                   )
                 }
               }
