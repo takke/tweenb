@@ -138,11 +138,24 @@ private class BlueskyClientImpl : BlueskyClient {
       //--------------------------------------------------
       // リクエスト実行
       //--------------------------------------------------
+      val dPoPNonceBefore = authProvider?.session?.dPoPNonce
+      logger.d("API呼び出し開始: dPoPNonce[$dPoPNonceBefore]")
       return request.invoke(factory).also {
 
         // dPoPNonce を保存する
-        // TODO 実装すること
-//        bskyAccountProvider.updateBlueskyDPoPNonce(accountIdWIN, client.oAuthSession?.dPoPNonce)
+        val dPoPNonceAfter = authProvider?.session?.dPoPNonce
+        logger.d("API呼び出し後: dPoPNonce[${dPoPNonceAfter}]")
+        if (dPoPNonceBefore != dPoPNonceAfter) {
+          // dPoPNonce が変更された場合は保存する
+          val repository = AccountRepository.instance
+          val account = repository.getAccount(accountId = account!!.accountId)
+          if (account != null) {
+            repository.saveAccount(
+              account.copy(dPoPNonce = dPoPNonceAfter ?: "")
+            )
+            logger.i("dPoPNonce を保存しました")
+          }
+        }
       }
     } catch (e: Exception) {
       logger.e("API呼び出しエラー: ${e.message}", e)
