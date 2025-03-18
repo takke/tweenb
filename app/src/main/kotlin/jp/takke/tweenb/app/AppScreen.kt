@@ -70,8 +70,7 @@ fun FrameWindowScope.AppScreen() {
       // 投稿入力欄
       PublishArea(
         onPost = { text ->
-          // TODO: 投稿ロジックの実装
-          println("投稿内容: $text")
+          viewModel.createPost(text)
         }
       )
 

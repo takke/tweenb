@@ -3,6 +3,8 @@ package jp.takke.tweenb.app
 // アプリケーション全体で使用する定数
 object AppConstants {
 
+  const val APP_NAME = "tweenb"
+
   const val OAUTH_CLIENT_ID: String = "https://twitpane.com/oauth/bluesky/tweenb/client-metadata.json"
   const val CALLBACK_URL: String = "https://twitpane.com/oauth/bluesky/tweenb/callback"
 

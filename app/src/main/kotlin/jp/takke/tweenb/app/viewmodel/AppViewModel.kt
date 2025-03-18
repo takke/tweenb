@@ -10,10 +10,7 @@ import jp.takke.tweenb.app.AppConstants
 import jp.takke.tweenb.app.domain.Account
 import jp.takke.tweenb.app.domain.ColumnInfo
 import jp.takke.tweenb.app.domain.ColumnType
-import jp.takke.tweenb.app.repository.AccountRepository
-import jp.takke.tweenb.app.repository.AppPropertyRepository
-import jp.takke.tweenb.app.repository.BlueskyClient
-import jp.takke.tweenb.app.repository.TimelineRepository
+import jp.takke.tweenb.app.repository.*
 import jp.takke.tweenb.app.service.BlueskyAuthService
 import jp.takke.tweenb.app.util.BsFeedViewPost
 import jp.takke.tweenb.app.util.LoggerWrapper
@@ -436,10 +433,12 @@ class AppViewModel : ViewModel() {
   /**
    * エラーダイアログを表示する
    */
-  fun showErrorDialog(message: String, exception: Exception) {
+  fun showErrorDialog(message: String, exception: Exception?) {
     val stackTrace = StringWriter().also { sw ->
-      PrintWriter(sw).use { pw ->
-        exception.printStackTrace(pw)
+      if (exception != null) {
+        PrintWriter(sw).use { pw ->
+          exception.printStackTrace(pw)
+        }
       }
     }.toString()
 
@@ -576,6 +575,54 @@ class AppViewModel : ViewModel() {
   private fun restartAutoRefresh() {
     stopAutoRefresh()
     startAutoRefresh()
+  }
+
+  /**
+   * 投稿を作成する
+   */
+  fun createPost(text: String) {
+    if (!blueskyClientInitialized) {
+      logger.w("Blueskyクライアントが初期化されていません")
+      showErrorDialog("Blueskyに接続されていません", null)
+      return
+    }
+
+    // 投稿処理を実行
+    viewModelScope.launch {
+      try {
+        // 投稿開始
+        logger.i("投稿開始: $text")
+
+        _uiState.update {
+          it.copy(timelineLoading = true)
+        }
+
+        // 投稿処理
+        val postRepository = PostRepository.getInstance(blueskyClient)
+        val success = postRepository.createPost(text)
+
+        if (success) {
+          logger.i("投稿成功")
+
+          // 投稿成功後、タイムラインを更新
+          refreshCurrentTab()
+        } else {
+          logger.e("投稿失敗")
+          showErrorDialog("投稿に失敗しました", null)
+
+          _uiState.update {
+            it.copy(timelineLoading = false)
+          }
+        }
+      } catch (e: Exception) {
+        logger.e("投稿エラー: ${e.message}", e)
+        showErrorDialog("投稿に失敗しました", e)
+
+        _uiState.update {
+          it.copy(timelineLoading = false)
+        }
+      }
+    }
   }
 
 }
