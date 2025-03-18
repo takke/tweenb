@@ -3,6 +3,7 @@ package jp.takke.tweenb.app.domain
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
@@ -11,8 +12,8 @@ import kotlinx.serialization.Transient
 data class ColumnInfo(
   val type: ColumnType,
   val name: String,
-  @Serializable(with = DpSerializer::class)
-  val initialWidth: Dp,
+  @Transient
+  val initialWidth: Dp = 200.dp,
   @Transient
   val width: MutableState<Dp> = mutableStateOf(initialWidth),
   @SerialName("width")
