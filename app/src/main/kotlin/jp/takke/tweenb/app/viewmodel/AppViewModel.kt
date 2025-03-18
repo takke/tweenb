@@ -273,13 +273,26 @@ class AppViewModel : ViewModel() {
 
       // タイムラインを取得
       val timelineRepository = TimelineRepository.getInstance(blueskyClient)
-      val posts = timelineRepository.getTimeline(limit = 30)
-      logger.i("タイムライン取得成功: ${posts.size}件")
+      val newPosts = timelineRepository.getTimeline(limit = 30)
+      logger.i("タイムライン取得成功: ${newPosts.size}件")
+
+      // 既存のデータと新しいデータをマージ
+      // 投稿のURIをキーとして使用し、重複を排除
+      val existingPosts = _uiState.value.timelinePosts
+      val existingKeys = existingPosts.map { it.key }.toSet()
+
+      // 既存のデータにない新しい投稿だけをフィルタリング
+      val uniqueNewPosts = newPosts.filter { post -> post.key !in existingKeys }
+
+      // 既存の投稿と新しい投稿をマージ
+      val mergedPosts = existingPosts + uniqueNewPosts.reversed()
+
+      logger.i("マージ後のタイムライン: ${mergedPosts.size}件（新規追加: ${uniqueNewPosts.size}件）")
 
       // UIStateを更新
       _uiState.update {
         it.copy(
-          timelinePosts = posts.reversed(),
+          timelinePosts = mergedPosts,
           timelineLoading = false
         )
       }
@@ -299,6 +312,7 @@ class AppViewModel : ViewModel() {
   /**
    * Notificationsタブの更新
    */
+  @Suppress("RedundantSuspendModifier")
   private suspend fun refreshNotificationsTab() {
     // TODO: 通知の更新処理を実装
     // blueskyClient.getNotifications() など
@@ -307,6 +321,7 @@ class AppViewModel : ViewModel() {
   /**
    * Listsタブの更新
    */
+  @Suppress("RedundantSuspendModifier")
   private suspend fun refreshListsTab() {
     // TODO: リストの更新処理を実装
     // blueskyClient.getLists() など
