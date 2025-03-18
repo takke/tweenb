@@ -140,7 +140,7 @@ fun ConfigDialog(
         }
       }
 
-      Spacer(modifier = Modifier.weight(1f))
+      Spacer(modifier = Modifier.size(32.dp))
 
       // 未認証なら認証ボタン表示
       if (!authorized) {
@@ -158,32 +158,27 @@ fun ConfigDialog(
 
       // 認証済みなら再認証ボタン表示
       if (authorized) {
-        Box(
+        Row(
           modifier = Modifier.fillMaxWidth(),
-          contentAlignment = Alignment.Center
+          verticalAlignment = Alignment.CenterVertically
         ) {
           Button(
-            onClick = onShowAuthDialog
+            onClick = onShowAuthDialog,
+            modifier = Modifier.padding(end = 8.dp)
           ) {
             Text("再認証")
           }
-        }
 
-        // アカウント削除ボタン表示
-        Spacer(modifier = Modifier.height(16.dp))
-        Box(
-          modifier = Modifier.fillMaxWidth(),
-          contentAlignment = Alignment.Center
-        ) {
           Button(
-            onClick = { showConfirmDialog.value = true }
+            onClick = { showConfirmDialog.value = true },
+            modifier = Modifier.padding(start = 8.dp)
           ) {
             Text("アカウント削除")
           }
         }
       }
 
-      Spacer(modifier = Modifier.height(16.dp))
+      Spacer(modifier = Modifier.weight(1f))
 
       Box(
         modifier = Modifier.fillMaxWidth(),
