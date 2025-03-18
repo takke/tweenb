@@ -11,6 +11,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 
 @Composable
@@ -37,8 +38,11 @@ fun Tab(
         tabNames.forEachIndexed { index, it ->
           Text(
             text = it,
-            style = MaterialTheme.typography.body1,
+            style = MaterialTheme.typography.body2,
+            textAlign = TextAlign.Center,
             modifier = Modifier
+              .height(tabHeight)
+              .align(Alignment.CenterVertically)
               .background(
                 color =
                   if (index == selectedTabIndex) Color.White else Color(0xFFE0E0E0)
@@ -46,7 +50,7 @@ fun Tab(
               .clickable {
                 onTabSelected(index)
               }
-              .padding(8.dp)
+              .padding(6.dp)
           )
 
           // Vertical Divider
@@ -67,7 +71,7 @@ fun Tab(
         contentAlignment = Alignment.Center
       ) {
         CircularProgressIndicator(
-          modifier = Modifier.size(20.dp),
+          modifier = Modifier.size(16.dp),
           strokeWidth = 2.dp
         )
       }
@@ -90,7 +94,8 @@ fun Tab(
       Icon(
         imageVector = Icons.Default.Refresh,
         contentDescription = "更新",
-        tint = Color.DarkGray
+        tint = Color.DarkGray,
+        modifier = Modifier.size(20.dp)
       )
     }
 
