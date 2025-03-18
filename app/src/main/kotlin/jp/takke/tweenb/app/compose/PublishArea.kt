@@ -24,20 +24,17 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
-import jp.takke.tweenb.app.viewmodel.AppViewModel
 
 @Composable
 fun PublishArea(
   initialText: String = "",
   onTextChange: (String) -> Unit = {},
-  onPost: (String) -> Unit = {},
-  viewModel: AppViewModel = viewModel()
+  onPost: (String) -> Unit = {}
 ) {
   val postText = remember {
     mutableStateOf(TextFieldValue(text = initialText, selection = TextRange(initialText.length)))
   }
-  
+
   // 入力テキストが外部から変更された場合に反映
   if (postText.value.text != initialText && initialText.isEmpty()) {
     postText.value = TextFieldValue(text = initialText, selection = TextRange(initialText.length))
