@@ -135,12 +135,12 @@ class AppViewModel : ViewModel() {
       ColumnInfo(
         type = ColumnType.Post,
         name = "投稿",
-        initialWidth = 360.dp
+        initialWidth = 540.dp
       ),
       ColumnInfo(
         type = ColumnType.DateTime,
         name = "日時",
-        initialWidth = 120.dp
+        initialWidth = 96.dp
       ),
       ColumnInfo(
         type = ColumnType.ScreenName,
