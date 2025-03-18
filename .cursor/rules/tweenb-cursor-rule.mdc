@@ -1,0 +1,21 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+
+# README.md の更新ルール
+
+## プロジェクト構成
+- app/src/main 配下について
+  - 個別のファイルに関する説明は不要です
+  - ディレクトリ単位で説明してください
+- .gradle や .idea などの dot ファイルの解説は不要です
+- gradlew などの gradle 系ファイルの解説は不要です
+
+## 使用ライブラリ
+- 使用しているライブラリについて簡潔に記載してください
+- バージョンの記載は不要です
+- `compose-ui-tooling` といった個別の artifact の解説は不要です
+- 次の記載は不要です
+  - Kotlin プログラミング言語
