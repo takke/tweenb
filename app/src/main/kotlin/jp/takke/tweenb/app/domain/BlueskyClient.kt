@@ -205,7 +205,8 @@ private class BlueskyClientImpl : BlueskyClient {
     )
     // アカウント情報を永続化
     repository.saveAccount(account)
-    logger.i("refresh 完了: updated[$updatedAccount]")
+    logger.i("refresh 完了")
+    logger.d("updated[$updatedAccount]")
 
     return updatedAccount
   }

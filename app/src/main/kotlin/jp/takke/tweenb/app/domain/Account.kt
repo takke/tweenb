@@ -35,4 +35,8 @@ data class Account(
   // 秘密鍵
   @SerialName("privateKey")
   val privateKey: String
-) 
+) {
+  override fun toString(): String {
+    return "Account(accountId='$accountId', screenName='$screenName', accessJwt='$accessJwt', refreshJwt='$refreshJwt', dPoPNonce='$dPoPNonce', publicKey='***', privateKey='***')"
+  }
+}
