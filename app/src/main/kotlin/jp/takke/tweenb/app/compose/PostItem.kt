@@ -55,7 +55,16 @@ fun PostItem(
         when (columnInfo.type) {
           ColumnType.Icon -> {
             // アイコン
-            UserIcon(columnInfo, post)
+            UserIcon(
+              columnInfo = columnInfo,
+              post = post,
+              onClick = {
+                // ユーザーをブラウザで開く
+                post.post.author?.url?.let { url ->
+                  openBrowser(url)
+                }
+              }
+            )
           }
 
           ColumnType.Name -> {
@@ -69,7 +78,14 @@ fun PostItem(
                 text = post.post.author?.displayName ?: "",
                 style = MaterialTheme.typography.body2,
                 maxLines = 1,
-                overflow = TextOverflow.Ellipsis
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier
+                  .clickable {
+                    // ユーザーをブラウザで開く
+                    post.post.author?.url?.let { url ->
+                      openBrowser(url)
+                    }
+                  }
               )
             }
           }
@@ -85,7 +101,14 @@ fun PostItem(
                 text = "@${post.post.author?.handle ?: ""}",
                 style = MaterialTheme.typography.caption,
                 maxLines = 1,
-                overflow = TextOverflow.Ellipsis
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier
+                  .clickable {
+                    // ユーザーをブラウザで開く
+                    post.post.author?.url?.let { url ->
+                      openBrowser(url)
+                    }
+                  }
               )
               val repostedBy = post.reason?.asReasonRepost?.by
               if (repostedBy != null) {
@@ -166,7 +189,8 @@ fun PostItem(
 @Composable
 private fun UserIcon(
   columnInfo: ColumnInfo,
-  post: BsFeedViewPost
+  post: BsFeedViewPost,
+  onClick: () -> Unit,
 ) {
   Box(
     modifier = Modifier
@@ -185,6 +209,9 @@ private fun UserIcon(
         modifier = Modifier
           .size(40.dp)
           .clip(CircleShape)
+          .clickable {
+            onClick()
+          }
       )
     } else {
       // アバター画像がない場合はプレースホルダーを表示
