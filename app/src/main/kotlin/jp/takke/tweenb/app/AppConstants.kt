@@ -8,4 +8,5 @@ object AppConstants {
 
   // 自動更新間隔（秒）
   val AUTO_REFRESH_INTERVALS = listOf(60, 90, 120, 300, 600)
+  const val DEFAULT_AUTO_REFRESH_INTERVAL = 120
 }

@@ -6,6 +6,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import jp.takke.tweenb.app.AppConstants
 import jp.takke.tweenb.app.domain.*
 import jp.takke.tweenb.app.repository.AccountRepository
 import jp.takke.tweenb.app.repository.AppPropertyRepository
@@ -49,7 +50,7 @@ class AppViewModel : ViewModel() {
     val columns: List<ColumnInfo> = emptyList(),
     // 自動更新設定
     val autoRefreshEnabled: Boolean = false,
-    val autoRefreshInterval: Int = 120, // デフォルト2分
+    val autoRefreshInterval: Int = AppConstants.DEFAULT_AUTO_REFRESH_INTERVAL,
   ) {
     enum class LoginState {
       INIT,

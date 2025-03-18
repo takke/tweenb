@@ -3,6 +3,7 @@ package jp.takke.tweenb.app.repository
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.WindowPosition
+import jp.takke.tweenb.app.AppConstants
 import jp.takke.tweenb.app.domain.ColumnInfo
 import jp.takke.tweenb.app.util.LoggerWrapper
 import kotlinx.serialization.json.Json
@@ -169,7 +170,10 @@ class AppPropertyRepository private constructor() {
    * 自動更新間隔（秒）を取得する
    */
   fun getAutoRefreshInterval(): Int {
-    return props.getProperty("timeline.autoRefresh.interval", "120").toInt()
+    return props.getProperty(
+      "timeline.autoRefresh.interval",
+      AppConstants.DEFAULT_AUTO_REFRESH_INTERVAL.toString()
+    ).toInt()
   }
 
   /**
