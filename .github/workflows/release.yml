@@ -61,5 +61,5 @@ jobs:
           files: |
             ${{ steps.get-msi.outputs.msi_path }}
             ${{ steps.get-zip.outputs.zip_path }}
-          env:
-            GITHUB_TOKEN: ${{ secrets.GH_PAT }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_PAT }}
