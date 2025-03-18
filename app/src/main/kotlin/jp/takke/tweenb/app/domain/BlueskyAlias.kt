@@ -10,3 +10,10 @@ typealias BsPost = work.socialhub.kbsky.model.app.bsky.feed.FeedDefsPostView
 
 val BsPost.createdAtAsDate: Date?
   get() = BsDateParser.parseDate((this.record as? FeedPost)?.createdAt)
+
+val BsPost.url: String?
+  get() {
+    val postId = this.uri?.substringAfterLast("/") ?: return null
+    val handle = this.author?.handle ?: return null
+    return "https://bsky.app/profile/$handle/post/${postId}"
+  }
