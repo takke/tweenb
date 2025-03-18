@@ -10,7 +10,6 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
-import androidx.compose.material.TextFieldDefaults.indicatorLine
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
@@ -103,13 +102,7 @@ private fun CustomTextField(
 ) {
   BasicTextField(
     value = textFieldValue.value,
-    modifier = modifier
-      .indicatorLine(
-        enabled,
-        isError,
-        interactionSource,
-        TextFieldDefaults.textFieldColors()
-      ),
+    modifier = modifier,
     onValueChange = { newValue ->
       textFieldValue.value = newValue   // テキストの変更をStateに反映
       onValueChange(newValue.text)
