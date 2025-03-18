@@ -116,9 +116,13 @@ class AppViewModel : ViewModel() {
   // 投稿確認ダイアログの表示状態
   var showPostConfirmDialog by mutableStateOf(false)
     private set
-    
+
   // 投稿確認中のテキスト
   var pendingPostText by mutableStateOf("")
+    private set
+
+  // 入力中のテキスト
+  var currentInputText by mutableStateOf("")
     private set
 
   init {
@@ -586,6 +590,13 @@ class AppViewModel : ViewModel() {
   }
 
   /**
+   * 投稿テキストを更新する
+   */
+  fun updateInputText(text: String) {
+    currentInputText = text
+  }
+
+  /**
    * 投稿前の確認ダイアログを表示する
    */
   fun showPostConfirmation(text: String) {
@@ -594,17 +605,37 @@ class AppViewModel : ViewModel() {
       showErrorDialog("Blueskyに接続されていません", null)
       return
     }
-    
+
     pendingPostText = text
     showPostConfirmDialog = true
   }
-  
+
   /**
    * 投稿確認ダイアログを閉じる
    */
   fun dismissPostConfirmDialog() {
     showPostConfirmDialog = false
     pendingPostText = ""
+    // キャンセル時は入力テキストを元に戻さない（そのままの状態を維持）
+  }
+
+  /**
+   * 投稿確認ダイアログをキャンセルする
+   * キャンセル時は入力欄を元に戻す
+   */
+  fun cancelPostConfirmDialog() {
+    showPostConfirmDialog = false
+    pendingPostText = ""
+    // 現在のテキストを保持
+  }
+
+  /**
+   * 投稿完了後の処理
+   */
+  fun completePost() {
+    // 投稿完了後、入力欄をクリア
+    currentInputText = ""
+    dismissPostConfirmDialog()
   }
 
   /**

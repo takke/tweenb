@@ -4,7 +4,12 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.input.key.*
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
@@ -18,12 +23,28 @@ fun ConfirmPostDialog(
 ) {
   if (!show) return
 
+  val focusRequester = remember { FocusRequester() }
+
   Dialog(
     onDismissRequest = onDismiss
   ) {
     Surface(
       shape = RoundedCornerShape(8.dp),
-      elevation = 8.dp
+      elevation = 8.dp,
+      modifier = Modifier
+        .onPreviewKeyEvent { keyEvent ->
+          // Enterキーで投稿を実行
+          if (keyEvent.type == KeyEventType.KeyDown &&
+            keyEvent.key == Key.Enter &&
+            !keyEvent.isShiftPressed
+          ) {
+            onConfirm()
+            true
+          } else {
+            false
+          }
+        }
+        .focusRequester(focusRequester)
     ) {
       Column(
         modifier = Modifier
@@ -81,6 +102,11 @@ fun ConfirmPostDialog(
           }
         }
       }
+    }
+
+    // ダイアログを表示した時にフォーカスを設定
+    LaunchedEffect(Unit) {
+      focusRequester.requestFocus()
     }
   }
 } 

@@ -69,6 +69,10 @@ fun FrameWindowScope.AppScreen() {
 
       // 投稿入力欄
       PublishArea(
+        initialText = viewModel.currentInputText,
+        onTextChange = { text ->
+          viewModel.updateInputText(text)
+        },
         onPost = { text ->
           viewModel.showPostConfirmation(text)
         }
@@ -141,10 +145,10 @@ fun FrameWindowScope.AppScreen() {
     ConfirmPostDialog(
       show = viewModel.showPostConfirmDialog,
       postText = viewModel.pendingPostText,
-      onDismiss = { viewModel.dismissPostConfirmDialog() },
+      onDismiss = { viewModel.cancelPostConfirmDialog() },
       onConfirm = {
         viewModel.createPost(viewModel.pendingPostText)
-        viewModel.dismissPostConfirmDialog()
+        viewModel.completePost()
       }
     )
 
