@@ -26,7 +26,11 @@ import coil3.compose.AsyncImage
 import coil3.compose.LocalPlatformContext
 import coil3.request.ImageRequest
 import coil3.request.crossfade
-import jp.takke.tweenb.app.domain.*
+import jp.takke.tweenb.app.domain.ColumnInfo
+import jp.takke.tweenb.app.domain.ColumnType
+import jp.takke.tweenb.app.util.BsFeedViewPost
+import jp.takke.tweenb.app.util.createdAtAsDate
+import jp.takke.tweenb.app.util.url
 import java.text.SimpleDateFormat
 import java.util.*
 

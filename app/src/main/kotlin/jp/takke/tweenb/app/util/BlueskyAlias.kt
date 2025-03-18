@@ -1,6 +1,5 @@
-package jp.takke.tweenb.app.domain
+package jp.takke.tweenb.app.util
 
-import jp.takke.tweenb.app.util.BsDateParser
 import work.socialhub.kbsky.model.app.bsky.actor.ActorDefsProfileViewBasic
 import work.socialhub.kbsky.model.app.bsky.feed.FeedDefsReasonPin
 import work.socialhub.kbsky.model.app.bsky.feed.FeedDefsReasonRepost

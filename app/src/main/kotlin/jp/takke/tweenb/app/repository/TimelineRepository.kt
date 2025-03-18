@@ -1,7 +1,6 @@
 package jp.takke.tweenb.app.repository
 
-import jp.takke.tweenb.app.domain.BlueskyClient
-import jp.takke.tweenb.app.domain.BsFeedViewPost
+import jp.takke.tweenb.app.util.BsFeedViewPost
 import jp.takke.tweenb.app.util.LoggerWrapper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext

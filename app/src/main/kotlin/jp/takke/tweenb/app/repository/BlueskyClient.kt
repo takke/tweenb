@@ -1,8 +1,9 @@
-package jp.takke.tweenb.app.domain
+package jp.takke.tweenb.app.repository
 
 import jp.takke.tweenb.app.AppConstants
-import jp.takke.tweenb.app.repository.AccountRepository
+import jp.takke.tweenb.app.domain.Account
 import jp.takke.tweenb.app.util.LoggerWrapper
+import jp.takke.tweenb.app.util.pdsEndpoint
 import work.socialhub.kbsky.Bluesky
 import work.socialhub.kbsky.BlueskyFactory
 import work.socialhub.kbsky.auth.AuthFactory

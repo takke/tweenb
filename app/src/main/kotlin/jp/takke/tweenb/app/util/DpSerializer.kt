@@ -1,4 +1,4 @@
-package jp.takke.tweenb.app.domain
+package jp.takke.tweenb.app.util
 
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp

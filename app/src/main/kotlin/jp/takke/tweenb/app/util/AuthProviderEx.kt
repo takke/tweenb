@@ -1,4 +1,4 @@
-package jp.takke.tweenb.app.domain
+package jp.takke.tweenb.app.util
 
 import work.socialhub.kbsky.auth.AuthProvider
 
