@@ -150,6 +150,36 @@ class AppPropertyRepository private constructor() {
     saveProperties()
   }
 
+  /**
+   * 自動更新が有効かどうかを取得する
+   */
+  fun isAutoRefreshEnabled(): Boolean {
+    return props.getProperty("timeline.autoRefresh.enabled", "false").toBoolean()
+  }
+
+  /**
+   * 自動更新の有効/無効を設定する
+   */
+  fun setAutoRefreshEnabled(enabled: Boolean) {
+    props.setProperty("timeline.autoRefresh.enabled", enabled.toString())
+    saveProperties()
+  }
+
+  /**
+   * 自動更新間隔（秒）を取得する
+   */
+  fun getAutoRefreshInterval(): Int {
+    return props.getProperty("timeline.autoRefresh.interval", "120").toInt()
+  }
+
+  /**
+   * 自動更新間隔（秒）を設定する
+   */
+  fun setAutoRefreshInterval(intervalSeconds: Int) {
+    props.setProperty("timeline.autoRefresh.interval", intervalSeconds.toString())
+    saveProperties()
+  }
+
   companion object {
     val instance by lazy {
       AppPropertyRepository()

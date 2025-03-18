@@ -96,6 +96,10 @@ fun FrameWindowScope.AppScreen() {
       onShowAuthDialog = { viewModel.showAuthDialog() },
       onDeleteAccount = { viewModel.deleteCurrentAccount() },
       accountScreenName = viewModel.account?.screenName,
+      autoRefreshEnabled = uiState.autoRefreshEnabled,
+      autoRefreshInterval = uiState.autoRefreshInterval,
+      onAutoRefreshToggle = viewModel::toggleAutoRefresh,
+      onAutoRefreshIntervalChange = viewModel::setAutoRefreshInterval,
     )
 
     // 認証ダイアログ

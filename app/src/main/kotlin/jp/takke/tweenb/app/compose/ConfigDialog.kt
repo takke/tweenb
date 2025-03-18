@@ -1,12 +1,13 @@
 package jp.takke.tweenb.app.compose
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.AlertDialog
-import androidx.compose.material.Button
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
+import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -16,6 +17,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import jp.takke.tweenb.app.AppConstants
 
 @Composable
 fun ConfigDialog(
@@ -24,12 +26,19 @@ fun ConfigDialog(
   onShowAuthDialog: () -> Unit,
   onDeleteAccount: () -> Unit,
   accountScreenName: String?,
+  // 自動更新設定
+  autoRefreshEnabled: Boolean,
+  autoRefreshInterval: Int,
+  onAutoRefreshToggle: (Boolean) -> Unit,
+  onAutoRefreshIntervalChange: (Int) -> Unit,
 ) {
   if (!showConfigDialog) {
     return
   }
 
   val showConfirmDialog = remember { mutableStateOf(false) }
+  // ドロップダウン表示制御
+  val expanded = remember { mutableStateOf(false) }
 
   Dialog(
     onDismissRequest = { onDismiss() },
@@ -40,9 +49,9 @@ fun ConfigDialog(
         .background(MaterialTheme.colors.background)
         .padding(16.dp)
         .width(400.dp)
-        .height(300.dp)
+        .height(400.dp)
     ) {
-      val authorized = accountScreenName != null && accountScreenName.isNotEmpty()
+      val authorized = !accountScreenName.isNullOrEmpty()
 
       // アカウント情報表示
       if (authorized) {
@@ -52,6 +61,97 @@ fun ConfigDialog(
           fontWeight = FontWeight.Bold,
           modifier = Modifier.padding(bottom = 16.dp)
         )
+      }
+
+      // 自動更新設定セクション
+      Text(
+        text = "タイムライン自動更新",
+        style = MaterialTheme.typography.h6,
+        fontWeight = FontWeight.Bold,
+        modifier = Modifier.padding(top = 16.dp, bottom = 8.dp)
+      )
+
+      // 自動更新のOn/Offチェックボックス
+      Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier.padding(vertical = 4.dp)
+      ) {
+        Checkbox(
+          checked = autoRefreshEnabled,
+          onCheckedChange = onAutoRefreshToggle
+        )
+        Text(
+          text = "タイムラインを自動的に更新する",
+          modifier = Modifier
+            .padding(start = 8.dp)
+            .clickableNoRipple {
+              onAutoRefreshToggle(!autoRefreshEnabled)
+            }
+        )
+      }
+
+      // 更新間隔選択ドロップダウン
+      Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier.padding(vertical = 4.dp)
+      ) {
+        Text(
+          text = "更新間隔: ",
+          modifier = Modifier.padding(start = 32.dp, end = 8.dp)
+        )
+        Box {
+          Row(
+            modifier = Modifier
+              .clickable { expanded.value = true }
+              .border(
+                width = 1.dp,
+                color = MaterialTheme.colors.onSurface.copy(alpha = 0.3f),
+                shape = RoundedCornerShape(4.dp)
+              )
+              .padding(horizontal = 12.dp, vertical = 8.dp),
+            verticalAlignment = Alignment.CenterVertically
+          ) {
+            // 現在選択されている間隔を表示
+            val intervalText = when (autoRefreshInterval) {
+              60 -> "60秒"
+              90 -> "90秒"
+              120 -> "2分"
+              300 -> "5分"
+              600 -> "10分"
+              else -> "${autoRefreshInterval}秒"
+            }
+            Text(text = intervalText)
+            Icon(
+              imageVector = Icons.Default.ArrowDropDown,
+              contentDescription = null,
+              modifier = Modifier.padding(start = 4.dp)
+            )
+          }
+
+          DropdownMenu(
+            expanded = expanded.value,
+            onDismissRequest = { expanded.value = false }
+          ) {
+            AppConstants.AUTO_REFRESH_INTERVALS.forEach { interval ->
+              val intervalText = when (interval) {
+                60 -> "60秒"
+                90 -> "90秒"
+                120 -> "2分"
+                300 -> "5分"
+                600 -> "10分"
+                else -> "${interval}秒"
+              }
+              DropdownMenuItem(
+                onClick = {
+                  onAutoRefreshIntervalChange(interval)
+                  expanded.value = false
+                }
+              ) {
+                Text(text = intervalText)
+              }
+            }
+          }
+        }
       }
 
       Spacer(modifier = Modifier.weight(1f))
@@ -97,7 +197,7 @@ fun ConfigDialog(
         }
       }
 
-      Spacer(modifier = Modifier.weight(1f))
+      Spacer(modifier = Modifier.height(16.dp))
 
       Box(
         modifier = Modifier.fillMaxWidth(),

@@ -11,10 +11,13 @@ import jp.takke.tweenb.app.repository.AccountRepository
 import jp.takke.tweenb.app.repository.AppPropertyRepository
 import jp.takke.tweenb.app.repository.TimelineRepository
 import jp.takke.tweenb.app.util.LoggerWrapper
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import java.io.PrintWriter
 import java.io.StringWriter
@@ -44,6 +47,9 @@ class AppViewModel : ViewModel() {
     val errorStackTrace: String = "",
     // カラム情報
     val columns: List<ColumnInfo> = emptyList(),
+    // 自動更新設定
+    val autoRefreshEnabled: Boolean = false,
+    val autoRefreshInterval: Int = 120, // デフォルト2分
   ) {
     enum class LoginState {
       INIT,
@@ -99,6 +105,12 @@ class AppViewModel : ViewModel() {
 
   private val logger = LoggerWrapper("AppViewModel")
 
+  // アプリプロパティ
+  private val propertyRepository = AppPropertyRepository.instance
+
+  // 自動更新用のジョブ
+  private var autoRefreshJob: Job? = null
+
   init {
     // 保存されているアカウント情報を読み込む
     loadAccounts()
@@ -108,13 +120,16 @@ class AppViewModel : ViewModel() {
       selectAccount(_uiState.value.accounts.first())
     }
 
-    // 保存されたカラム情報があれば読み込む
+    // 保存されたカラム情報をロード
     val propertyRepository = AppPropertyRepository.instance
     val columnsFromProp = propertyRepository.getColumns()
     logger.d("getColumns: $columnsFromProp")
     _uiState.update {
       it.copy(columns = if (columnsFromProp.isNullOrEmpty()) createDefaultColumns() else columnsFromProp)
     }
+
+    // 自動更新設定をロード
+    loadAutoRefreshSettings()
   }
 
   /**
@@ -452,6 +467,95 @@ class AppViewModel : ViewModel() {
         }
       }
     }
+  }
+
+  /**
+   * 自動更新設定をロードする
+   */
+  private fun loadAutoRefreshSettings() {
+    val enabled = propertyRepository.isAutoRefreshEnabled()
+    val interval = propertyRepository.getAutoRefreshInterval()
+
+    _uiState.update {
+      it.copy(
+        autoRefreshEnabled = enabled,
+        autoRefreshInterval = interval
+      )
+    }
+
+    // 自動更新が有効なら開始
+    if (enabled) {
+      startAutoRefresh()
+    }
+  }
+
+  /**
+   * 自動更新の有効/無効を切り替える
+   */
+  fun toggleAutoRefresh(enabled: Boolean) {
+    _uiState.update {
+      it.copy(autoRefreshEnabled = enabled)
+    }
+
+    propertyRepository.setAutoRefreshEnabled(enabled)
+
+    if (enabled) {
+      startAutoRefresh()
+    } else {
+      stopAutoRefresh()
+    }
+  }
+
+  /**
+   * 自動更新間隔を設定する
+   */
+  fun setAutoRefreshInterval(intervalSeconds: Int) {
+    _uiState.update {
+      it.copy(autoRefreshInterval = intervalSeconds)
+    }
+
+    propertyRepository.setAutoRefreshInterval(intervalSeconds)
+
+    // 自動更新が有効なら再開
+    if (uiState.value.autoRefreshEnabled) {
+      restartAutoRefresh()
+    }
+  }
+
+  /**
+   * 自動更新を開始する
+   */
+  private fun startAutoRefresh() {
+    // すでに実行中なら何もしない
+    if (autoRefreshJob != null && autoRefreshJob?.isActive == true) {
+      return
+    }
+
+    autoRefreshJob = viewModelScope.launch {
+      while (isActive) {
+        val interval = uiState.value.autoRefreshInterval * 1000L
+        delay(interval)
+
+        logger.i("自動更新を実行します (間隔: ${uiState.value.autoRefreshInterval}秒)")
+        refreshCurrentTab()
+      }
+    }
+  }
+
+  /**
+   * 自動更新を停止する
+   */
+  private fun stopAutoRefresh() {
+    autoRefreshJob?.cancel()
+    autoRefreshJob = null
+  }
+
+  /**
+   * 自動更新を再開する
+   */
+  private fun restartAutoRefresh() {
+    stopAutoRefresh()
+    startAutoRefresh()
   }
 
 }
