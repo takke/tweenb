@@ -67,6 +67,14 @@ fun FrameWindowScope.AppScreen() {
         isLoading = uiState.timelineLoading
       )
 
+      // 投稿入力欄
+      PublishArea(
+        onPost = { text ->
+          // TODO: 投稿ロジックの実装
+          println("投稿内容: $text")
+        }
+      )
+
       // Status bar
       val statusText = if (viewModel.blueskyClientInitialized) {
         buildString {
