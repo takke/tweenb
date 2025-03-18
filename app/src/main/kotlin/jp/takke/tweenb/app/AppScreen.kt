@@ -70,7 +70,7 @@ fun FrameWindowScope.AppScreen() {
       // 投稿入力欄
       PublishArea(
         onPost = { text ->
-          viewModel.createPost(text)
+          viewModel.showPostConfirmation(text)
         }
       )
 
@@ -135,6 +135,17 @@ fun FrameWindowScope.AppScreen() {
         viewModel.dismissErrorDialog()
         viewModel.showAuthDialog(reAuth = true)
       },
+    )
+
+    // 投稿確認ダイアログ
+    ConfirmPostDialog(
+      show = viewModel.showPostConfirmDialog,
+      postText = viewModel.pendingPostText,
+      onDismiss = { viewModel.dismissPostConfirmDialog() },
+      onConfirm = {
+        viewModel.createPost(viewModel.pendingPostText)
+        viewModel.dismissPostConfirmDialog()
+      }
     )
 
     // 未認証ならすぐに認証画面を開く

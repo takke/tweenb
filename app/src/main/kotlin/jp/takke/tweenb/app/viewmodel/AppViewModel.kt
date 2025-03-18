@@ -113,6 +113,14 @@ class AppViewModel : ViewModel() {
   // 自動更新用のジョブ
   private var autoRefreshJob: Job? = null
 
+  // 投稿確認ダイアログの表示状態
+  var showPostConfirmDialog by mutableStateOf(false)
+    private set
+    
+  // 投稿確認中のテキスト
+  var pendingPostText by mutableStateOf("")
+    private set
+
   init {
     // 保存されているアカウント情報を読み込む
     loadAccounts()
@@ -575,6 +583,28 @@ class AppViewModel : ViewModel() {
   private fun restartAutoRefresh() {
     stopAutoRefresh()
     startAutoRefresh()
+  }
+
+  /**
+   * 投稿前の確認ダイアログを表示する
+   */
+  fun showPostConfirmation(text: String) {
+    if (!blueskyClientInitialized) {
+      logger.w("Blueskyクライアントが初期化されていません")
+      showErrorDialog("Blueskyに接続されていません", null)
+      return
+    }
+    
+    pendingPostText = text
+    showPostConfirmDialog = true
+  }
+  
+  /**
+   * 投稿確認ダイアログを閉じる
+   */
+  fun dismissPostConfirmDialog() {
+    showPostConfirmDialog = false
+    pendingPostText = ""
   }
 
   /**
