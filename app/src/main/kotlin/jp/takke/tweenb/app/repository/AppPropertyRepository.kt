@@ -129,8 +129,9 @@ class AppPropertyRepository private constructor() {
    * プロパティファイルを保存
    */
   private fun saveProperties() {
-    prefsFile.outputStream().use {
-      props.store(it, "tweenb settings")
+    prefsFile.outputStream().use { stream ->
+      props.store(stream, "tweenb settings")
+      stream.flush()
     }
   }
 
