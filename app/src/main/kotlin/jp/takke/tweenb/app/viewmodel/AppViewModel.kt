@@ -557,10 +557,11 @@ class AppViewModel : ViewModel() {
       it.copy(autoRefreshInterval = intervalSeconds)
     }
 
+    // 設定を保存
     propertyRepository.setAutoRefreshInterval(intervalSeconds)
 
     // 自動更新が有効なら再開
-    if (uiState.value.autoRefreshEnabled) {
+    if (_uiState.value.autoRefreshEnabled) {
       restartAutoRefresh()
     }
   }
