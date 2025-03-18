@@ -137,50 +137,10 @@ fun PostItem(
           }
 
           ColumnType.Post -> {
-            // 投稿内容
-            val postBody = post.post.record?.asFeedPost?.text ?: ""
-            val repostedBy = post.reason?.asReasonRepost?.by
-            val displayText = if (repostedBy != null) {
-              // リポスト
-              "RP: $postBody"
-            } else {
-              postBody
-            }
-
-            // ツールチップエリアでラップ
-            TooltipArea(
-              tooltip = {
-                // ツールチップの内容
-                Surface(
-                  modifier = Modifier.padding(8.dp),
-                  shape = RoundedCornerShape(4.dp),
-                  elevation = 4.dp
-                ) {
-                  Text(
-                    text = displayText,
-                    style = MaterialTheme.typography.body2,
-                    modifier = Modifier
-                      .padding(10.dp)
-                      .widthIn(max = 600.dp) // 最大幅を設定
-                  )
-                }
-              },
-              delayMillis = 300, // 表示までの遅延
-              tooltipPlacement = TooltipPlacement.CursorPoint(
-                alignment = Alignment.BottomCenter
-              )
-            ) {
-              // 通常表示の内容
-              Text(
-                text = displayText,
-                style = MaterialTheme.typography.body2,
-                modifier = Modifier
-                  .width(columnInfo.width.value)
-                  .padding(vertical = 4.dp, horizontal = 8.dp),
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis
-              )
-            }
+            PostColumnContent(
+              post = post,
+              columnInfo = columnInfo
+            )
           }
 
           ColumnType.DateTime -> {
@@ -217,6 +177,58 @@ fun PostItem(
 
     Divider(
       color = Color.LightGray
+    )
+  }
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+private fun PostColumnContent(
+  post: BsFeedViewPost,
+  columnInfo: ColumnInfo
+) {
+  // 投稿内容
+  val postBody = post.post.record?.asFeedPost?.text ?: ""
+  val repostedBy = post.reason?.asReasonRepost?.by
+  val displayText = if (repostedBy != null) {
+    // リポスト
+    "RP: $postBody"
+  } else {
+    postBody
+  }
+
+  // ツールチップエリアでラップ
+  TooltipArea(
+    tooltip = {
+      // ツールチップの内容
+      Surface(
+        modifier = Modifier.padding(8.dp),
+        shape = RoundedCornerShape(4.dp),
+        elevation = 4.dp
+      ) {
+        Text(
+          text = displayText,
+          style = MaterialTheme.typography.body2,
+          modifier = Modifier
+            .padding(10.dp)
+            .widthIn(max = 600.dp) // 最大幅を設定
+        )
+      }
+    },
+    delayMillis = 300, // 表示までの遅延
+    tooltipPlacement = TooltipPlacement.CursorPoint(
+      alignment = Alignment.BottomCenter
+    )
+  ) {
+    // 通常表示の内容
+    Text(
+      text = displayText,
+      style = MaterialTheme.typography.body2,
+      modifier = Modifier
+        .width(columnInfo.width.value)
+        .padding(vertical = 4.dp, horizontal = 8.dp),
+      maxLines = 2,
+      overflow = TextOverflow.Ellipsis
     )
   }
 }
