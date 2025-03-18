@@ -532,13 +532,16 @@ class AppViewModel : ViewModel() {
   /**
    * 自動更新の有効/無効を切り替える
    */
-  fun toggleAutoRefresh(enabled: Boolean) {
+  fun setAutoRefresh(enabled: Boolean) {
+
     _uiState.update {
       it.copy(autoRefreshEnabled = enabled)
     }
 
+    // 設定を保存
     propertyRepository.setAutoRefreshEnabled(enabled)
 
+    // 自動更新の開始/停止
     if (enabled) {
       startAutoRefresh()
     } else {
