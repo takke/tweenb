@@ -75,6 +75,7 @@ private class BlueskyClientImpl : BlueskyClient {
   }
 
   override fun initialize(account: Account) {
+    logger.d("initialize: $account")
     this.account = account
 
     // 認証プロバイダーを初期化
