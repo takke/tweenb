@@ -48,8 +48,8 @@ class AppPropertyRepository private constructor() {
    * ウィンドウ位置を取得
    */
   fun getWindowPosition(): WindowPosition {
-    val x = props.getProperty("window.x")?.toFloatOrNull() ?: 300f
-    val y = props.getProperty("window.y")?.toFloatOrNull() ?: 300f
+    val x = props.getProperty("window.x")?.toFloatOrNull() ?: 100f
+    val y = props.getProperty("window.y")?.toFloatOrNull() ?: 100f
     return WindowPosition(x.dp, y.dp)
   }
 
@@ -57,8 +57,8 @@ class AppPropertyRepository private constructor() {
    * ウィンドウサイズを取得
    */
   fun getWindowSize(): DpSize {
-    val width = props.getProperty("window.width")?.toFloatOrNull() ?: 800f
-    val height = props.getProperty("window.height")?.toFloatOrNull() ?: 600f
+    val width = props.getProperty("window.width")?.toFloatOrNull() ?: 1000f
+    val height = props.getProperty("window.height")?.toFloatOrNull() ?: 800f
     return DpSize(width.dp, height.dp)
   }
 
