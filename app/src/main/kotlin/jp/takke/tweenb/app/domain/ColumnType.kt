@@ -6,6 +6,7 @@ import kotlinx.serialization.Serializable
 enum class ColumnType {
   Icon,
   Name,
+  ScreenName,
   Post,
   DateTime,
 }

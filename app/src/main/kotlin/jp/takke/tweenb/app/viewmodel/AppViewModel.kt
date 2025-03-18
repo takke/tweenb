@@ -142,6 +142,11 @@ class AppViewModel : ViewModel() {
         name = "日時",
         initialWidth = 120.dp
       ),
+      ColumnInfo(
+        type = ColumnType.ScreenName,
+        name = "ユーザ名",
+        initialWidth = 120.dp
+      ),
     )
   }
 

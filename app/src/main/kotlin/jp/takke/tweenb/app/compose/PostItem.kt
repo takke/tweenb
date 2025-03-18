@@ -73,10 +73,19 @@ fun PostItem(
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
               )
+            }
+          }
+
+          ColumnType.ScreenName -> {
+            // ScreenName(ユーザー名)
+            Column(
+              modifier = Modifier
+                .width(columnInfo.width.value)
+                .padding(8.dp)
+            ) {
               Text(
                 text = "@${post.post.author?.handle ?: ""}",
                 style = MaterialTheme.typography.caption,
-                color = Color.Gray,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
               )
