@@ -1,6 +1,6 @@
 # tweenb
 
-tweenbは、Jetpack Composeを使用したKotlinデスクトップアプリケーションです。
+tweenbは、Jetpack Composeを使用したBluesky用デスクトップクライアントアプリケーションです。
 
 Windows用のTween/OpenTweenに似た使用感を目指して作成しています。
 
@@ -10,6 +10,7 @@ Windows用のTween/OpenTweenに似た使用感を目指して作成していま�
 - ウィンドウサイズと位置の記憶
 - Blueskyアカウントの管理と認証
 - カスタマイズ可能なカラムレイアウト（幅の調整と保存）
+- シンプルな投稿
 - ユーザーアイコン表示
 
 ## インストール方法
