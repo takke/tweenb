@@ -12,6 +12,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.FilterQuality
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -204,14 +206,17 @@ private fun UserIcon(
         model = ImageRequest.Builder(LocalPlatformContext.current)
           .data(avatarUrl)
           .crossfade(true)
+          .size(120)
           .build(),
         contentDescription = "ユーザーアイコン",
         modifier = Modifier
-          .size(40.dp)
           .clip(CircleShape)
+          .size(40.dp)
           .clickable {
             onClick()
-          }
+          },
+        filterQuality = FilterQuality.High,
+        contentScale = ContentScale.Crop
       )
     } else {
       // アバター画像がない場合はプレースホルダーを表示
