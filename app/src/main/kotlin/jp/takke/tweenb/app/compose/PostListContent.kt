@@ -19,6 +19,7 @@ import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -160,6 +161,8 @@ private fun PostHeaders(
       Text(
         text = columnInfo.name,
         style = MaterialTheme.typography.body2,
+        maxLines = 1,
+        overflow = TextOverflow.Ellipsis,
         modifier = Modifier
           .width(columnInfo.width.value - if (index == 0) 2.dp else 5.dp)
           .padding(6.dp)

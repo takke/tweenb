@@ -112,6 +112,8 @@ fun PostItem(
             Text(
               text = formattedDate,
               style = MaterialTheme.typography.caption,
+              maxLines = 2,
+              overflow = TextOverflow.Ellipsis,
               modifier = Modifier
                 .width(columnInfo.width.value)
                 .padding(8.dp)
