@@ -10,8 +10,7 @@ Windows用のTween/OpenTweenに似た使用感を目指して作成していま�
 - ウィンドウサイズと位置の記憶
 - Blueskyアカウントの管理と認証
 - カスタマイズ可能なカラムレイアウト（幅の調整と保存）
-- ユーザーアイコンの表示（Coil3を使用）
-- スクロールバーによる快適なナビゲーション
+- ユーザーアイコン表示
 
 ## インストール方法
 
@@ -118,21 +117,11 @@ tweenb/
 │   │   │   ├── kotlin/                               # Kotlinソースコード
 │   │   │   │   └── jp/takke/tweenb/app/
 │   │   │   │       ├── compose/                      # Compose UI コンポーネント
-│   │   │   │       │   ├── PostItem.kt               # 投稿アイテム表示
-│   │   │   │       │   ├── PostListContent.kt        # 投稿リスト表示
-│   │   │   │       │   └── VerticalDivider.kt        # 縦区切り線コンポーネント
 │   │   │   │       ├── domain/                       # ドメイン層
-│   │   │   │       │   ├── Account.kt                # アカウントモデル
-│   │   │   │       │   ├── BlueskyAuthService.kt     # 認証サービス
-│   │   │   │       │   ├── BlueskyClient.kt          # APIクライアント
-│   │   │   │       │   ├── ColumnInfo.kt             # カラム情報モデル
-│   │   │   │       │   ├── ColumnType.kt             # カラムタイプ定義
-│   │   │   │       │   └── DpSerializer.kt           # Dp型シリアライザ
 │   │   │   │       ├── repository/                   # データ層
-│   │   │   │       │   └── AppPropertyRepository.kt  # 設定リポジトリ
+│   │   │   │       ├── service/                      # サービス層
+│   │   │   │       ├── util/                         # ユーティリティ層
 │   │   │   │       ├── viewmodel/                    # プレゼンテーション層
-│   │   │   │       │   └── AppViewModel.kt           # ビューモデル
-│   │   │   │       └── AppConstants.kt               # アプリ定数
 │   │   │   └── resources/                            # リソースファイル
 │   │   └── test/                                     # テストコード
 │   └── build.gradle.kts                              # アプリモジュールのビルド設定
@@ -141,9 +130,7 @@ tweenb/
 │   └── libs.versions.toml                            # 依存関係のバージョン管理
 ├── .github/
 │   └── workflows/                                    # GitHub Actions ワークフロー
-│       ├── windows-build.yml                         # Windows用ビルドワークフロー
-│       └── release.yml                               # リリース作成ワークフロー
-└── settings.gradle.kts                               # Gradleの設定
+└── settings.gradle.kts                               # Gradle設定
 ```
 
 ## アーキテクチャ
@@ -169,10 +156,12 @@ tweenb/
 
 ## 使用ライブラリ
 
-- Jetpack Compose - UI構築
+- JetBrains Compose - UI構築
 - kotlinx.coroutines - 非同期処理
 - kotlinx.serialization - JSONシリアライゼーション
+- Lifecycle - ライフサイクル管理
 - kbsky - Bluesky API クライアント
+- Cryptography - 暗号化ライブラリ
 - Coil3 - 画像読み込みと表示
 
 ## ライセンス
