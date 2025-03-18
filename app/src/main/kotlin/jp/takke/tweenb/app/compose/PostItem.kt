@@ -1,10 +1,15 @@
 package jp.takke.tweenb.app.compose
 
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.TooltipArea
+import androidx.compose.foundation.TooltipPlacement
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Divider
 import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -25,6 +30,7 @@ import jp.takke.tweenb.app.domain.*
 import java.text.SimpleDateFormat
 import java.util.*
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun PostItem(
   post: BsFeedViewPost,
@@ -134,20 +140,47 @@ fun PostItem(
             // 投稿内容
             val postBody = post.post.record?.asFeedPost?.text ?: ""
             val repostedBy = post.reason?.asReasonRepost?.by
-            Text(
-              text = if (repostedBy != null) {
-                // リポスト
-                "RP: $postBody"
-              } else {
-                postBody
+            val displayText = if (repostedBy != null) {
+              // リポスト
+              "RP: $postBody"
+            } else {
+              postBody
+            }
+
+            // ツールチップエリアでラップ
+            TooltipArea(
+              tooltip = {
+                // ツールチップの内容
+                Surface(
+                  modifier = Modifier.padding(8.dp),
+                  shape = RoundedCornerShape(4.dp),
+                  elevation = 4.dp
+                ) {
+                  Text(
+                    text = displayText,
+                    style = MaterialTheme.typography.body2,
+                    modifier = Modifier
+                      .padding(10.dp)
+                      .widthIn(max = 600.dp) // 最大幅を設定
+                  )
+                }
               },
-              style = MaterialTheme.typography.body2,
-              modifier = Modifier
-                .width(columnInfo.width.value)
-                .padding(vertical = 4.dp, horizontal = 8.dp),
-              maxLines = 2,
-              overflow = TextOverflow.Ellipsis
-            )
+              delayMillis = 300, // 表示までの遅延
+              tooltipPlacement = TooltipPlacement.CursorPoint(
+                alignment = Alignment.BottomCenter
+              )
+            ) {
+              // 通常表示の内容
+              Text(
+                text = displayText,
+                style = MaterialTheme.typography.body2,
+                modifier = Modifier
+                  .width(columnInfo.width.value)
+                  .padding(vertical = 4.dp, horizontal = 8.dp),
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis
+              )
+            }
           }
 
           ColumnType.DateTime -> {
