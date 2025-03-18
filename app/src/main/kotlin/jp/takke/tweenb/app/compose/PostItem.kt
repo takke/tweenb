@@ -217,7 +217,7 @@ private fun PostColumnContent(
     },
     delayMillis = 300, // 表示までの遅延
     tooltipPlacement = TooltipPlacement.CursorPoint(
-      alignment = Alignment.BottomCenter
+      alignment = Alignment.BottomStart
     )
   ) {
     // 通常表示の内容
