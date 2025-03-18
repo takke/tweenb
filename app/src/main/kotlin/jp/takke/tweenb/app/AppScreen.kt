@@ -1,20 +1,14 @@
 package jp.takke.tweenb.app
 
 import androidx.compose.desktop.ui.tooling.preview.Preview
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.FrameWindowScope
 import androidx.compose.ui.window.MenuBar
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -26,15 +20,15 @@ import kotlin.system.exitProcess
 @Composable
 @Preview
 fun FrameWindowScope.AppScreen() {
-  val viewModel = viewModel { AppViewModel() }
-  val publishViewModel = viewModel { PublishViewModel(viewModel.blueskyClient) }
-  val uiState by viewModel.uiState.collectAsState()
+  val appViewModel = viewModel { AppViewModel() }
+  val publishViewModel = viewModel { PublishViewModel(appViewModel.blueskyClient) }
+  val uiState by appViewModel.uiState.collectAsState()
   val publishUiState by publishViewModel.uiState.collectAsState()
 
   MenuBar {
     Menu("ファイル") {
       Item("設定") {
-        viewModel.showConfigDialog()
+        appViewModel.showConfigDialog()
       }
       Item("終了") {
         exitProcess(0)
@@ -42,7 +36,7 @@ fun FrameWindowScope.AppScreen() {
     }
     Menu("ヘルプ") {
       Item("バージョン情報") {
-        viewModel.showAboutDialog()
+        appViewModel.showAboutDialog()
       }
     }
   }
@@ -59,13 +53,13 @@ fun FrameWindowScope.AppScreen() {
 
       // タブ
       Tab(
-        tabNames = viewModel.tabNames,
-        selectedTabIndex = viewModel.selectedTabIndex,
+        tabNames = appViewModel.tabNames,
+        selectedTabIndex = appViewModel.selectedTabIndex,
         onTabSelected = { index ->
-          viewModel.selectTab(index)
+          appViewModel.selectTab(index)
         },
         onRefresh = {
-          viewModel.refreshCurrentTab()
+          appViewModel.refreshCurrentTab()
         },
         isLoading = uiState.timelineLoading
       )
@@ -82,65 +76,50 @@ fun FrameWindowScope.AppScreen() {
       )
 
       // Status bar
-      val statusText = if (viewModel.blueskyClientInitialized) {
-        buildString {
-          append("@${viewModel.account?.screenName}")
-          if (uiState.autoRefreshEnabled) {
-            val intervalText = autoRefreshIntervalToText(uiState.autoRefreshInterval)
-            append(" [間隔: $intervalText]")
-          }
-        }
-      } else {
-        "未認証"
-      }
-      Text(
-        text = statusText,
-        style = MaterialTheme.typography.body1,
-        modifier = Modifier
-          .fillMaxWidth()
-          .background(Color.LightGray)
-          .padding(8.dp)
+      StatusBar(
+        appViewModel = appViewModel,
+        uiState = uiState
       )
     }
 
     // バージョン情報ダイアログ
     AboutDialog(
-      viewModel.showAboutDialog,
-      onDismiss = { viewModel.dismissAboutDialog() },
+      appViewModel.showAboutDialog,
+      onDismiss = { appViewModel.dismissAboutDialog() },
     )
 
     // 設定ダイアログ
     ConfigDialog(
-      showConfigDialog = viewModel.showConfigDialog,
-      onDismiss = { viewModel.dismissConfigDialog() },
-      onShowAuthDialog = { viewModel.showAuthDialog() },
-      onDeleteAccount = { viewModel.deleteCurrentAccount() },
-      accountScreenName = viewModel.account?.screenName,
+      showConfigDialog = appViewModel.showConfigDialog,
+      onDismiss = { appViewModel.dismissConfigDialog() },
+      onShowAuthDialog = { appViewModel.showAuthDialog() },
+      onDeleteAccount = { appViewModel.deleteCurrentAccount() },
+      accountScreenName = appViewModel.account?.screenName,
       autoRefreshEnabled = uiState.autoRefreshEnabled,
       autoRefreshInterval = uiState.autoRefreshInterval,
-      onAutoRefreshToggle = viewModel::setAutoRefresh,
-      onAutoRefreshIntervalChange = viewModel::setAutoRefreshInterval,
+      onAutoRefreshToggle = appViewModel::setAutoRefresh,
+      onAutoRefreshIntervalChange = appViewModel::setAutoRefreshInterval,
     )
 
     // 認証ダイアログ
     AuthDialog(
-      showConfigDialog = viewModel.showAuthDialog,
-      onDismiss = { viewModel.dismissAuthDialog() },
-      onStartAuth = { viewModel.startAuth() },
+      showConfigDialog = appViewModel.showAuthDialog,
+      onDismiss = { appViewModel.dismissAuthDialog() },
+      onStartAuth = { appViewModel.startAuth() },
       uiState = uiState,
-      onCodeChanged = viewModel::onCodeChanged,
-      onStartTokenRequest = viewModel::onStartTokenRequest,
+      onCodeChanged = appViewModel::onCodeChanged,
+      onStartTokenRequest = appViewModel::onStartTokenRequest,
     )
 
     // エラーダイアログ
     ErrorDialog(
-      show = viewModel.showErrorDialog,
+      show = appViewModel.showErrorDialog,
       errorMessage = uiState.errorMessage,
       stackTrace = uiState.errorStackTrace.replace("\t", "    "),
-      onDismiss = { viewModel.dismissErrorDialog() },
+      onDismiss = { appViewModel.dismissErrorDialog() },
       onReAuth = {
-        viewModel.dismissErrorDialog()
-        viewModel.showAuthDialog(reAuth = true)
+        appViewModel.dismissErrorDialog()
+        appViewModel.showAuthDialog(reAuth = true)
       },
     )
 
@@ -151,7 +130,7 @@ fun FrameWindowScope.AppScreen() {
       onDismiss = { publishViewModel.cancelPostConfirmDialog() },
       onConfirm = {
         // 投稿処理
-        viewModel.processPost(execute = {
+        appViewModel.processPost(execute = {
           return@processPost publishViewModel.createPost(publishUiState.pendingPostText)
         })
 
@@ -162,12 +141,12 @@ fun FrameWindowScope.AppScreen() {
     // 未認証ならすぐに認証画面を開く
     // 認証済みなら更新実行
     LaunchedEffect(Unit) {
-      if (!viewModel.blueskyClientInitialized) {
+      if (!appViewModel.blueskyClientInitialized) {
         // 未認証
-        viewModel.showAuthDialog()
+        appViewModel.showAuthDialog()
       } else {
         // 認証済み
-        viewModel.refreshCurrentTab()
+        appViewModel.refreshCurrentTab()
       }
     }
   }
