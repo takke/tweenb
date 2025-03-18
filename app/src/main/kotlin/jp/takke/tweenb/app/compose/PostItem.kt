@@ -206,7 +206,7 @@ private fun UserIcon(
         model = ImageRequest.Builder(LocalPlatformContext.current)
           .data(avatarUrl)
           .crossfade(true)
-          .size(120)
+          .size(160)
           .build(),
         contentDescription = "ユーザーアイコン",
         modifier = Modifier
