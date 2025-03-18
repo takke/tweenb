@@ -10,7 +10,10 @@ import jp.takke.tweenb.app.AppConstants
 import jp.takke.tweenb.app.domain.Account
 import jp.takke.tweenb.app.domain.ColumnInfo
 import jp.takke.tweenb.app.domain.ColumnType
-import jp.takke.tweenb.app.repository.*
+import jp.takke.tweenb.app.repository.AccountRepository
+import jp.takke.tweenb.app.repository.AppPropertyRepository
+import jp.takke.tweenb.app.repository.BlueskyClient
+import jp.takke.tweenb.app.repository.TimelineRepository
 import jp.takke.tweenb.app.service.BlueskyAuthService
 import jp.takke.tweenb.app.util.BsFeedViewPost
 import jp.takke.tweenb.app.util.LoggerWrapper
@@ -72,7 +75,7 @@ class AppViewModel : ViewModel() {
   private val accountRepository = AccountRepository.instance
 
   // Blueskyクライアント
-  private val blueskyClient = BlueskyClient.create()
+  val blueskyClient = BlueskyClient.create()
 
   // 認証サービス
   private val authService = BlueskyAuthService(accountRepository)
@@ -570,18 +573,19 @@ class AppViewModel : ViewModel() {
    * 自動更新を開始する
    */
   private fun startAutoRefresh() {
-    // すでに実行中なら何もしない
-    if (autoRefreshJob != null && autoRefreshJob?.isActive == true) {
-      return
-    }
+    stopAutoRefresh()
 
+    // 自動更新ジョブを開始
     autoRefreshJob = viewModelScope.launch {
       while (isActive) {
-        val interval = uiState.value.autoRefreshInterval * 1000L
+        // 設定された間隔で更新
+        val interval = _uiState.value.autoRefreshInterval * 1000L
         delay(interval)
 
-        logger.i("自動更新を実行します (間隔: ${uiState.value.autoRefreshInterval}秒)")
-        refreshCurrentTab()
+        // 認証済みなら更新
+        if (blueskyClientInitialized) {
+          refreshCurrentTab()
+        }
       }
     }
   }
@@ -602,59 +606,14 @@ class AppViewModel : ViewModel() {
     startAutoRefresh()
   }
 
-  /**
-   * 投稿テキストを更新する
-   */
-  fun updateInputText(text: String) {
-    currentInputText = text
+  override fun onCleared() {
+    super.onCleared()
+
+    // 自動更新を停止
+    stopAutoRefresh()
   }
 
-  /**
-   * 投稿前の確認ダイアログを表示する
-   */
-  fun showPostConfirmation(text: String) {
-    if (!blueskyClientInitialized) {
-      logger.w("Blueskyクライアントが初期化されていません")
-      showErrorDialog("Blueskyに接続されていません", null)
-      return
-    }
-
-    pendingPostText = text
-    showPostConfirmDialog = true
-  }
-
-  /**
-   * 投稿確認ダイアログを閉じる
-   */
-  fun dismissPostConfirmDialog() {
-    showPostConfirmDialog = false
-    pendingPostText = ""
-    // キャンセル時は入力テキストを元に戻さない（そのままの状態を維持）
-  }
-
-  /**
-   * 投稿確認ダイアログをキャンセルする
-   * キャンセル時は入力欄を元に戻す
-   */
-  fun cancelPostConfirmDialog() {
-    showPostConfirmDialog = false
-    pendingPostText = ""
-    // 現在のテキストを保持
-  }
-
-  /**
-   * 投稿完了後の処理
-   */
-  fun completePost() {
-    // 投稿完了後、入力欄をクリア
-    currentInputText = ""
-    dismissPostConfirmDialog()
-  }
-
-  /**
-   * 投稿を作成する
-   */
-  fun createPost(text: String) {
+  fun processPost(execute: suspend () -> Boolean) {
     if (!blueskyClientInitialized) {
       logger.w("Blueskyクライアントが初期化されていません")
       showErrorDialog("Blueskyに接続されていません", null)
@@ -664,17 +623,12 @@ class AppViewModel : ViewModel() {
     // 投稿処理を実行
     viewModelScope.launch {
       try {
-        // 投稿開始
-        logger.i("投稿開始: $text")
-
         _uiState.update {
           it.copy(timelineLoading = true)
         }
 
         // 投稿処理
-        val postRepository = PostRepository.getInstance(blueskyClient)
-        val success = postRepository.createPost(text)
-
+        val success = execute()
         if (success) {
           logger.i("投稿成功")
 
@@ -683,20 +637,15 @@ class AppViewModel : ViewModel() {
         } else {
           logger.e("投稿失敗")
           showErrorDialog("投稿に失敗しました", null)
-
-          _uiState.update {
-            it.copy(timelineLoading = false)
-          }
         }
       } catch (e: Exception) {
-        logger.e("投稿エラー: ${e.message}", e)
-        showErrorDialog("投稿に失敗しました", e)
-
+        logger.e("投稿後の処理でエラー: ${e.message}", e)
+        showErrorDialog("タイムライン更新時にエラーが発生しました", e)
+      } finally {
         _uiState.update {
           it.copy(timelineLoading = false)
         }
       }
     }
   }
-
 }

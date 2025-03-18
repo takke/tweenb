@@ -20,13 +20,16 @@ import androidx.compose.ui.window.MenuBar
 import androidx.lifecycle.viewmodel.compose.viewModel
 import jp.takke.tweenb.app.compose.*
 import jp.takke.tweenb.app.viewmodel.AppViewModel
+import jp.takke.tweenb.app.viewmodel.PublishViewModel
 import kotlin.system.exitProcess
 
 @Composable
 @Preview
 fun FrameWindowScope.AppScreen() {
   val viewModel = viewModel { AppViewModel() }
+  val publishViewModel = viewModel { PublishViewModel(viewModel.blueskyClient) }
   val uiState by viewModel.uiState.collectAsState()
+  val publishUiState by publishViewModel.uiState.collectAsState()
 
   MenuBar {
     Menu("ファイル") {
@@ -69,12 +72,12 @@ fun FrameWindowScope.AppScreen() {
 
       // 投稿入力欄
       PublishArea(
-        initialText = viewModel.currentInputText,
+        initialText = publishUiState.currentInputText,
         onTextChange = { text ->
-          viewModel.updateInputText(text)
+          publishViewModel.updateInputText(text)
         },
         onPost = { text ->
-          viewModel.showPostConfirmation(text)
+          publishViewModel.showPostConfirmation(text)
         }
       )
 
@@ -115,7 +118,7 @@ fun FrameWindowScope.AppScreen() {
       accountScreenName = viewModel.account?.screenName,
       autoRefreshEnabled = uiState.autoRefreshEnabled,
       autoRefreshInterval = uiState.autoRefreshInterval,
-      onAutoRefreshToggle = viewModel::toggleAutoRefresh,
+      onAutoRefreshToggle = viewModel::setAutoRefresh,
       onAutoRefreshIntervalChange = viewModel::setAutoRefreshInterval,
     )
 
@@ -143,12 +146,16 @@ fun FrameWindowScope.AppScreen() {
 
     // 投稿確認ダイアログ
     ConfirmPostDialog(
-      show = viewModel.showPostConfirmDialog,
-      postText = viewModel.pendingPostText,
-      onDismiss = { viewModel.cancelPostConfirmDialog() },
+      show = publishViewModel.showPostConfirmDialog,
+      postText = publishUiState.pendingPostText,
+      onDismiss = { publishViewModel.cancelPostConfirmDialog() },
       onConfirm = {
-        viewModel.createPost(viewModel.pendingPostText)
-        viewModel.completePost()
+        // 投稿処理
+        viewModel.processPost(execute = {
+          return@processPost publishViewModel.createPost(publishUiState.pendingPostText)
+        })
+
+        publishViewModel.completePost()
       }
     )
 
