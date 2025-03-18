@@ -359,28 +359,37 @@ class AppViewModel : ViewModel() {
   private fun loginWithOAuth() {
     viewModelScope.launch {
       val userName = _uiState.value.userName
+      logger.i("認証開始: $userName")
 
       // OK
       _uiState.update {
-        it.copy(validationErrorMessage = "")
+        it.copy(
+          loading = true,
+          loginState = UiState.LoginState.LOADING,
+          validationErrorMessage = ""
+        )
       }
 
       try {
-        _uiState.update {
-          it.copy(loading = true, loginState = UiState.LoginState.LOADING)
-        }
+        // 認証URLを取得
+        val authUrl = authService.startOAuthProcess(userName)
+        logger.d("認証URL: $authUrl")
 
-        // OAuth認証プロセスを開始
-        authService.startOAuthProcess(userName)
-
+        // 認証コード入力待ち
         _uiState.update {
-          it.copy(loginState = UiState.LoginState.WAITING_CODE)
+          it.copy(
+            loginState = UiState.LoginState.WAITING_CODE
+          )
         }
       } catch (e: Exception) {
-        val message = authService.formatErrorMessage(e)
-        logger.e("認証エラー: $message", e)
+        logger.e("認証エラー: ${e.message}", e)
+
+        // エラー状態を設定
         _uiState.update {
-          it.copy(validationErrorMessage = "エラーが発生しました: $message")
+          it.copy(
+            loginState = UiState.LoginState.INIT,
+            validationErrorMessage = authService.formatErrorMessage(e)
+          )
         }
       } finally {
         _uiState.update {
