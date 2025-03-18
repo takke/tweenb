@@ -12,56 +12,56 @@ jobs:
     runs-on: windows-latest
     
     steps:
-    # GitHub Actionsのタイムラインの可視化
-    - uses: Kesin11/actions-timeline@v2
-      with:
-        show-waiting-runner: false
-    
-    - uses: actions/checkout@v4
+      # GitHub Actionsのタイムラインの可視化
+      - uses: Kesin11/actions-timeline@v2
+        with:
+          show-waiting-runner: false
 
-    - name: Set up JDK 17
-      uses: actions/setup-java@v4
-      with:
-        java-version: '17'
-        distribution: 'temurin'
-        cache: gradle
-    
-    - name: Grant execute permission for gradlew
-      run: chmod +x gradlew
-      shell: bash
-    
-    - name: Build with Gradle
-      run: ./gradlew :app:build
-      shell: bash
-    
-    # - name: Package Windows MSI application
-    #   run: ./gradlew :app:packageMsi
-    #   shell: bash
-    
-    - name: Package Windows ZIP application
-      run: ./gradlew :app:createZipDistribution
-      shell: bash
-    
-    # - name: Upload Windows MSI installer
-    #   uses: actions/upload-artifact@v4
-    #   with:
-    #     name: tweenb-windows-installer
-    #     path: app/build/compose/binaries/main/msi/*.msi
-    #     if-no-files-found: error
-    
-    - name: Upload Windows ZIP package
-      uses: actions/upload-artifact@v4
-      with:
-        name: tweenb-windows-zip
-        path: app/build/compose/binaries/main/zip/*.zip
-        if-no-files-found: error
-    
-    - name: Upload build reports
-      if: always()
-      uses: actions/upload-artifact@v4
-      with:
-        name: build-reports
-        path: |
-          app/build/reports/
-          app/build/test-results/
-        if-no-files-found: ignore 
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: gradle
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+        shell: bash
+
+      - name: Build with Gradle
+        run: ./gradlew :app:build
+        shell: bash
+
+      # - name: Package Windows MSI application
+      #   run: ./gradlew :app:packageMsi
+      #   shell: bash
+
+      - name: Package Windows ZIP application
+        run: ./gradlew :app:createZipDistribution
+        shell: bash
+
+      # - name: Upload Windows MSI installer
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: tweenb-windows-installer
+      #     path: app/build/compose/binaries/main/msi/*.msi
+      #     if-no-files-found: error
+
+      - name: Upload Windows ZIP package
+        uses: actions/upload-artifact@v4
+        with:
+          name: tweenb-windows-zip
+          path: app/build/compose/binaries/main/zip/*.zip
+          if-no-files-found: error
+
+      - name: Upload build reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-reports
+          path: |
+            app/build/reports/
+            app/build/test-results/
+          if-no-files-found: ignore
