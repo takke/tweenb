@@ -69,7 +69,13 @@ fun FrameWindowScope.AppScreen() {
 
       // Status bar
       val statusText = if (viewModel.blueskyClientInitialized) {
-        "@${viewModel.account?.screenName}"
+        buildString {
+          append("@${viewModel.account?.screenName}")
+          if (uiState.autoRefreshEnabled) {
+            val intervalText = autoRefreshIntervalToText(uiState.autoRefreshInterval)
+            append(" [間隔: $intervalText]")
+          }
+        }
       } else {
         "未認証"
       }

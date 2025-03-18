@@ -112,14 +112,7 @@ fun ConfigDialog(
             verticalAlignment = Alignment.CenterVertically
           ) {
             // 現在選択されている間隔を表示
-            val intervalText = when (autoRefreshInterval) {
-              60 -> "60秒"
-              90 -> "90秒"
-              120 -> "2分"
-              300 -> "5分"
-              600 -> "10分"
-              else -> "${autoRefreshInterval}秒"
-            }
+            val intervalText = autoRefreshIntervalToText(autoRefreshInterval)
             Text(text = intervalText)
             Icon(
               imageVector = Icons.Default.ArrowDropDown,
@@ -133,14 +126,7 @@ fun ConfigDialog(
             onDismissRequest = { expanded.value = false }
           ) {
             AppConstants.AUTO_REFRESH_INTERVALS.forEach { interval ->
-              val intervalText = when (interval) {
-                60 -> "60秒"
-                90 -> "90秒"
-                120 -> "2分"
-                300 -> "5分"
-                600 -> "10分"
-                else -> "${interval}秒"
-              }
+              val intervalText = autoRefreshIntervalToText(interval)
               DropdownMenuItem(
                 onClick = {
                   onAutoRefreshIntervalChange(interval)
@@ -237,4 +223,13 @@ fun ConfigDialog(
       }
     )
   }
+}
+
+fun autoRefreshIntervalToText(autoRefreshInterval: Int) = when (autoRefreshInterval) {
+  60 -> "60秒"
+  90 -> "90秒"
+  120 -> "2分"
+  300 -> "5分"
+  600 -> "10分"
+  else -> "${autoRefreshInterval}秒"
 }
