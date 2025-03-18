@@ -1,7 +1,7 @@
 package jp.takke.tweenb.app.repository
 
 import jp.takke.tweenb.app.domain.Account
-import kotlinx.serialization.encodeToString
+import jp.takke.tweenb.app.util.LoggerWrapper
 import kotlinx.serialization.json.Json
 
 /**
@@ -10,6 +10,8 @@ import kotlinx.serialization.json.Json
 class AccountRepository private constructor(
   private val appPropertyRepository: AppPropertyRepository
 ) {
+  private val logger = LoggerWrapper("AccountRepository")
+
   // JSONシリアライザ
   private val json = Json { prettyPrint = true }
 
@@ -23,8 +25,10 @@ class AccountRepository private constructor(
     // 同じアカウントIDが存在する場合は更新、なければ追加
     val index = accounts.indexOfFirst { it.accountId == account.accountId }
     if (index >= 0) {
+      logger.d("アカウント情報を更新: $account")
       accounts[index] = account
     } else {
+      logger.d("アカウント情報を追加: $account")
       accounts.add(account)
     }
 

@@ -192,7 +192,7 @@ private class BlueskyClientImpl : BlueskyClient {
       )
 
     val rr = response.data
-    logger.d("refresh response: $rr")
+    logger.d("refresh response: refreshToken[${rr.refreshToken}]")
 
     // Refresh したトークンを保存する
     val updatedAccount = Account(
@@ -204,8 +204,8 @@ private class BlueskyClientImpl : BlueskyClient {
       publicKey = oAuthContext.publicKey ?: "",
       privateKey = oAuthContext.privateKey ?: "",
     )
-    // アカウント情報を永続化
     repository.saveAccount(account)
+
     logger.i("refresh 完了")
     logger.d("updated[$updatedAccount]")
 
