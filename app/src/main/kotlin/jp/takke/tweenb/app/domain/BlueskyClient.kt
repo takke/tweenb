@@ -121,7 +121,10 @@ private class BlueskyClientImpl : BlueskyClient {
     val now = System.currentTimeMillis() / 1000
     val remainSec = exp - now
     if (remainSec < 60) {
-      logger.i("exp が近いので refresh する: remain[${remainSec}s=${secToHMS(remainSec)}]")
+      logger.i(
+        "exp が" + (if (remainSec > 0) "近い" else "過ぎている") + "ので refresh する: " +
+                "remain[${remainSec}s=${secToHMS(remainSec)}]"
+      )
 
       // トークンリフレッシュは直列化する
       val repository = AccountRepository.instance
@@ -204,7 +207,7 @@ private class BlueskyClientImpl : BlueskyClient {
       publicKey = oAuthContext.publicKey ?: "",
       privateKey = oAuthContext.privateKey ?: "",
     )
-    repository.saveAccount(account)
+    repository.saveAccount(updatedAccount)
 
     logger.i("refresh 完了")
     logger.d("updated[$updatedAccount]")
