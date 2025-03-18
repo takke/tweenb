@@ -12,7 +12,7 @@ plugins {
 }
 
 group = "jp.takke.tweenb"
-version = "1.0-SNAPSHOT"
+version = rootProject.version
 
 // バージョン情報を参照できるように Version.kt を生成する
 kotlin {
@@ -83,7 +83,7 @@ compose.desktop {
     nativeDistributions {
       targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
       packageName = "tweenb"
-      packageVersion = "1.0.0"
+      packageVersion = rootProject.version.toString()
 
       // アプリケーション情報
       vendor = "Hiroaki TAKEUCHI"
