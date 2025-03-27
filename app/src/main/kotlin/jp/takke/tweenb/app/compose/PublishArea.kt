@@ -10,12 +10,11 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
@@ -40,6 +39,13 @@ fun PublishArea(
     postText.value = TextFieldValue(text = initialText, selection = TextRange(initialText.length))
   }
 
+  val focusRequester = remember { FocusRequester() }
+
+  // ダイアログを表示した時にフォーカスを設定
+  LaunchedEffect(Unit) {
+    focusRequester.requestFocus()
+  }
+
   Row(
     modifier = Modifier
       .fillMaxWidth()
@@ -56,7 +62,7 @@ fun PublishArea(
       leadingIcon = null,
       trailingIcon = null,
       style = TextStyle(
-        fontSize = 16.sp,
+        fontSize = 13.sp,
       ),
       keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
       keyboardActions = KeyboardActions(
@@ -70,6 +76,7 @@ fun PublishArea(
         .padding(start = 4.dp, end = 8.dp)
         .border(1.dp, Color.Gray, MaterialTheme.shapes.small)
         .padding(8.dp)
+        .focusRequester(focusRequester)
     )
 
     Button(
