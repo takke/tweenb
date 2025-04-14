@@ -57,7 +57,7 @@ dependencies {
   implementation(libs.compose.runtime)
 
   // Coroutines
-  implementation("org.jetbrains.kotlinx:kotlinx-coroutines-swing:1.10.1")
+  implementation("org.jetbrains.kotlinx:kotlinx-coroutines-swing:1.10.2")
 
   // Lifecycle
   implementation(libs.lifecycle.viewmodel)
