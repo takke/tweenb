@@ -24,6 +24,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.boundsInWindow
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
@@ -35,6 +36,7 @@ import coil3.request.ImageRequest
 import coil3.request.crossfade
 import jp.takke.tweenb.app.domain.ColumnInfo
 import jp.takke.tweenb.app.domain.ColumnType
+import jp.takke.tweenb.app.repository.AppPropertyRepository
 import jp.takke.tweenb.app.util.BsFeedViewPost
 import jp.takke.tweenb.app.util.createdAtAsDate
 import jp.takke.tweenb.app.util.url
@@ -384,6 +386,40 @@ private fun PostColumnContent(
                 }
             )
 
+            // ポップアップのサイズを測定してはみ出し防止
+            var tooltipHeight by remember { mutableStateOf(0) }
+            var tooltipWidth by remember { mutableStateOf(0) }
+
+            // 画面サイズの取得
+            val density = LocalDensity.current
+
+            // 設定からウィンドウサイズを取得(本当はステータスバーのサイズ等も考慮すべき)
+            val propertyRepository = AppPropertyRepository.instance
+            val windowSize = propertyRepository.getWindowSize()
+            val screenHeightPx = with(density) { windowSize.height.toPx() }.toInt()
+            val screenWidthPx = with(density) { windowSize.width.toPx() }.toInt()
+
+            // スクリーン下部からのオフセット計算（はみ出す場合は上に表示）
+            val yBoundary = with(density) { 64.dp.toPx() }.toInt()
+            val isOverflowBottom = tapPosition.y + tooltipHeight + yBoundary > screenHeightPx
+            val yOffset = if (isOverflowBottom) {
+              // 上に表示（タップ位置より上）
+              tapPosition.y - tooltipHeight
+            } else {
+              // 下に表示（タップ位置より下）
+              tapPosition.y - yBoundary
+            }.coerceAtLeast(0) // 画面上部を超えないように
+
+            // スクリーン右からのオフセット計算
+            val xBoundary = with(density) { 96.dp.toPx() }.toInt()
+            val isOverflowRight = tapPosition.x + tooltipWidth + xBoundary > screenWidthPx
+            val xOffset = if (isOverflowRight) {
+              // 左に寄せる
+              (screenWidthPx - tooltipWidth - xBoundary).coerceAtLeast(0)
+            } else {
+              tapPosition.x - xBoundary
+            }
+
             PostTooltipContent(
               tooltipText = tooltipText,
               images = images,
@@ -391,7 +427,11 @@ private fun PostColumnContent(
               textSelectable = true,
               modifier = Modifier
                 .align(Alignment.TopStart)
-                .offset(tapPosition.x.dp, tapPosition.y.dp)
+                .offset(xOffset.dp, yOffset.dp)
+                .onSizeChanged {
+                  tooltipHeight = it.height
+                  tooltipWidth = it.width
+                }
             )
           }
         }
