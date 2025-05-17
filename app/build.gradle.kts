@@ -110,7 +110,7 @@ tasks.register("createZipDistribution") {
   dependsOn("createDistributable")
 
   doLast {
-    val distributableDir = File("${layout.buildDirectory.get()}/compose/binaries/main/app")
+    val distributableDir = File("${layout.buildDirectory.get()}/compose/binaries/main/app/tweenb")
     val zipDir = File("${layout.buildDirectory.get()}/compose/binaries/main/zip")
     zipDir.mkdirs()
 
@@ -121,6 +121,13 @@ tasks.register("createZipDistribution") {
     }
 
     println("ZIP配布パッケージが作成されました: ${zipFile.absolutePath}")
+
+    // プロジェクトルートの output ディレクトリにコピー
+    val outputDir = File(rootProject.projectDir, "output")
+    outputDir.mkdirs()
+    val outputFile = File(outputDir, zipFile.name)
+    zipFile.copyTo(outputFile, overwrite = true)
+    println("出力ディレクトリにコピーしました: ${outputFile.absolutePath}")
   }
 }
 
