@@ -194,11 +194,24 @@ private fun PostColumnContent(
   // 投稿内容
   val postBody = post.post.record?.asFeedPost?.text ?: ""
   val repostedBy = post.reason?.asReasonRepost?.by
-  val displayText = if (repostedBy != null) {
-    // リポスト
-    "RP: $postBody"
-  } else {
-    postBody
+
+  // 返信情報を取得
+  val isReply = post.post.record?.asFeedPost?.reply != null
+
+  // 表示テキストを構築
+  val displayText = buildString {
+    // 返信の場合は「Re: 」を追加
+    if (isReply) {
+      append("Re: ")
+    }
+
+    // リポストの場合は「RP: 」を追加
+    if (repostedBy != null) {
+      append("RP: ")
+    }
+
+    // 本文を追加
+    append(postBody)
   }
 
   // ツールチップエリアでラップ
