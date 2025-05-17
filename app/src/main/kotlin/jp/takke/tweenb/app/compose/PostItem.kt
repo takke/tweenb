@@ -294,7 +294,9 @@ private fun PostColumnContent(
           tooltipText = tooltipText,
           images = images,
           hasImages = hasImages,
-          textSelectable = false
+          textSelectable = false,
+          modifier = Modifier
+            .padding(start = 64.dp)
         )
       },
       delayMillis = 500, // 表示までの遅延
@@ -343,18 +345,26 @@ private fun PostColumnContent(
           Box(
             Modifier
               .fillMaxSize()
-              .background(Color.Black.copy(alpha = 0.5f))
-              .padding(8.dp)
-              .clickableNoRipple {
-                // クリックでオーバーレイを閉じる
-                showOverlayPopup = false
-              }
           ) {
+            // タップ検出用ダミーBox
+            Box(
+              modifier = Modifier
+                .fillMaxSize()
+                .background(Color.Black.copy(alpha = 0.5f))
+                .padding(8.dp)
+                .clickableNoRipple {
+                  // クリックでオーバーレイを閉じる
+                  showOverlayPopup = false
+                }
+            )
+
             PostTooltipContent(
               tooltipText = tooltipText,
               images = images,
               hasImages = hasImages,
               textSelectable = true,
+              modifier = Modifier
+                .align(Alignment.Center)
             )
           }
         }
@@ -376,7 +386,6 @@ private fun PostTooltipContent(
 ) {
   Surface(
     modifier = modifier
-      .padding(start = 64.dp)
       .padding(8.dp),
     shape = RoundedCornerShape(4.dp),
     elevation = 4.dp
