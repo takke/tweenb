@@ -7,7 +7,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.Divider
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
@@ -36,6 +35,9 @@ import jp.takke.tweenb.app.util.url
 import work.socialhub.kbsky.model.app.bsky.embed.EmbedImagesViewImage
 import java.text.SimpleDateFormat
 import java.util.*
+
+// タップ時刻(他のPostをタップしたときに無視するためにファイルスコープで保持)
+private var lastTapTimeMillis = 0L
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -308,8 +310,13 @@ private fun PostColumnContent(
       modifier = Modifier
         .clickableNoRipple(enabled = !showOverlayPopup) {
           // ツールチップ非表示の場合はタップでオーバーレイOn/Off
-          println("PostItem clicked: $rawPostBody")
-          showOverlayPopup = !showOverlayPopup
+
+          // 直前のタップによる非表示を無視する
+          val now = System.currentTimeMillis()
+          val elapsed = now - lastTapTimeMillis
+          if (elapsed > 300) {
+            showOverlayPopup = true
+          }
         }
     ) {
       PostRowContent(displayText, columnInfo, visibleLines, images, hasImages)
@@ -320,8 +327,9 @@ private fun PostColumnContent(
       @OptIn(ExperimentalFoundationApi::class)
       Popup(
         onDismissRequest = {
-          println("Popup dismissed: $rawPostBody")
           showOverlayPopup = false
+          // clickableNoRippleも発火するのでそれを無視するために時刻で判定する
+          lastTapTimeMillis = System.currentTimeMillis()
         }
       ) {
         Box(
