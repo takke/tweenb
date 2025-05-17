@@ -199,6 +199,21 @@ class AppPropertyRepository private constructor() {
     saveProperties()
   }
 
+  /**
+   * ツールチップ表示が有効かどうかを取得する
+   */
+  fun isTooltipEnabled(): Boolean {
+    return props.getProperty("timeline.tooltip.enabled", AppConstants.DEFAULT_TOOLTIP_ENABLED.toString()).toBoolean()
+  }
+
+  /**
+   * ツールチップ表示の有効/無効を設定する
+   */
+  fun setTooltipEnabled(enabled: Boolean) {
+    props.setProperty("timeline.tooltip.enabled", enabled.toString())
+    saveProperties()
+  }
+
   companion object {
     val instance by lazy {
       AppPropertyRepository()

@@ -59,6 +59,8 @@ class AppViewModel : ViewModel() {
     val autoRefreshInterval: Int = AppConstants.DEFAULT_AUTO_REFRESH_INTERVAL,
     // タイムライン表示行数
     val timelineVisibleLines: Int = AppConstants.DEFAULT_TIMELINE_VISIBLE_LINES,
+    // ツールチップ表示
+    val tooltipEnabled: Boolean = AppConstants.DEFAULT_TOOLTIP_ENABLED,
   ) {
     enum class LoginState {
       INIT,
@@ -521,12 +523,14 @@ class AppViewModel : ViewModel() {
     val enabled = propertyRepository.isAutoRefreshEnabled()
     val interval = propertyRepository.getAutoRefreshInterval()
     val visibleLines = propertyRepository.getTimelineVisibleLines()
+    val tooltipEnabled = propertyRepository.isTooltipEnabled()
 
     _uiState.update {
       it.copy(
         autoRefreshEnabled = enabled,
         autoRefreshInterval = interval,
-        timelineVisibleLines = visibleLines
+        timelineVisibleLines = visibleLines,
+        tooltipEnabled = tooltipEnabled,
       )
     }
 
@@ -660,6 +664,16 @@ class AppViewModel : ViewModel() {
     propertyRepository.setTimelineVisibleLines(lines)
     _uiState.update {
       it.copy(timelineVisibleLines = lines)
+    }
+  }
+
+  /**
+   * ツールチップ表示の有効/無効を設定する
+   */
+  fun setTooltipEnabled(enabled: Boolean) {
+    propertyRepository.setTooltipEnabled(enabled)
+    _uiState.update {
+      it.copy(tooltipEnabled = enabled)
     }
   }
 }

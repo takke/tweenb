@@ -15,4 +15,7 @@ object AppConstants {
   // タイムライン表示行数
   val TIMELINE_VISIBLE_LINES = listOf(1, 2, 3, 4, 5)
   const val DEFAULT_TIMELINE_VISIBLE_LINES = 2
+
+  // ツールチップ表示
+  const val DEFAULT_TOOLTIP_ENABLED = true
 }

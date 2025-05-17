@@ -34,6 +34,9 @@ fun ConfigDialog(
   // タイムライン表示行数設定
   timelineVisibleLines: Int,
   onTimelineVisibleLinesChange: (Int) -> Unit,
+  // ツールチップ表示設定
+  tooltipEnabled: Boolean,
+  onTooltipEnabledChange: (Boolean) -> Unit,
 ) {
   if (!showConfigDialog) {
     return
@@ -198,6 +201,26 @@ fun ConfigDialog(
             }
           }
         }
+      }
+
+      // ツールチップ表示チェックボックス
+      Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier.padding(vertical = 4.dp)
+      ) {
+        Checkbox(
+          checked = tooltipEnabled,
+          onCheckedChange = onTooltipEnabledChange,
+          modifier = Modifier
+        )
+        Text(
+          text = "ツールチップ表示(投稿詳細のポップアップ表示)",
+          modifier = Modifier
+            .padding(start = 8.dp)
+            .clickableNoRipple {
+              onTooltipEnabledChange(!tooltipEnabled)
+            }
+        )
       }
 
       Spacer(modifier = Modifier.size(16.dp))
