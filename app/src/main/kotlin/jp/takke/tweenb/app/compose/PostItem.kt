@@ -1,6 +1,7 @@
 package jp.takke.tweenb.app.compose
 
 import androidx.compose.foundation.*
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -18,7 +19,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.boundsInWindow
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.IntOffset
@@ -312,11 +316,33 @@ private fun PostColumnContent(
 
     // タップでツールチップ表示
     var showOverlayPopup by remember { mutableStateOf(false) }
+    // タップ位置
+    var tapPosition by remember { mutableStateOf(IntOffset(0, 0)) }
+    // コンポーネントの位置情報
+    var componentPosition by remember { mutableStateOf(IntOffset(0, 0)) }
+
     Box(
       modifier = Modifier
-        .clickableNoRipple(enabled = !showOverlayPopup) {
-          // ツールチップ非表示の場合はタップでオーバーレイOn/Off
-          showOverlayPopup = true
+        .onGloballyPositioned { coordinates ->
+          // コンポーネントのウィンドウ内での位置を記録
+          componentPosition = IntOffset(
+            coordinates.boundsInWindow().left.toInt(),
+            coordinates.boundsInWindow().top.toInt()
+          )
+        }
+        .pointerInput(Unit) {
+          detectTapGestures(
+            onPress = { offset ->
+              // ローカル座標をウィンドウ座標に変換
+              val windowX = componentPosition.x + offset.x.toInt()
+              val windowY = componentPosition.y + offset.y.toInt()
+              // 変換した座標を記録
+              tapPosition = IntOffset(windowX, windowY)
+              println("tapPosition: $tapPosition, offset: $offset")
+              // タップした位置でポップアップを表示
+              showOverlayPopup = true
+            },
+          )
         }
     ) {
       PostRowContent(displayText, columnInfo, visibleLines, images, hasImages)
@@ -364,7 +390,8 @@ private fun PostColumnContent(
               hasImages = hasImages,
               textSelectable = true,
               modifier = Modifier
-                .align(Alignment.Center)
+                .align(Alignment.TopStart)
+                .offset(tapPosition.x.dp, tapPosition.y.dp)
             )
           }
         }
