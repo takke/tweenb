@@ -406,7 +406,6 @@ private fun PostTooltipContent(
                 model = ImageRequest.Builder(LocalPlatformContext.current)
                   .data(fullImage)
                   .crossfade(true)
-                  .size(300)
                   .build(),
                 contentDescription = "添付画像",
                 modifier = Modifier
