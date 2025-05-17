@@ -72,6 +72,13 @@ fun FrameWindowScope.AppScreen() {
         },
         onPost = { text ->
           publishViewModel.showPostConfirmation(text)
+        },
+        attachedImages = publishUiState.attachedImages,
+        onImageAttached = { image ->
+          publishViewModel.attachImage(image)
+        },
+        onImageRemoved = { index ->
+          publishViewModel.removeAttachedImage(index)
         }
       )
 
@@ -139,7 +146,8 @@ fun FrameWindowScope.AppScreen() {
         })
 
         publishViewModel.completePost()
-      }
+      },
+      attachedImages = publishUiState.attachedImages
     )
 
     // 未認証ならすぐに認証画面を開く

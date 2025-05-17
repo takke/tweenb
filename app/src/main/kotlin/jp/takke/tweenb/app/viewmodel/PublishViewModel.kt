@@ -3,7 +3,9 @@ package jp.takke.tweenb.app.viewmodel
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.lifecycle.ViewModel
+import jp.takke.tweenb.app.domain.ImageAttachment
 import jp.takke.tweenb.app.repository.BlueskyClient
 import jp.takke.tweenb.app.repository.PostRepository
 import jp.takke.tweenb.app.util.LoggerWrapper
@@ -32,6 +34,8 @@ class PublishViewModel(
     val pendingPostText: String = "",
     // 投稿中かどうか
     val isPosting: Boolean = false,
+    // 添付画像リスト
+    val attachedImages: List<ImageAttachment> = emptyList()
   )
 
   private val _uiState = MutableStateFlow(UiState())
@@ -47,6 +51,37 @@ class PublishViewModel(
   fun updateInputText(text: String) {
     _uiState.update {
       it.copy(currentInputText = text)
+    }
+  }
+
+  /**
+   * 画像を添付する
+   */
+  fun attachImage(image: ImageBitmap, alt: String = "") {
+    _uiState.update { state ->
+      // 最大4枚まで
+      if (state.attachedImages.size >= 4) {
+        // 追加せずに現在の状態を返す
+        return@update state
+      }
+
+      val newAttachment = ImageAttachment(image, alt)
+      val updatedAttachments = state.attachedImages + newAttachment
+
+      state.copy(attachedImages = updatedAttachments)
+    }
+  }
+
+  /**
+   * 添付画像を削除する
+   */
+  fun removeAttachedImage(index: Int) {
+    _uiState.update { state ->
+      val updatedAttachments = state.attachedImages.toMutableList()
+      if (index in updatedAttachments.indices) {
+        updatedAttachments.removeAt(index)
+      }
+      state.copy(attachedImages = updatedAttachments)
     }
   }
 
@@ -90,9 +125,12 @@ class PublishViewModel(
    * 投稿完了後の処理
    */
   fun completePost() {
-    // 投稿完了後、入力欄をクリア
+    // 投稿完了後、入力欄と添付画像をクリア
     _uiState.update {
-      it.copy(currentInputText = "")
+      it.copy(
+        currentInputText = "",
+        attachedImages = emptyList()
+      )
     }
     dismissPostConfirmDialog()
   }
@@ -117,7 +155,7 @@ class PublishViewModel(
 
       // 投稿処理
       val postRepository = PostRepository.getInstance(blueskyClient)
-      val success = postRepository.createPost(text)
+      val success = postRepository.createPost(text, uiState.value.attachedImages)
 
       if (success) {
         logger.i("投稿成功")
