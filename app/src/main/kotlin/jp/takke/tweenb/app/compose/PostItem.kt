@@ -7,6 +7,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.Divider
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
@@ -291,7 +292,12 @@ private fun PostColumnContent(
     TooltipArea(
       tooltip = {
         // ツールチップの内容（元のテキスト表示）
-        PostTooltipContent(tooltipText, images, hasImages)
+        PostTooltipContent(
+          tooltipText = tooltipText,
+          images = images,
+          hasImages = hasImages,
+          textSelectable = false
+        )
       },
       delayMillis = 500, // 表示までの遅延
       tooltipPlacement = TooltipPlacement.CursorPoint(
@@ -340,6 +346,7 @@ private fun PostColumnContent(
             tooltipText = tooltipText,
             images = images,
             hasImages = hasImages,
+            textSelectable = true,
           )
         }
       }
@@ -355,6 +362,7 @@ private fun PostTooltipContent(
   tooltipText: String,
   images: List<EmbedImagesViewImage>?,
   hasImages: Boolean,
+  textSelectable: Boolean,
   modifier: Modifier = Modifier
 ) {
   Surface(
@@ -370,10 +378,21 @@ private fun PostTooltipContent(
         .widthIn(max = 600.dp) // 最大幅を設定
     ) {
       // テキスト表示
-      Text(
-        text = tooltipText,
-        style = MaterialTheme.typography.body2
-      )
+      val content = @Composable {
+        Text(
+          text = tooltipText,
+          style = MaterialTheme.typography.body2
+        )
+      }
+      if (textSelectable) {
+        // テキスト選択可能な場合はSelectionContainerでラップ
+        SelectionContainer {
+          content()
+        }
+      } else {
+        // テキスト選択不可の場合は通常表示
+        content()
+      }
 
       // 画像がある場合は表示
       if (hasImages) {
