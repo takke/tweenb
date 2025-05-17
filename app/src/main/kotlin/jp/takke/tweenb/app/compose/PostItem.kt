@@ -7,6 +7,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.Divider
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
@@ -22,6 +23,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Popup
 import coil3.compose.AsyncImage
 import coil3.compose.LocalPlatformContext
 import coil3.request.ImageRequest
@@ -298,8 +300,42 @@ private fun PostColumnContent(
       PostRowContent(displayText, columnInfo, visibleLines, images, hasImages)
     }
   } else {
-    // ツールチップ表示無効 => 通常表示のみ
-    PostRowContent(displayText, columnInfo, visibleLines, images, hasImages)
+    // ツールチップ表示無効
+
+    // タップでツールチップ表示
+    var showOverlayPopup by remember { mutableStateOf(false) }
+    Box(
+      modifier = Modifier
+        .clickableNoRipple(enabled = !showOverlayPopup) {
+          // ツールチップ非表示の場合はタップでオーバーレイOn/Off
+          println("PostItem clicked: $rawPostBody")
+          showOverlayPopup = !showOverlayPopup
+        }
+    ) {
+      PostRowContent(displayText, columnInfo, visibleLines, images, hasImages)
+    }
+
+    if (showOverlayPopup) {
+      // オーバーレイ表示
+      @OptIn(ExperimentalFoundationApi::class)
+      Popup(
+        onDismissRequest = {
+          println("Popup dismissed: $rawPostBody")
+          showOverlayPopup = false
+        }
+      ) {
+        Box(
+          Modifier
+            .padding(8.dp)
+        ) {
+          PostTooltipContent(
+            tooltipText = tooltipText,
+            images = images,
+            hasImages = hasImages,
+          )
+        }
+      }
+    }
   }
 }
 
@@ -310,16 +346,19 @@ private fun PostColumnContent(
 private fun PostTooltipContent(
   tooltipText: String,
   images: List<EmbedImagesViewImage>?,
-  hasImages: Boolean
+  hasImages: Boolean,
+  modifier: Modifier = Modifier
 ) {
   Surface(
-    modifier = Modifier.padding(8.dp),
+    modifier = modifier
+      .padding(start = 64.dp)
+      .padding(8.dp),
     shape = RoundedCornerShape(4.dp),
     elevation = 4.dp
   ) {
     Column(
       modifier = Modifier
-        .padding(10.dp)
+        .padding(8.dp)
         .widthIn(max = 600.dp) // 最大幅を設定
     ) {
       // テキスト表示
