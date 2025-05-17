@@ -188,6 +188,52 @@ fun PostItem(
   }
 }
 
+@Composable
+private fun UserIcon(
+  columnInfo: ColumnInfo,
+  post: BsFeedViewPost,
+  onClick: () -> Unit,
+) {
+  Box(
+    modifier = Modifier
+      .width(columnInfo.width.value)
+      .padding(8.dp),
+    contentAlignment = Alignment.Center
+  ) {
+    val avatarUrl = post.post.author?.avatar
+    if (avatarUrl != null) {
+      AsyncImage(
+        model = ImageRequest.Builder(LocalPlatformContext.current)
+          .data(avatarUrl)
+          .crossfade(true)
+          .size(160)
+          .build(),
+        contentDescription = "ユーザーアイコン",
+        modifier = Modifier
+          .clip(CircleShape)
+          .size(40.dp)
+          .clickable {
+            onClick()
+          },
+        filterQuality = FilterQuality.High,
+        contentScale = ContentScale.Crop
+      )
+    } else {
+      // アバター画像がない場合はプレースホルダーを表示
+      Box(
+        modifier = Modifier
+          .size(40.dp)
+          .clip(CircleShape)
+          .drawWithContent {
+            drawCircle(
+              color = Color.LightGray
+            )
+          }
+      )
+    }
+  }
+}
+
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun PostColumnContent(
@@ -229,7 +275,6 @@ private fun PostColumnContent(
   val images = post.post.embed?.asImages?.images
   val hasImages = !images.isNullOrEmpty()
 
-  // ツールチップエリアでラップ
   TooltipArea(
     tooltip = {
       // ツールチップの内容（元のテキスト表示）
@@ -245,6 +290,9 @@ private fun PostColumnContent(
   }
 }
 
+/**
+ * ポストのツールチップ
+ */
 @Composable
 private fun PostTooltipContent(
   tooltipText: String,
@@ -297,6 +345,9 @@ private fun PostTooltipContent(
   }
 }
 
+/**
+ * ポストの通常表示
+ */
 @Composable
 private fun PostRowContent(
   displayText: String,
@@ -344,52 +395,6 @@ private fun PostRowContent(
           )
         }
       }
-    }
-  }
-}
-
-@Composable
-private fun UserIcon(
-  columnInfo: ColumnInfo,
-  post: BsFeedViewPost,
-  onClick: () -> Unit,
-) {
-  Box(
-    modifier = Modifier
-      .width(columnInfo.width.value)
-      .padding(8.dp),
-    contentAlignment = Alignment.Center
-  ) {
-    val avatarUrl = post.post.author?.avatar
-    if (avatarUrl != null) {
-      AsyncImage(
-        model = ImageRequest.Builder(LocalPlatformContext.current)
-          .data(avatarUrl)
-          .crossfade(true)
-          .size(160)
-          .build(),
-        contentDescription = "ユーザーアイコン",
-        modifier = Modifier
-          .clip(CircleShape)
-          .size(40.dp)
-          .clickable {
-            onClick()
-          },
-        filterQuality = FilterQuality.High,
-        contentScale = ContentScale.Crop
-      )
-    } else {
-      // アバター画像がない場合はプレースホルダーを表示
-      Box(
-        modifier = Modifier
-          .size(40.dp)
-          .clip(CircleShape)
-          .drawWithContent {
-            drawCircle(
-              color = Color.LightGray
-            )
-          }
-      )
     }
   }
 }
