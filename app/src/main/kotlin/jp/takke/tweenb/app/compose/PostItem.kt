@@ -194,15 +194,19 @@ private fun PostColumnContent(
   columnInfo: ColumnInfo,
   visibleLines: Int
 ) {
-  // 投稿内容
-  val postBody = post.post.record?.asFeedPost?.text ?: ""
+  // 投稿内容（元のテキスト）
+  val rawPostBody = post.post.record?.asFeedPost?.text ?: ""
+
+  // 空行を削除した投稿内容を生成（タイムライン表示用）
+  val postBody = rawPostBody.replace(Regex("\\n\\s*\\n"), "\n").trim()
+
   val repostedBy = post.reason?.asReasonRepost?.by
 
   // 返信情報を取得
   val isReply = post.post.record?.asFeedPost?.reply != null
 
-  // 表示テキストを構築
-  val displayText = buildString {
+  // プレフィックス部分を構築
+  val prefix = buildString {
     // 返信の場合は「Re: 」を追加
     if (isReply) {
       append("Re: ")
@@ -212,22 +216,25 @@ private fun PostColumnContent(
     if (repostedBy != null) {
       append("RP: ")
     }
-
-    // 本文を追加
-    append(postBody)
   }
+
+  // タイムライン表示用テキスト（空行削除）
+  val displayText = prefix + postBody
+
+  // ポップアップ表示用テキスト（元のテキスト）
+  val tooltipText = prefix + rawPostBody
 
   // ツールチップエリアでラップ
   TooltipArea(
     tooltip = {
-      // ツールチップの内容
+      // ツールチップの内容（元のテキスト表示）
       Surface(
         modifier = Modifier.padding(8.dp),
         shape = RoundedCornerShape(4.dp),
         elevation = 4.dp
       ) {
         Text(
-          text = displayText,
+          text = tooltipText,
           style = MaterialTheme.typography.body2,
           modifier = Modifier
             .padding(10.dp)
@@ -240,7 +247,7 @@ private fun PostColumnContent(
       alignment = Alignment.BottomStart
     )
   ) {
-    // 通常表示の内容
+    // 通常表示の内容（空行削除済み）
     Text(
       text = displayText,
       style = MaterialTheme.typography.body2,
