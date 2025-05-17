@@ -17,5 +17,5 @@ object AppConstants {
   const val DEFAULT_TIMELINE_VISIBLE_LINES = 2
 
   // ツールチップ表示
-  const val DEFAULT_TOOLTIP_ENABLED = true
+  const val DEFAULT_TOOLTIP_ENABLED = false
 }
