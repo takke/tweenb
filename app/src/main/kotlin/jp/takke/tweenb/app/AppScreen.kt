@@ -99,6 +99,8 @@ fun FrameWindowScope.AppScreen() {
       autoRefreshInterval = uiState.autoRefreshInterval,
       onAutoRefreshToggle = appViewModel::setAutoRefresh,
       onAutoRefreshIntervalChange = appViewModel::setAutoRefreshInterval,
+      timelineVisibleLines = uiState.timelineVisibleLines,
+      onTimelineVisibleLinesChange = appViewModel::setTimelineVisibleLines,
     )
 
     // 認証ダイアログ
