@@ -57,6 +57,8 @@ class AppViewModel : ViewModel() {
     // 自動更新設定
     val autoRefreshEnabled: Boolean = false,
     val autoRefreshInterval: Int = AppConstants.DEFAULT_AUTO_REFRESH_INTERVAL,
+    // タイムライン表示行数
+    val timelineVisibleLines: Int = AppConstants.DEFAULT_TIMELINE_VISIBLE_LINES,
   ) {
     enum class LoginState {
       INIT,
@@ -518,11 +520,13 @@ class AppViewModel : ViewModel() {
   private fun loadAutoRefreshSettings() {
     val enabled = propertyRepository.isAutoRefreshEnabled()
     val interval = propertyRepository.getAutoRefreshInterval()
+    val visibleLines = propertyRepository.getTimelineVisibleLines()
 
     _uiState.update {
       it.copy(
         autoRefreshEnabled = enabled,
-        autoRefreshInterval = interval
+        autoRefreshInterval = interval,
+        timelineVisibleLines = visibleLines
       )
     }
 
@@ -646,6 +650,16 @@ class AppViewModel : ViewModel() {
           it.copy(timelineLoading = false)
         }
       }
+    }
+  }
+
+  /**
+   * タイムライン表示行数を設定する
+   */
+  fun setTimelineVisibleLines(lines: Int) {
+    propertyRepository.setTimelineVisibleLines(lines)
+    _uiState.update {
+      it.copy(timelineVisibleLines = lines)
     }
   }
 }

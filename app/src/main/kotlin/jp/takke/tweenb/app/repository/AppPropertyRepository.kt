@@ -184,6 +184,21 @@ class AppPropertyRepository private constructor() {
     saveProperties()
   }
 
+  /**
+   * タイムラインの表示行数を取得する
+   */
+  fun getTimelineVisibleLines(): Int {
+    return props.getProperty("timeline.visibleLines", AppConstants.DEFAULT_TIMELINE_VISIBLE_LINES.toString()).toInt()
+  }
+
+  /**
+   * タイムラインの表示行数を設定する
+   */
+  fun setTimelineVisibleLines(lines: Int) {
+    props.setProperty("timeline.visibleLines", lines.toString())
+    saveProperties()
+  }
+
   companion object {
     val instance by lazy {
       AppPropertyRepository()
