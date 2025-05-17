@@ -31,6 +31,7 @@ import jp.takke.tweenb.app.domain.ColumnType
 import jp.takke.tweenb.app.util.BsFeedViewPost
 import jp.takke.tweenb.app.util.createdAtAsDate
 import jp.takke.tweenb.app.util.url
+import work.socialhub.kbsky.model.app.bsky.embed.EmbedImagesViewImage
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -232,49 +233,7 @@ private fun PostColumnContent(
   TooltipArea(
     tooltip = {
       // ツールチップの内容（元のテキスト表示）
-      Surface(
-        modifier = Modifier.padding(8.dp),
-        shape = RoundedCornerShape(4.dp),
-        elevation = 4.dp
-      ) {
-        Column(
-          modifier = Modifier
-            .padding(10.dp)
-            .widthIn(max = 600.dp) // 最大幅を設定
-        ) {
-          // テキスト表示
-          Text(
-            text = tooltipText,
-            style = MaterialTheme.typography.body2
-          )
-
-          // 画像がある場合は表示
-          if (hasImages) {
-            Column(
-              modifier = Modifier.padding(top = 8.dp)
-            ) {
-              images?.forEach { image ->
-                val fullImage = image.fullsize
-                if (fullImage != null) {
-                  AsyncImage(
-                    model = ImageRequest.Builder(LocalPlatformContext.current)
-                      .data(fullImage)
-                      .crossfade(true)
-                      .size(400)
-                      .build(),
-                    contentDescription = "添付画像",
-                    modifier = Modifier
-                      .padding(vertical = 4.dp)
-                      .fillMaxWidth()
-                      .heightIn(max = 300.dp),
-                    contentScale = ContentScale.Fit
-                  )
-                }
-              }
-            }
-          }
-        }
-      }
+      PostTooltipContent(tooltipText, images, hasImages)
     },
     delayMillis = 300, // 表示までの遅延
     tooltipPlacement = TooltipPlacement.CursorPoint(
@@ -282,43 +241,107 @@ private fun PostColumnContent(
     )
   ) {
     // 通常表示の内容（空行削除済み）
-    Row(
+    PostRowContent(displayText, columnInfo, visibleLines, images, hasImages)
+  }
+}
+
+@Composable
+private fun PostTooltipContent(
+  tooltipText: String,
+  images: List<EmbedImagesViewImage>?,
+  hasImages: Boolean
+) {
+  Surface(
+    modifier = Modifier.padding(8.dp),
+    shape = RoundedCornerShape(4.dp),
+    elevation = 4.dp
+  ) {
+    Column(
       modifier = Modifier
-        .width(columnInfo.width.value)
-        .padding(vertical = 4.dp, horizontal = 8.dp),
-      horizontalArrangement = Arrangement.SpaceBetween,
-      verticalAlignment = Alignment.CenterVertically
+        .padding(10.dp)
+        .widthIn(max = 600.dp) // 最大幅を設定
     ) {
-      // テキスト部分
+      // テキスト表示
       Text(
-        text = displayText,
-        style = MaterialTheme.typography.body2,
-        modifier = Modifier.weight(1f),
-        maxLines = visibleLines,
-        overflow = TextOverflow.Ellipsis
+        text = tooltipText,
+        style = MaterialTheme.typography.body2
       )
 
-      // 添付画像があれば右端に表示
+      // 画像がある場合は表示
       if (hasImages) {
-        val firstImage = images.firstOrNull()
-        val thumbnail = firstImage?.thumb
-        if (thumbnail != null) {
-          Box(
-            modifier = Modifier.padding(start = 8.dp)
-          ) {
-            AsyncImage(
-              model = ImageRequest.Builder(LocalPlatformContext.current)
-                .data(thumbnail)
-                .crossfade(true)
-                .size(100)
-                .build(),
-              contentDescription = "サムネイル",
-              modifier = Modifier
-                .size(40.dp)
-                .clip(RoundedCornerShape(4.dp)),
-              contentScale = ContentScale.Crop
-            )
+        Column(
+          modifier = Modifier.padding(top = 8.dp)
+        ) {
+          images?.forEach { image ->
+            val fullImage = image.fullsize
+            if (fullImage != null) {
+              AsyncImage(
+                model = ImageRequest.Builder(LocalPlatformContext.current)
+                  .data(fullImage)
+                  .crossfade(true)
+                  .size(400)
+                  .build(),
+                contentDescription = "添付画像",
+                modifier = Modifier
+                  .padding(vertical = 4.dp)
+                  .fillMaxWidth()
+                  .heightIn(max = 300.dp),
+                filterQuality = FilterQuality.High,
+                contentScale = ContentScale.Fit
+              )
+            }
           }
+        }
+      }
+    }
+  }
+}
+
+@Composable
+private fun PostRowContent(
+  displayText: String,
+  columnInfo: ColumnInfo,
+  visibleLines: Int,
+  images: List<EmbedImagesViewImage>?,
+  hasImages: Boolean
+) {
+  Row(
+    modifier = Modifier
+      .width(columnInfo.width.value)
+      .padding(vertical = 4.dp, horizontal = 8.dp),
+    horizontalArrangement = Arrangement.SpaceBetween,
+    verticalAlignment = Alignment.CenterVertically
+  ) {
+    // テキスト部分
+    Text(
+      text = displayText,
+      style = MaterialTheme.typography.body2,
+      modifier = Modifier.weight(1f),
+      maxLines = visibleLines,
+      overflow = TextOverflow.Ellipsis
+    )
+
+    // 添付画像があれば右端に表示
+    if (hasImages) {
+      val firstImage = images?.firstOrNull()
+      val thumbnail = firstImage?.thumb
+      if (thumbnail != null) {
+        Box(
+          modifier = Modifier.padding(start = 8.dp)
+        ) {
+          AsyncImage(
+            model = ImageRequest.Builder(LocalPlatformContext.current)
+              .data(thumbnail)
+              .crossfade(true)
+              .size(100)
+              .build(),
+            contentDescription = "サムネイル",
+            modifier = Modifier
+              .size(40.dp)
+              .clip(RoundedCornerShape(4.dp)),
+            filterQuality = FilterQuality.High,
+            contentScale = ContentScale.Crop
+          )
         }
       }
     }
