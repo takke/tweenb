@@ -280,7 +280,7 @@ private fun PostColumnContent(
       // ツールチップの内容（元のテキスト表示）
       PostTooltipContent(tooltipText, images, hasImages)
     },
-    delayMillis = 300, // 表示までの遅延
+    delayMillis = 500, // 表示までの遅延
     tooltipPlacement = TooltipPlacement.CursorPoint(
       alignment = Alignment.BottomStart
     )
