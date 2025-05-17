@@ -224,6 +224,10 @@ private fun PostColumnContent(
   // ポップアップ表示用テキスト（元のテキスト）
   val tooltipText = prefix + rawPostBody
 
+  // 画像URLを取得
+  val images = post.post.embed?.asImages?.images
+  val hasImages = !images.isNullOrEmpty()
+
   // ツールチップエリアでラップ
   TooltipArea(
     tooltip = {
@@ -233,13 +237,43 @@ private fun PostColumnContent(
         shape = RoundedCornerShape(4.dp),
         elevation = 4.dp
       ) {
-        Text(
-          text = tooltipText,
-          style = MaterialTheme.typography.body2,
+        Column(
           modifier = Modifier
             .padding(10.dp)
             .widthIn(max = 600.dp) // 最大幅を設定
-        )
+        ) {
+          // テキスト表示
+          Text(
+            text = tooltipText,
+            style = MaterialTheme.typography.body2
+          )
+
+          // 画像がある場合は表示
+          if (hasImages) {
+            Column(
+              modifier = Modifier.padding(top = 8.dp)
+            ) {
+              images.forEach { image ->
+                val fullImage = image.fullsize
+                if (fullImage != null) {
+                  AsyncImage(
+                    model = ImageRequest.Builder(LocalPlatformContext.current)
+                      .data(fullImage)
+                      .crossfade(true)
+                      .size(400)
+                      .build(),
+                    contentDescription = "添付画像",
+                    modifier = Modifier
+                      .padding(vertical = 4.dp)
+                      .fillMaxWidth()
+                      .heightIn(max = 300.dp),
+                    contentScale = ContentScale.Fit
+                  )
+                }
+              }
+            }
+          }
+        }
       }
     },
     delayMillis = 300, // 表示までの遅延
