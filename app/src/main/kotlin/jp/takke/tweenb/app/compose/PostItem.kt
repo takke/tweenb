@@ -253,7 +253,7 @@ private fun PostColumnContent(
             Column(
               modifier = Modifier.padding(top = 8.dp)
             ) {
-              images.forEach { image ->
+              images?.forEach { image ->
                 val fullImage = image.fullsize
                 if (fullImage != null) {
                   AsyncImage(
@@ -282,15 +282,46 @@ private fun PostColumnContent(
     )
   ) {
     // 通常表示の内容（空行削除済み）
-    Text(
-      text = displayText,
-      style = MaterialTheme.typography.body2,
+    Row(
       modifier = Modifier
         .width(columnInfo.width.value)
         .padding(vertical = 4.dp, horizontal = 8.dp),
-      maxLines = visibleLines,
-      overflow = TextOverflow.Ellipsis
-    )
+      horizontalArrangement = Arrangement.SpaceBetween,
+      verticalAlignment = Alignment.CenterVertically
+    ) {
+      // テキスト部分
+      Text(
+        text = displayText,
+        style = MaterialTheme.typography.body2,
+        modifier = Modifier.weight(1f),
+        maxLines = visibleLines,
+        overflow = TextOverflow.Ellipsis
+      )
+
+      // 添付画像があれば右端に表示
+      if (hasImages) {
+        val firstImage = images.firstOrNull()
+        val thumbnail = firstImage?.thumb
+        if (thumbnail != null) {
+          Box(
+            modifier = Modifier.padding(start = 8.dp)
+          ) {
+            AsyncImage(
+              model = ImageRequest.Builder(LocalPlatformContext.current)
+                .data(thumbnail)
+                .crossfade(true)
+                .size(100)
+                .build(),
+              contentDescription = "サムネイル",
+              modifier = Modifier
+                .size(40.dp)
+                .clip(RoundedCornerShape(4.dp)),
+              contentScale = ContentScale.Crop
+            )
+          }
+        }
+      }
+    }
   }
 }
 
