@@ -124,6 +124,7 @@ fun PostItem(
                       openBrowser(url)
                     }
                   }
+                  .padding(4.dp)
               )
               val repostedBy = post.reason?.asReasonRepost?.by
               if (repostedBy != null) {
@@ -132,12 +133,14 @@ fun PostItem(
                   style = MaterialTheme.typography.caption,
                   maxLines = 1,
                   overflow = TextOverflow.Ellipsis,
-                  modifier = Modifier.padding(top = 4.dp)
+                  modifier = Modifier
+                    .padding(top = 4.dp)
                     .clickable {
                       // ユーザーをブラウザで開く
                       val url = repostedBy.url
                       openBrowser(url)
                     }
+                    .padding(4.dp)
                 )
               }
             }
@@ -165,7 +168,7 @@ fun PostItem(
               overflow = TextOverflow.Ellipsis,
               modifier = Modifier
                 .width(columnInfo.width.value)
-                .padding(8.dp)
+                .padding(4.dp)
                 .clickable {
                   // ポストのURIを取得して、ブラウザで開く
                   val url = post.post.url
@@ -173,6 +176,7 @@ fun PostItem(
                     openBrowser(url)
                   }
                 }
+                .padding(4.dp)
             )
           }
         }
