@@ -1,9 +1,6 @@
 package jp.takke.tweenb.app.compose
 
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.TooltipArea
-import androidx.compose.foundation.TooltipPlacement
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -19,11 +16,15 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.FilterQuality
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.key
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
+import androidx.compose.ui.window.PopupProperties
 import coil3.compose.AsyncImage
 import coil3.compose.LocalPlatformContext
 import coil3.request.ImageRequest
@@ -36,9 +37,6 @@ import jp.takke.tweenb.app.util.url
 import work.socialhub.kbsky.model.app.bsky.embed.EmbedImagesViewImage
 import java.text.SimpleDateFormat
 import java.util.*
-
-// タップ時刻(他のPostをタップしたときに無視するためにファイルスコープで保持)
-private var lastTapTimeMillis = 0L
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -316,13 +314,7 @@ private fun PostColumnContent(
       modifier = Modifier
         .clickableNoRipple(enabled = !showOverlayPopup) {
           // ツールチップ非表示の場合はタップでオーバーレイOn/Off
-
-          // 直前のタップによる非表示を無視する
-          val now = System.currentTimeMillis()
-          val elapsed = now - lastTapTimeMillis
-          if (elapsed > 300) {
-            showOverlayPopup = true
-          }
+          showOverlayPopup = true
         }
     ) {
       PostRowContent(displayText, columnInfo, visibleLines, images, hasImages)
@@ -330,26 +322,43 @@ private fun PostColumnContent(
 
     if (showOverlayPopup) {
       // オーバーレイ表示
-      @OptIn(ExperimentalFoundationApi::class)
       Popup(
+        alignment = Alignment.TopStart,
+        offset = IntOffset(0, 0),
         onDismissRequest = {
           showOverlayPopup = false
-          // clickableNoRippleも発火するのでそれを無視するために時刻で判定する
-          lastTapTimeMillis = System.currentTimeMillis()
+        },
+        properties = PopupProperties(focusable = true),
+        onPreviewKeyEvent = { false },
+        onKeyEvent = { event ->
+          // Escキーでオーバーレイを閉じる
+          if (event.key == Key.Escape) {
+            showOverlayPopup = false
+            true
+          } else {
+            false
+          }
+        },
+        content = {
+          Box(
+            Modifier
+              .fillMaxSize()
+              .background(Color.Black.copy(alpha = 0.5f))
+              .padding(8.dp)
+              .clickableNoRipple {
+                // クリックでオーバーレイを閉じる
+                showOverlayPopup = false
+              }
+          ) {
+            PostTooltipContent(
+              tooltipText = tooltipText,
+              images = images,
+              hasImages = hasImages,
+              textSelectable = true,
+            )
+          }
         }
-      ) {
-        Box(
-          Modifier
-            .padding(8.dp)
-        ) {
-          PostTooltipContent(
-            tooltipText = tooltipText,
-            images = images,
-            hasImages = hasImages,
-            textSelectable = true,
-          )
-        }
-      }
+      )
     }
   }
 }
