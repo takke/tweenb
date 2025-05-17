@@ -3,17 +3,22 @@ description:
 globs: 
 alwaysApply: true
 ---
+# tweenb について
 
-# README.md の更新ルール
+## プロジェクト概要
+- Jetpack Compose を使用した Bluesky 用デスクトップクライアントアプリケーションです。
+- 主に Windows プラットフォーム向けに開発しています。 
 
-## プロジェクト構成
+## README.md の更新ルール
+
+### プロジェクト構成
 - app/src/main 配下について
   - 個別のファイルに関する説明は不要です
   - ディレクトリ単位で説明してください
 - .gradle や .idea などの dot ファイルの解説は不要です
 - gradlew などの gradle 系ファイルの解説は不要です
 
-## 使用ライブラリ
+### 使用ライブラリ
 - 使用しているライブラリについて簡潔に記載してください
 - バージョンの記載は不要です
 - `compose-ui-tooling` といった個別の artifact の解説は不要です
