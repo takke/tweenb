@@ -28,7 +28,6 @@ import coil3.request.ImageRequest
 import coil3.request.crossfade
 import jp.takke.tweenb.app.domain.ColumnInfo
 import jp.takke.tweenb.app.domain.ColumnType
-import jp.takke.tweenb.app.repository.AppPropertyRepository
 import jp.takke.tweenb.app.util.BsFeedViewPost
 import jp.takke.tweenb.app.util.createdAtAsDate
 import jp.takke.tweenb.app.util.url
@@ -41,7 +40,8 @@ fun PostItem(
   post: BsFeedViewPost,
   modifier: Modifier,
   columns: List<ColumnInfo>,
-  openBrowser: (String) -> Unit
+  openBrowser: (String) -> Unit,
+  visibleLines: Int
 ) {
   Column(
     modifier = modifier
@@ -144,7 +144,8 @@ fun PostItem(
           ColumnType.Post -> {
             PostColumnContent(
               post = post,
-              columnInfo = columnInfo
+              columnInfo = columnInfo,
+              visibleLines = visibleLines
             )
           }
 
@@ -190,12 +191,9 @@ fun PostItem(
 @Composable
 private fun PostColumnContent(
   post: BsFeedViewPost,
-  columnInfo: ColumnInfo
+  columnInfo: ColumnInfo,
+  visibleLines: Int
 ) {
-  // 設定から表示行数を取得
-  val propertyRepository = AppPropertyRepository.instance
-  val visibleLines = propertyRepository.getTimelineVisibleLines()
-
   // 投稿内容
   val postBody = post.post.record?.asFeedPost?.text ?: ""
   val repostedBy = post.reason?.asReasonRepost?.by

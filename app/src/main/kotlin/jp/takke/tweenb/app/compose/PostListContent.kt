@@ -44,6 +44,9 @@ fun PostListContent(
   // カラム定義（プロパティから読み込む）
   val columns = uiState.columns
 
+  // タイムラインの表示行数を取得
+  val timelineVisibleLines = uiState.timelineVisibleLines
+
   // カラム情報が変更されたら保存する
   DisposableEffect(Unit) {
     onDispose {
@@ -114,7 +117,8 @@ fun PostListContent(
                         // エラー処理（本来はログに出力するか、エラーダイアログを表示する）
                         LoggerWrapper("PostItem").e("ブラウザ起動エラー", e)
                       }
-                    }
+                    },
+                    visibleLines = timelineVisibleLines
                   )
                 }
               }
