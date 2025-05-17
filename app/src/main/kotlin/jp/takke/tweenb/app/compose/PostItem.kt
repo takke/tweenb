@@ -279,7 +279,7 @@ private fun PostTooltipContent(
                 model = ImageRequest.Builder(LocalPlatformContext.current)
                   .data(fullImage)
                   .crossfade(true)
-                  .size(400)
+                  .size(300)
                   .build(),
                 contentDescription = "添付画像",
                 modifier = Modifier
@@ -333,11 +333,11 @@ private fun PostRowContent(
             model = ImageRequest.Builder(LocalPlatformContext.current)
               .data(thumbnail)
               .crossfade(true)
-              .size(100)
+              .size(48 * 4)
               .build(),
             contentDescription = "サムネイル",
             modifier = Modifier
-              .size(40.dp)
+              .size(48.dp)
               .clip(RoundedCornerShape(4.dp)),
             filterQuality = FilterQuality.High,
             contentScale = ContentScale.Crop
