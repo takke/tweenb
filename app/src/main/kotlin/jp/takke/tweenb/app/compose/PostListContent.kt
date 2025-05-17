@@ -47,6 +47,9 @@ fun PostListContent(
   // タイムラインの表示行数を取得
   val timelineVisibleLines = uiState.timelineVisibleLines
 
+  // ツールチップ表示設定を取得
+  val tooltipEnabled = uiState.tooltipEnabled
+
   // カラム情報が変更されたら保存する
   DisposableEffect(Unit) {
     onDispose {
@@ -118,7 +121,8 @@ fun PostListContent(
                         LoggerWrapper("PostItem").e("ブラウザ起動エラー", e)
                       }
                     },
-                    visibleLines = timelineVisibleLines
+                    visibleLines = timelineVisibleLines,
+                    tooltipEnabled = tooltipEnabled
                   )
                 }
               }

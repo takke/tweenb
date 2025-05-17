@@ -42,7 +42,8 @@ fun PostItem(
   modifier: Modifier,
   columns: List<ColumnInfo>,
   openBrowser: (String) -> Unit,
-  visibleLines: Int
+  visibleLines: Int,
+  tooltipEnabled: Boolean
 ) {
   Column(
     modifier = modifier
@@ -146,7 +147,8 @@ fun PostItem(
             PostColumnContent(
               post = post,
               columnInfo = columnInfo,
-              visibleLines = visibleLines
+              visibleLines = visibleLines,
+              tooltipEnabled = tooltipEnabled
             )
           }
 
@@ -239,7 +241,8 @@ private fun UserIcon(
 private fun PostColumnContent(
   post: BsFeedViewPost,
   columnInfo: ColumnInfo,
-  visibleLines: Int
+  visibleLines: Int,
+  tooltipEnabled: Boolean
 ) {
   // 投稿内容（元のテキスト）
   val rawPostBody = post.post.record?.asFeedPost?.text ?: ""
@@ -275,17 +278,23 @@ private fun PostColumnContent(
   val images = post.post.embed?.asImages?.images
   val hasImages = !images.isNullOrEmpty()
 
-  TooltipArea(
-    tooltip = {
-      // ツールチップの内容（元のテキスト表示）
-      PostTooltipContent(tooltipText, images, hasImages)
-    },
-    delayMillis = 500, // 表示までの遅延
-    tooltipPlacement = TooltipPlacement.CursorPoint(
-      alignment = Alignment.BottomStart
-    )
-  ) {
-    // 通常表示の内容（空行削除済み）
+  if (tooltipEnabled) {
+    // ツールチップ表示有効
+    TooltipArea(
+      tooltip = {
+        // ツールチップの内容（元のテキスト表示）
+        PostTooltipContent(tooltipText, images, hasImages)
+      },
+      delayMillis = 500, // 表示までの遅延
+      tooltipPlacement = TooltipPlacement.CursorPoint(
+        alignment = Alignment.BottomStart
+      )
+    ) {
+      // 通常表示の内容（空行削除済み）
+      PostRowContent(displayText, columnInfo, visibleLines, images, hasImages)
+    }
+  } else {
+    // ツールチップ表示無効 => 通常表示のみ
     PostRowContent(displayText, columnInfo, visibleLines, images, hasImages)
   }
 }
