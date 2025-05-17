@@ -13,6 +13,7 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.Color
@@ -420,19 +421,32 @@ private fun PostColumnContent(
               tapPosition.x - xBoundary
             }
 
-            PostTooltipContent(
-              tooltipText = tooltipText,
-              images = images,
-              hasImages = hasImages,
-              textSelectable = true,
+            // サイズ計算が完了したかのフラグ
+            var isTooltipSizeCalculated by remember { mutableStateOf(false) }
+
+            Box(
               modifier = Modifier
-                .align(Alignment.TopStart)
-                .offset(xOffset.dp, yOffset.dp)
-                .onSizeChanged {
-                  tooltipHeight = it.height
-                  tooltipWidth = it.width
-                }
-            )
+                // サイズ計算が完了するまでは透過表示
+                .alpha(if (isTooltipSizeCalculated) 1f else 0f)
+            ) {
+              PostTooltipContent(
+                tooltipText = tooltipText,
+                images = images,
+                hasImages = hasImages,
+                textSelectable = true,
+                modifier = Modifier
+                  .align(Alignment.TopStart)
+                  .offset(xOffset.dp, yOffset.dp)
+                  .onSizeChanged {
+                    // サイズ計算
+                    if (it.height > 0 && it.width > 0) {
+                      tooltipHeight = it.height
+                      tooltipWidth = it.width
+                      isTooltipSizeCalculated = true
+                    }
+                  }
+              )
+            }
           }
         }
       )
