@@ -6,7 +6,7 @@ on:
       - 'v*'  # vから始まるタグ（例：v1.0.0）
 
 jobs:
-  build:
+  windows-build:
     runs-on: windows-latest
     
     steps:
@@ -51,6 +51,63 @@ jobs:
           echo "zip_name=$(basename $ZIP_PATH)" >> $GITHUB_OUTPUT
         shell: bash
 
+      - name: Upload Windows MSI artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-msi
+          path: ${{ steps.get-msi.outputs.msi_path }}
+
+      - name: Upload Windows ZIP artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-zip
+          path: ${{ steps.get-zip.outputs.zip_path }}
+
+  ubuntu-build:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: gradle
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Build with Gradle
+        run: ./gradlew :app:build
+
+      - name: Package Ubuntu DEB application
+        run: ./gradlew :app:packageDeb
+
+      - name: Get DEB file path
+        id: get-deb
+        run: |
+          DEB_PATH=$(find app/build/compose/binaries/main/deb -name "*.deb" | head -n 1)
+          echo "deb_path=$DEB_PATH" >> $GITHUB_OUTPUT
+          echo "deb_name=$(basename $DEB_PATH)" >> $GITHUB_OUTPUT
+
+      - name: Upload Ubuntu DEB artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ubuntu-deb
+          path: ${{ steps.get-deb.outputs.deb_path }}
+
+  create-release:
+    needs: [ windows-build, ubuntu-build ]
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
       - name: Create Release
         id: create_release
         uses: softprops/action-gh-release@v1
@@ -59,7 +116,8 @@ jobs:
           draft: false
           prerelease: false
           files: |
-            ${{ steps.get-msi.outputs.msi_path }}
-            ${{ steps.get-zip.outputs.zip_path }}
+            artifacts/windows-msi/*
+            artifacts/windows-zip/*
+            artifacts/ubuntu-deb/*
         env:
           GITHUB_TOKEN: ${{ secrets.GH_PAT }}
