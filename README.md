@@ -30,13 +30,13 @@ GitHubのリリースページから以下のいずれかをダウンロード�
 ### ビルド方法
 
 ```bash
-./gradlew :app:build
+$ ./gradlew :app:build
 ```
 
 ### 実行方法
 
 ```bash
-./gradlew :app:run
+$ ./gradlew :app:run
 ```
 
 ### Windows用パッケージの作成
@@ -44,7 +44,7 @@ GitHubのリリースページから以下のいずれかをダウンロード�
 #### MSIインストーラーの作成
 
 ```bash
-./gradlew :app:packageMsi
+$ ./gradlew :app:packageMsi
 ```
 
 生成されたMSIファイルは `app/build/compose/binaries/main/msi/` ディレクトリに保存されます。
@@ -52,10 +52,26 @@ GitHubのリリースページから以下のいずれかをダウンロード�
 #### ZIPパッケージの作成
 
 ```bash
-./gradlew :app:createZipDistribution
+$ ./gradlew :app:createZipDistribution
 ```
 
 生成されたZIPファイルは `app/build/compose/binaries/main/zip/` ディレクトリに保存されます。
+
+### Ubuntu用パッケージの作成
+
+```bash
+$ ./gradlew :app:packageDeb
+```
+
+生成されたdebファイルは `app/build/compose/binaries/main/deb/` ディレクトリに保存されます。
+下記でインストール、実行できます。
+
+```bash
+$ sudo dpkg -i app/build/compose/binaries/main/deb/tweenb-*.deb
+
+$ /opt/tweenb/bin/tweenb
+```
+
 
 ## CI
 
@@ -67,7 +83,12 @@ GitHubのリリースページから以下のいずれかをダウンロード�
 
 ### 自動リリース
 
-`v*` 形式のタグ（例：`v1.0.0`）をプッシュすると、自動的にリリースが作成され、Windows用のMSIインストーラーとZIPパッケージがアップロードされます。
+`v*` 形式のタグ（例：`v1.0.0`）をプッシュすると、自動的にリリースが作成され、以下のパッケージがアップロードされます：
+- Windows用のMSIインストーラー
+- Windows用のZIPパッケージ
+- Ubuntu用のDEBパッケージ
+
+また、GitHub Actions上で手動実行することでもリリースを作成できます。
 
 ## 設定ファイル
 
