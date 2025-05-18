@@ -114,7 +114,7 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           name: Release ${{ github.ref_name }}
-          draft: false
+          draft: true
           prerelease: false
           files: |
             artifacts/windows-msi/*
