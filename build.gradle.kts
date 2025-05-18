@@ -6,4 +6,4 @@ plugins {
 }
 
 group = "jp.takke.tweenb"
-version = "1.0.1"
+version = "1.1.0"
