@@ -73,7 +73,7 @@ dependencies {
 
   // Coil3 - 画像読み込みライブラリ
   implementation("io.coil-kt.coil3:coil-compose:3.1.0")
-  implementation("io.coil-kt.coil3:coil-network-ktor3:3.1.0")
+  implementation("io.coil-kt.coil3:coil-network-ktor3:3.2.0")
 }
 
 compose.desktop {
