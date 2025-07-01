@@ -15,8 +15,8 @@ compose-runtime = { module = "org.jetbrains.compose.runtime:runtime", version.re
 lifecycle-viewmodel = { module = "org.jetbrains.androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "lifecycle" }
 
 # Cryptography
-cryptography-core = "dev.whyoleg.cryptography:cryptography-core:0.4.0"
-cryptography-jdk = "dev.whyoleg.cryptography:cryptography-provider-jdk:0.4.0"
+cryptography-core = "dev.whyoleg.cryptography:cryptography-core:0.5.0"
+cryptography-jdk = "dev.whyoleg.cryptography:cryptography-provider-jdk:0.5.0"
 
 # Kotlinx Serialization
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx-serialization" }
